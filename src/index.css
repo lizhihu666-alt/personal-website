@@ -1,0 +1,429 @@
+@import "./fonts.css";
+@import "tailwindcss";
+
+/* Tailwind 默认把 font-sans / font-mono 指向系统字体栈，网站里到处都在用这两个类，
+   所以必须在这里改掉，否则写好的自托管字体根本轮不到生效（标题一直在用系统字体）。
+   这里和下面 @layer base 的字体栈保持一致。 */
+@theme {
+  --font-sans: 'Geist', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', 'Noto Sans SC',
+    -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+    monospace;
+}
+
+@layer base {
+  :root {
+    --bg-paper: #0A0B0D;
+    --bg-surface: #111418;
+    --text-primary: #F3F5F8;
+    --text-secondary: #A8B0BC;
+    --text-muted: #98A1AF;
+    --border-subtle: #232A33;
+    --border-divider: #2B323C;
+    
+    /* 全站只有两支蓝，色相都是 223° 的克莱因蓝：
+       1) 克莱因蓝 #002FA7 —— 只用于"面"：大色块、按钮、菜单抽屉（配白字，对比度 ~10.7:1）
+       2) 提亮版 #5B89FF —— 只用于"点/线/小字"：近黑底上的小图标、细线、小号强调文字（对比度 ~6:1）
+       按钮按下/悬停时用加深的 #002585，保证反馈看得见 */
+    --work-primary: #002FA7;
+    --work-primary-hover: #002585;
+    --work-accent: #5B89FF;
+    --work-surface: #0A0B0D;
+    --work-border: #232A33;
+
+    /* Life 页沿用同一支蓝，深色底上统一用提亮版，保证小字看得清 */
+    --life-primary: #002FA7;
+    --life-accent: #5B89FF;
+    --life-surface: #0D1014;
+    --life-border: #232A33;
+  }
+
+  body {
+    background-color: var(--bg-paper);
+    color: var(--text-primary);
+    font-family: 'Geist', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei',
+      'Noto Sans SC', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    overflow-x: hidden;
+  }
+
+  code, pre, kbd, samp, .font-mono {
+    font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  }
+
+  ::selection {
+    background-color: #002FA7;
+    color: #FFFFFF;
+  }
+
+  /* 键盘焦点：用 Tab 走全站时，任何可聚焦元素都必须看得见。
+     用 outline（不是 box-shadow），避免被组件的圆角或 overflow 裁掉；
+     鼠标点击不会触发 :focus-visible，所以不影响鼠标用户的观感。 */
+  button:focus-visible,
+  a:focus-visible,
+  [tabindex]:focus-visible,
+  input:focus-visible,
+  textarea:focus-visible,
+  select:focus-visible {
+    outline: 2px solid #5B89FF !important;
+    outline-offset: 2px !important;
+  }
+
+  /* 克莱因蓝底上的控件换成白描边，否则蓝线压在蓝底上看不见 */
+  #site-menu-drawer button:focus-visible,
+  #site-menu-drawer a:focus-visible,
+  #work-projects button:focus-visible,
+  #work-projects a:focus-visible {
+    outline-color: #FFFFFF !important;
+  }
+}
+
+/* Removed fragmented serif classes to ensure unified typography */
+.font-editorial {
+  font-family: 'Geist', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei',
+    'Noto Sans SC', sans-serif;
+}
+
+/* 摄影章节的照片占位底纹：把真实照片放进 src/assets/photos/ 后会自动替换掉 */
+.photo-placeholder-plate {
+  background-image: repeating-linear-gradient(
+      135deg,
+      rgba(91, 137, 255, 0.05) 0 1px,
+      transparent 1px 14px
+    ),
+    linear-gradient(155deg, #191e26 0%, #0f1216 58%, #131820 100%);
+}
+
+/* 向下滚动的提示箭头：用缓慢的位移代替弹跳（弹跳会显得陈旧） */
+@keyframes scrollCueDrift {
+  0%,
+  100% {
+    transform: translateY(-1px);
+    opacity: 0.85;
+  }
+  50% {
+    transform: translateY(4px);
+    opacity: 1;
+  }
+}
+
+.scroll-cue-drift {
+  display: inline-block;
+  animation: scrollCueDrift 2.4s cubic-bezier(0.33, 1, 0.68, 1) infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .scroll-cue-drift {
+    animation: none;
+  }
+}
+
+/* CHARACTER PROCEDURAL KEYFRAMES */
+
+/* Idle Breathing */
+@keyframes leoBreathe {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-2px);
+  }
+}
+
+.leo-breathing-bob {
+  animation: leoBreathe 3.6s ease-in-out infinite;
+}
+
+/* Walking Vertical Bob */
+@keyframes leoWalkBob {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-4px);
+  }
+}
+
+.leo-walking-bob {
+  animation: leoWalkBob 0.44s ease-in-out infinite;
+}
+
+/* Walking Legs */
+@keyframes leoLegFront {
+  0% {
+    transform: rotate(-24deg);
+  }
+  50% {
+    transform: rotate(24deg);
+  }
+  100% {
+    transform: rotate(-24deg);
+  }
+}
+
+@keyframes leoLegBack {
+  0% {
+    transform: rotate(24deg);
+  }
+  50% {
+    transform: rotate(-24deg);
+  }
+  100% {
+    transform: rotate(24deg);
+  }
+}
+
+.leo-leg-front {
+  animation: leoLegFront 0.44s ease-in-out infinite;
+}
+
+.leo-leg-back {
+  animation: leoLegBack 0.44s ease-in-out infinite;
+}
+
+/* Walking Arms Counter-Swing */
+@keyframes leoArmFront {
+  0% {
+    transform: rotate(20deg);
+  }
+  50% {
+    transform: rotate(-20deg);
+  }
+  100% {
+    transform: rotate(20deg);
+  }
+}
+
+@keyframes leoArmBack {
+  0% {
+    transform: rotate(-20deg);
+  }
+  50% {
+    transform: rotate(20deg);
+  }
+  100% {
+    transform: rotate(-20deg);
+  }
+}
+
+.leo-arm-front {
+  animation: leoArmFront 0.44s ease-in-out infinite;
+}
+
+.leo-arm-back {
+  animation: leoArmBack 0.44s ease-in-out infinite;
+}
+
+/* Dynamic Badminton Stroke Swing */
+@keyframes leoRacketSwing {
+  0% {
+    transform: rotate(45deg);
+  }
+  20% {
+    transform: rotate(60deg);
+  }
+  50% {
+    transform: rotate(-45deg);
+  }
+  75% {
+    transform: rotate(-60deg);
+  }
+  100% {
+    transform: rotate(-35deg);
+  }
+}
+
+.leo-racket-swing {
+  animation: leoRacketSwing 1.2s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+}
+
+/* Flying Badminton Shuttlecock */
+@keyframes shuttlecockFlight {
+  0% {
+    transform: translate(0, 0) rotate(15deg) scale(0.9);
+    opacity: 0;
+  }
+  15% {
+    opacity: 1;
+  }
+  50% {
+    transform: translate(220px, -90px) rotate(-15deg) scale(1.05);
+  }
+  85% {
+    opacity: 1;
+  }
+  100% {
+    transform: translate(460px, 30px) rotate(45deg) scale(0.85);
+    opacity: 0;
+  }
+}
+
+.shuttlecock-fly {
+  animation: shuttlecockFlight 1.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* Modal String Line Markers & Canvas Overlay */
+.line-marker {
+  position: absolute;
+  top: 0;
+  left: 0;
+  pointer-events: none;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transform: translate3d(0, 0, 0);
+  will-change: transform, opacity;
+  white-space: nowrap;
+  z-index: 10;
+}
+
+.marker-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 9999px;
+  background-color: #5B89FF;
+  box-shadow: 0 0 10px #5B89FF, 0 0 20px #5B89FF;
+  flex-shrink: 0;
+}
+
+.marker-label {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  color: #f4f4f5;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.9);
+}
+
+/* 窄屏：最长的一条标签（STAKEHOLDER ALIGNMENT）在 360~430px 会被右边缘切掉尾巴，
+   这里把字号与字距收一点，保证标签完整显示。 */
+@media (max-width: 480px) {
+  .marker-label {
+    font-size: 10px;
+    letter-spacing: 0.04em;
+  }
+}
+
+/* Modal String Tuner Controls */
+.tuner-row {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.tuner-row-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 11px;
+  color: #d4d4d8;
+}
+
+.tuner-row-top output {
+  color: #5B89FF;
+  font-weight: 600;
+}
+
+.tuner-hint {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 10px;
+  color: #8A93A0;
+  line-height: 1.35;
+}
+
+.tuner-row input[type="range"] {
+  width: 100%;
+  accent-color: #5B89FF;
+  cursor: pointer;
+}
+
+/* Print style for Clean Resume
+   打印时把简历弹窗还原成一张正常的白纸文档：
+   1) 去掉"固定定位 + 最高 92vh + 内部滚动"，否则只会打印出屏幕上那一屏，后面全被裁掉
+   2) 深色底改成白底黑字，省墨也方便 HR 打印
+   3) 保留克莱因蓝做重点（职位、职责、成效） */
+@media print {
+  /* 隔离：只有简历弹窗打开时，才把页面上其它所有内容藏起来。
+     弹窗和作品集首页是"兄弟节点"，不藏的话第一屏会先打出作品集首页，
+     简历被排到十几屏之后，浏览器就只截到那一屏。 */
+  html:has(.resume-print-root) #root > div > *:not(.resume-print-root) {
+    display: none !important;
+  }
+  html:has(.resume-print-root) #root > div {
+    display: block !important;
+    min-height: 0 !important;
+    background: #ffffff !important;
+  }
+  /* 打开弹窗时脚本会把 body 锁成 fixed 来禁止背景滚动，打印时要把这个锁解开 */
+  html:has(.resume-print-root) body {
+    position: static !important;
+    top: auto !important;
+    width: auto !important;
+    overflow: visible !important;
+    background-color: #ffffff !important;
+  }
+
+  body {
+    background-color: #ffffff !important;
+    color: #000000 !important;
+  }
+  .no-print {
+    display: none !important;
+  }
+
+  .resume-print-root {
+    position: static !important;
+    inset: auto !important;
+    display: block !important;
+    padding: 0 !important;
+    overflow: visible !important;
+    background: none !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+  }
+
+  .resume-print-sheet {
+    display: block !important;
+    width: auto !important;
+    max-width: none !important;
+    max-height: none !important;
+    overflow: visible !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    background: #ffffff !important;
+  }
+
+  .resume-print-body {
+    overflow: visible !important;
+    max-height: none !important;
+    padding: 0 !important;
+    background: #ffffff !important;
+    color: #000000 !important;
+  }
+
+  .resume-print-body * {
+    background: transparent !important;
+    color: #000000 !important;
+    border-color: #d4d4d8 !important;
+    break-inside: auto;
+  }
+
+  /* 重点信息保留克莱因蓝，打印出来仍有品牌感 */
+  .resume-print-body [class~="text-[#5B89FF]"] {
+    color: #002FA7 !important;
+  }
+  .resume-print-body [class~="border-l-2"] {
+    border-left-color: #002FA7 !important;
+  }
+  /* 小标题（英文栏目名）压成中灰，层级仍清楚 */
+  .resume-print-body [class~="text-[#A8B0BC]"] {
+    color: #4A5361 !important;
+  }
+  /* 项目卡片不要被撕成两半 */
+  .resume-print-body [class~="rounded-xl"] {
+    break-inside: avoid;
+  }
+}
