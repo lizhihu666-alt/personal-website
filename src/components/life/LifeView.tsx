@@ -519,7 +519,7 @@ export const LifeView: React.FC = () => {
                 {/* 照片位：在 portfolioData 里给照片填上 src，这里就自动变成真照片；没填就显示占位块 */}
                 {activePhotoSrc ? (
                   <div
-                    className={`relative w-full max-w-md overflow-hidden rounded-sm border border-white/10 shadow-[0_18px_50px_rgba(0,0,0,0.55)] ${activePhoto.aspectRatio}`}
+                    className={`relative w-full max-w-sm overflow-hidden rounded-sm border border-white/10 shadow-[0_18px_50px_rgba(0,0,0,0.55)] ${activePhoto.aspectRatio}`}
                   >
                     <img
                       src={activePhotoSrc}
@@ -530,7 +530,7 @@ export const LifeView: React.FC = () => {
                   </div>
                 ) : (
                   <div
-                    className={`photo-placeholder-plate relative w-full max-w-md overflow-hidden rounded-sm border border-white/10 flex flex-col items-center justify-center gap-2 px-6 text-center ${activePhoto.aspectRatio}`}
+                    className={`photo-placeholder-plate relative w-full max-w-sm overflow-hidden rounded-sm border border-white/10 flex flex-col items-center justify-center gap-2 px-6 text-center ${activePhoto.aspectRatio}`}
                   >
                     <Camera className="w-5 h-5 text-[#5B89FF]" />
                     <div className="text-[11px] font-mono tracking-[0.2em] text-[#A8B0BC] uppercase">
@@ -552,52 +552,52 @@ export const LifeView: React.FC = () => {
               {/* Photo Editorial Meta & Story */}
               <div
                 ref={photoMetaRef}
-                className="lg:col-span-5 p-6 sm:p-8 flex flex-col justify-between bg-[#111418]"
+                className="lg:col-span-5 p-6 sm:p-8 flex flex-col bg-[#111418]"
               >
-                <div>
+                <div className="flex-1 flex flex-col justify-center py-2">
                   <div className="photo-meta-reveal flex items-center gap-2 text-xs font-mono text-[#5B89FF] mb-2 font-medium">
                     <Camera className="w-3.5 h-3.5" />
                     <span>EXIF & LIGHTING SPEC</span>
                   </div>
 
-                  <h3 className="photo-meta-reveal text-xl font-bold text-[#F3F5F8] tracking-tight mb-2">
+                  <h3 className="photo-meta-reveal text-2xl font-bold text-[#F3F5F8] tracking-tight mb-3">
                     {activePhoto.title}
                   </h3>
 
                   {/* Camera parameters grid */}
-                  <div className="photo-meta-reveal grid grid-cols-3 gap-2 p-3 rounded-lg bg-[#0D1014] border border-[#232A33] text-xs font-mono mb-4 text-[#A8B0BC]">
+                  <div className="photo-meta-reveal grid grid-cols-3 gap-2 p-4 rounded-lg bg-[#0D1014] border border-[#232A33] text-xs font-mono mb-5 text-[#A8B0BC]">
                     <div>
                       <div className="text-[10px] text-[#98A1AF]">FOCAL</div>
-                      <div className="font-semibold text-[#F3F5F8]">
+                      <div className="mt-0.5 text-sm font-semibold text-[#F3F5F8]">
                         {activePhoto.focalLength}
                       </div>
                     </div>
                     <div>
                       <div className="text-[10px] text-[#98A1AF]">APERTURE</div>
-                      <div className="font-semibold text-[#F3F5F8]">
+                      <div className="mt-0.5 text-sm font-semibold text-[#F3F5F8]">
                         {activePhoto.aperture}
                       </div>
                     </div>
                     <div>
                       <div className="text-[10px] text-[#98A1AF]">ISO</div>
-                      <div className="font-semibold text-[#F3F5F8]">
+                      <div className="mt-0.5 text-sm font-semibold text-[#F3F5F8]">
                         {activePhoto.iso}
                       </div>
                     </div>
                   </div>
 
                   {/* Lighting note */}
-                  <div className="photo-meta-reveal mb-4 text-xs text-[#A8B0BC]">
+                  <div className="photo-meta-reveal mb-5 text-sm text-[#A8B0BC]">
                     <span className="font-semibold text-[#F3F5F8]">光线设定：</span>
                     <p className="mt-0.5 text-[#A8B0BC]">{activePhoto.lightingNote}</p>
                   </div>
 
                   {/* Story behind the shot */}
                   <div className="photo-meta-reveal">
-                    <span className="text-xs font-semibold text-[#F3F5F8]">
+                    <span className="text-sm font-semibold text-[#F3F5F8]">
                       快门背后的故事：
                     </span>
-                    <p className="text-xs sm:text-sm text-[#A8B0BC] leading-relaxed mt-1 font-light">
+                    <p className="text-sm sm:text-base text-[#A8B0BC] leading-7 mt-1.5 font-light">
                       {activePhoto.story}
                     </p>
                   </div>
