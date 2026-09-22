@@ -1,8 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import { WorkHero } from './WorkHero';
-import { WorkSignal } from './WorkSignal';
 import { WorkImpact } from './WorkImpact';
-import { WorkMethodDavide } from './WorkMethodDavide';
+import { WorkMethodTrace } from './WorkMethodTrace';
 import { WorkSelectedProjects } from './WorkSelectedProjects';
 import { WorkExperience } from './WorkExperience';
 import { WorkAbout } from './WorkAbout';
@@ -29,30 +28,29 @@ export const WorkView: React.FC<WorkViewProps> = ({ onOpenResume, onSwitchToLife
   return (
     <div
       ref={containerRef}
-      className="w-full bg-[#0A0B0D] text-[#F3F5F8] selection:bg-[#002FA7] selection:text-white"
+      className="w-full bg-[#0A0B0D] text-[#F3F5F8] selection:bg-[#0E7C3D] selection:text-white"
     >
       {/* 00 / HERO */}
       <WorkHero onOpenResume={onOpenResume} />
 
-      {/* 01 / SIGNAL */}
-      <WorkSignal />
-
-      {/* 02 / IMPACT */}
+      {/* 01 / IMPACT：数字全部显现后，同一屏会紧接着被像素方块盖成
+          方法区的深色，转场效果做在 WorkImpact 内部（跟数字揭示用
+          同一个钉住的画面），不再单独起一段过渡区块。 */}
       <WorkImpact />
 
-      {/* 03 / METHOD: The Signature Davide-inspired Scroll Canvas */}
-      <WorkMethodDavide />
+      {/* 02 / METHOD TRACE */}
+      <WorkMethodTrace />
 
-      {/* 04 / SELECTED WORK: Specia1ne Editorial Index */}
+      {/* 03 / PROJECTS */}
       <WorkSelectedProjects />
 
-      {/* 05 / EXPERIENCE & ACADEMIC FOUNDATIONS */}
+      {/* 04 / EXPERIENCE */}
       <WorkExperience />
 
-      {/* 06 / ABOUT & TOOLKIT (With Clock Out to Life) */}
+      {/* 05 / ABOUT & TOOLKIT */}
       <WorkAbout onSwitchToLife={onSwitchToLife} />
 
-      {/* 07 / CONTACT */}
+      {/* 06 / CONTACT */}
       <WorkContact onOpenResume={onOpenResume} />
     </div>
   );

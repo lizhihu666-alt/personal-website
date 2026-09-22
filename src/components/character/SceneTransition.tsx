@@ -200,11 +200,11 @@ export const SceneTransition: React.FC<SceneTransitionProps> = ({
       ) : (
         /* Life Badminton Court Ambient Lines & Sunlight */
         <div ref={cameraRef} className="absolute inset-0 pointer-events-none">
-          {/* Cool Blue Sunlight Beam */}
+          {/* Cool Green Sunlight Beam */}
           <div
             className="absolute top-0 right-1/4 w-96 h-full opacity-20 pointer-events-none"
             style={{
-              background: 'linear-gradient(135deg, rgba(77, 127, 255, 0.25) 0%, transparent 80%)',
+              background: 'linear-gradient(135deg, rgba(52, 211, 120, 0.25) 0%, transparent 80%)',
             }}
           />
 
@@ -215,12 +215,12 @@ export const SceneTransition: React.FC<SceneTransitionProps> = ({
           >
             <svg viewBox="0 0 320 240" className="w-full h-full">
               {/* Court ground line */}
-              <line x1="10" y1="210" x2="310" y2="210" stroke="#5B89FF" strokeWidth="1.5" strokeDasharray="6 4" opacity="0.5" />
-              <line x1="180" y1="210" x2="180" y2="150" stroke="#5B89FF" strokeWidth="2" opacity="0.6" />
+              <line x1="10" y1="210" x2="310" y2="210" stroke="#34D378" strokeWidth="1.5" strokeDasharray="6 4" opacity="0.5" />
+              <line x1="180" y1="210" x2="180" y2="150" stroke="#34D378" strokeWidth="2" opacity="0.6" />
               {/* Net mesh */}
-              <rect x="180" y="150" width="130" height="28" fill="#16233A" stroke="#5B89FF" strokeWidth="1" strokeDasharray="3 3" opacity="0.7" />
+              <rect x="180" y="150" width="130" height="28" fill="#132A1F" stroke="#34D378" strokeWidth="1" strokeDasharray="3 3" opacity="0.7" />
               {/* Net post */}
-              <line x1="180" y1="145" x2="180" y2="212" stroke="#1E2C45" strokeWidth="3" strokeLinecap="round" />
+              <line x1="180" y1="145" x2="180" y2="212" stroke="#1E3B2C" strokeWidth="3" strokeLinecap="round" />
             </svg>
           </div>
         </div>
@@ -234,7 +234,7 @@ export const SceneTransition: React.FC<SceneTransitionProps> = ({
         >
           <svg viewBox="0 0 40 40" className="w-8 h-8 drop-shadow-xs">
             {/* Shuttlecock cork base */}
-            <ellipse cx="28" cy="20" rx="4.5" ry="4" fill="#5B89FF" stroke="#5B89FF" strokeWidth="1" />
+            <ellipse cx="28" cy="20" rx="4.5" ry="4" fill="#34D378" stroke="#34D378" strokeWidth="1" />
             {/* Feathers cone */}
             <polygon points="26,17 10,12 12,28 26,23" fill="#FFFFFF" stroke="#DDE3EA" strokeWidth="1" />
             {/* Thread bands */}

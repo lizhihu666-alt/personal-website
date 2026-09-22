@@ -5,6 +5,7 @@ import { HomeHero } from './components/home/HomeHero';
 import { SceneTransition } from './components/character/SceneTransition';
 import { WorkResumeModal } from './components/work/WorkResumeModal';
 import { ReadingProgressNav } from './components/navigation/ReadingProgressNav';
+import ClickSpark from './components/effects/ClickSpark';
 
 // 按需加载：Work 页包含 three.js 3D 场景，Life 页体积也不小。
 // 首页不再把这些代码一起下载，首屏更快；进入对应模式时再加载。
@@ -136,68 +137,70 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen bg-[#0A0B0D] flex flex-col font-sans selection:bg-[#232A33] selection:text-white">
-      {/* Top Header Navigation (Unified across entire portfolio) */}
-      <Header
-        currentMode={currentMode}
-        onSelectMode={handleDirectModeSwitch}
-        onOpenResume={() => setIsResumeModalOpen(true)}
-        onOpenContact={() => {
-          if (currentMode === 'work') {
-            document.getElementById('work-contact')?.scrollIntoView({ behavior: 'smooth' });
-          } else {
-            handleDirectModeSwitch('work');
-            setTimeout(() => {
+    <ClickSpark sparkColor="#34D378" sparkSize={10} sparkRadius={15} sparkCount={8} duration={400}>
+      <div className="min-h-dvh bg-[#0A0B0D] flex flex-col font-sans selection:bg-[#232A33] selection:text-white">
+        {/* Top Header Navigation (Unified across entire portfolio) */}
+        <Header
+          currentMode={currentMode}
+          onSelectMode={handleDirectModeSwitch}
+          onOpenResume={() => setIsResumeModalOpen(true)}
+          onOpenContact={() => {
+            if (currentMode === 'work') {
               document.getElementById('work-contact')?.scrollIntoView({ behavior: 'smooth' });
-            }, 100);
-          }
-        }}
-      />
-
-      {/* Floating Reading Progress & Quick Section Jump Indicator */}
-      <ReadingProgressNav currentMode={currentMode} />
-
-      {/* Main View Area */}
-      <div className="flex-1 w-full">
-        <Suspense fallback={<div className="min-h-[80vh] w-full" aria-hidden="true" />}>
-          {currentMode === 'home' && (
-            <HomeHero
-              onChooseMode={handleChooseModeFromHome}
-              isTransitioning={transitioningTo !== null}
-            />
-          )}
-
-          {currentMode === 'work' && (
-            <div className="animate-fadeIn">
-              <WorkView
-                onOpenResume={() => setIsResumeModalOpen(true)}
-                onSwitchToLife={() => handleDirectModeSwitch('life')}
-              />
-            </div>
-          )}
-
-          {currentMode === 'life' && (
-            <div className="animate-fadeIn">
-              <LifeView />
-            </div>
-          )}
-        </Suspense>
-      </div>
-
-      {/* Animated Choreographed Scene Transition Overlay */}
-      {transitioningTo && (
-        <SceneTransition
-          targetMode={transitioningTo}
-          onComplete={handleTransitionComplete}
-          onCancel={() => setTransitioningTo(null)}
+            } else {
+              handleDirectModeSwitch('work');
+              setTimeout(() => {
+                document.getElementById('work-contact')?.scrollIntoView({ behavior: 'smooth' });
+              }, 100);
+            }
+          }}
         />
-      )}
 
-      {/* Printable & Downloadable Resume Sheet Modal */}
-      <WorkResumeModal
-        isOpen={isResumeModalOpen}
-        onClose={() => setIsResumeModalOpen(false)}
-      />
-    </div>
+        {/* Main View Area */}
+        <div className="flex-1 w-full">
+          <Suspense fallback={<div className="min-h-[80vh] w-full" aria-hidden="true" />}>
+            {currentMode === 'home' && (
+              <HomeHero
+                onChooseMode={handleChooseModeFromHome}
+                isTransitioning={transitioningTo !== null}
+              />
+            )}
+
+            {currentMode === 'work' && (
+              <div className="animate-fadeIn">
+                <WorkView
+                  onOpenResume={() => setIsResumeModalOpen(true)}
+                  onSwitchToLife={() => handleDirectModeSwitch('life')}
+                />
+              </div>
+            )}
+
+            {currentMode === 'life' && (
+              <div className="animate-fadeIn">
+                <LifeView />
+              </div>
+            )}
+          </Suspense>
+        </div>
+
+        {/* Floating Reading Progress & Quick Section Jump Indicator */}
+        <ReadingProgressNav currentMode={currentMode} />
+
+        {/* Animated Choreographed Scene Transition Overlay */}
+        {transitioningTo && (
+          <SceneTransition
+            targetMode={transitioningTo}
+            onComplete={handleTransitionComplete}
+            onCancel={() => setTransitioningTo(null)}
+          />
+        )}
+
+        {/* Printable & Downloadable Resume Sheet Modal */}
+        <WorkResumeModal
+          isOpen={isResumeModalOpen}
+          onClose={() => setIsResumeModalOpen(false)}
+        />
+      </div>
+    </ClickSpark>
   );
 }

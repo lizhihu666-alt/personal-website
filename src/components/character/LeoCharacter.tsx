@@ -339,7 +339,7 @@ export const LeoCharacter: React.FC<LeoCharacterProps> = ({
                   {/* Grip Handle */}
                   <line x1="0" y1="0" x2="16" y2="-12" stroke="#1A2433" strokeWidth="4.5" strokeLinecap="round" />
                   {/* Shaft */}
-                  <line x1="16" y1="-12" x2="42" y2="-32" stroke="#5B89FF" strokeWidth="2.5" />
+                  <line x1="16" y1="-12" x2="42" y2="-32" stroke="#34D378" strokeWidth="2.5" />
                   {/* Racket Head (Isometric Oval Frame) */}
                   <ellipse
                     cx="56"
@@ -387,7 +387,7 @@ export const LeoCharacter: React.FC<LeoCharacterProps> = ({
                   <g transform="translate(97, 142) rotate(25)">
                     {/* Racket handle & shaft */}
                     <line x1="0" y1="0" x2="-8" y2="-20" stroke="#1A2433" strokeWidth="3.5" strokeLinecap="round" />
-                    <line x1="-8" y1="-20" x2="-18" y2="-45" stroke="#5B89FF" strokeWidth="2" />
+                    <line x1="-8" y1="-20" x2="-18" y2="-45" stroke="#34D378" strokeWidth="2" />
                     <ellipse cx="-26" cy="-62" rx="10" ry="14" fill="none" stroke="#1A2433" strokeWidth="2" />
                   </g>
                 )}
@@ -414,7 +414,7 @@ export const LeoCharacter: React.FC<LeoCharacterProps> = ({
                     <rect x="-6" y="0" width="22" height="17" rx="2.5" fill="#1E2C45" stroke="#132038" strokeWidth="1" />
                     <line x1="-6" y1="6" x2="16" y2="6" stroke="#3E4A5C" strokeWidth="1" />
                     {/* Brass buckle */}
-                    <rect x="3" y="5" width="4" height="3" rx="0.5" fill="#5B89FF" />
+                    <rect x="3" y="5" width="4" height="3" rx="0.5" fill="#34D378" />
                   </g>
                 )}
               </g>

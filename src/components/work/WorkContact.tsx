@@ -1,24 +1,16 @@
-import React, { useState, useRef, useLayoutEffect } from 'react';
+import React, { useState, useRef, useLayoutEffect, useEffect } from 'react';
 import { WORK_DATA } from '../../data/portfolioData';
-import { Copy, Check, ExternalLink, Download, ArrowUp } from 'lucide-react';
+import { Copy, Check, AlertCircle, ExternalLink, Download, ArrowUp } from 'lucide-react';
 import { gsap, isReducedMotion } from '../../utils/gsapSetup';
+import { copyText } from '../../utils/clipboard';
 
 interface WorkContactProps {
   onOpenResume?: () => void;
 }
 
-// 个人主页链接：地址由 portfolioData 提供。
-// 还没填真地址时显示为「待补充」，不再跳转到平台首页——空承诺比没有链接更伤可信度。
 const ProfileLink: React.FC<{ label: string; href?: string }> = ({ label, href }) => {
   if (!href) {
-    return (
-      <div className="flex items-center justify-between gap-3 text-sm text-[#A8B0BC]">
-        <span>{label}</span>
-        <span className="text-[10px] font-mono tracking-wider uppercase px-2 py-0.5 rounded-sm border border-dashed border-[#3A424E] text-[#8C95A3] whitespace-nowrap">
-          待补充
-        </span>
-      </div>
-    );
+    return <span className="type-body text-[#A8B0BC]">{label} · 整理中</span>;
   }
 
   return (
@@ -26,17 +18,23 @@ const ProfileLink: React.FC<{ label: string; href?: string }> = ({ label, href }
       href={href}
       target="_blank"
       rel="noopener noreferrer"
-      className="flex items-center justify-between gap-3 text-sm text-[#F3F5F8] hover:text-[#5B89FF] transition-colors font-medium"
+      className="type-body flex min-h-11 items-center justify-between gap-2 font-medium text-[#F3F5F8] hover:text-[#34D378] transition-colors"
     >
       <span>{label}</span>
-      <ExternalLink className="w-3.5 h-3.5 text-[#A8B0BC]" />
+      <ExternalLink className="w-4 h-4 text-[#A8B0BC]" />
     </a>
   );
 };
 
 export const WorkContact: React.FC<WorkContactProps> = ({ onOpenResume }) => {
-  const [copiedEmail, setCopiedEmail] = useState(false);
-  const [copiedWechat, setCopiedWechat] = useState(false);
+  const [copyState, setCopyState] = useState<{
+    email: 'idle' | 'success' | 'error';
+    wechat: 'idle' | 'success' | 'error';
+  }>({ email: 'idle', wechat: 'idle' });
+  const copyResetTimers = useRef<Record<'email' | 'wechat', number | null>>({
+    email: null,
+    wechat: null,
+  });
 
   const containerRef = useRef<HTMLElement>(null);
 
@@ -46,12 +44,12 @@ export const WorkContact: React.FC<WorkContactProps> = ({ onOpenResume }) => {
     const ctx = gsap.context(() => {
       gsap.fromTo(
         '.contact-reveal',
-        { y: 20, opacity: 0 },
+        { y: 18, opacity: 0 },
         {
           y: 0,
           opacity: 1,
-          stagger: 0.1,
-          duration: 0.75,
+          stagger: 0.08,
+          duration: 0.65,
           ease: 'power3.out',
           overwrite: 'auto',
           clearProps: 'opacity,transform',
@@ -67,159 +65,155 @@ export const WorkContact: React.FC<WorkContactProps> = ({ onOpenResume }) => {
     return () => ctx.revert();
   }, []);
 
-  const handleCopyEmail = () => {
-    navigator.clipboard.writeText(WORK_DATA.contact.email);
-    setCopiedEmail(true);
-    setTimeout(() => setCopiedEmail(false), 2000);
+  useEffect(() => {
+    return () => {
+      Object.values(copyResetTimers.current).forEach((timer) => {
+        if (typeof timer === 'number') window.clearTimeout(timer);
+      });
+    };
+  }, []);
+
+  const showCopyFeedback = (channel: 'email' | 'wechat', status: 'success' | 'error') => {
+    const existingTimer = copyResetTimers.current[channel];
+    if (existingTimer !== null) window.clearTimeout(existingTimer);
+
+    setCopyState((prev) => ({ ...prev, [channel]: status }));
+    copyResetTimers.current[channel] = window.setTimeout(() => {
+      setCopyState((prev) => ({ ...prev, [channel]: 'idle' }));
+      copyResetTimers.current[channel] = null;
+    }, 2200);
   };
 
-  const handleCopyWechat = () => {
-    navigator.clipboard.writeText(WORK_DATA.contact.wechat);
-    setCopiedWechat(true);
-    setTimeout(() => setCopiedWechat(false), 2000);
+  const handleCopyEmail = async () => {
+    showCopyFeedback('email', (await copyText(WORK_DATA.contact.email)) ? 'success' : 'error');
+  };
+
+  const handleCopyWechat = async () => {
+    showCopyFeedback('wechat', (await copyText(WORK_DATA.contact.wechat)) ? 'success' : 'error');
   };
 
   const scrollToTop = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
+  const copyButtonClass = (status: 'idle' | 'success' | 'error') =>
+    `type-meta mt-6 inline-flex min-h-11 items-center justify-between gap-3 border-t border-[#232A33] pt-4 font-semibold transition-colors ${
+      status === 'error' ? 'text-[#FFB4AB]' : 'text-[#34D378] hover:text-[#86EFB3]'
+    }`;
+
   return (
     <section
       id="work-contact"
       ref={containerRef}
-      className="relative py-20 sm:py-28 px-6 sm:px-10 lg:px-16 bg-[#0A0B0D] border-b border-[#232A33]"
+      className="relative py-20 sm:py-28 px-6 sm:px-10 lg:px-16 bg-[#0A0B0D]"
     >
-      <div className="max-w-7xl mx-auto w-full">
-        {/* Section Marker */}
-        <div className="flex items-center justify-between pb-5 border-b border-[#232A33] mb-12 sm:mb-16">
-          <div className="flex items-center gap-3">
-            <span className="font-mono text-xs font-semibold tracking-widest text-[#5B89FF] bg-[#002FA7]/10 px-2.5 py-1 rounded-md uppercase">
-              CONTACT & DIALOGUE
-            </span>
-            <span className="text-xs font-mono tracking-widest text-[#A8B0BC] uppercase">
-              INITIATE CONVERSATION
-            </span>
-          </div>
-          <span className="text-xs font-mono tracking-widest text-[#A8B0BC] uppercase">
-            OPEN TO OPPORTUNITIES
-          </span>
-        </div>
-
-        {/* Big Editorial Call to Action */}
+      <div className="max-w-6xl mx-auto w-full">
         <div className="max-w-3xl mb-16 contact-reveal">
-          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight text-[#F3F5F8] leading-tight">
-            如果你正在寻找一个能把复杂业务
-            <br />
-            <span className="text-[#5B89FF] italic font-semibold">真正推进落地的人</span>，我们可以聊聊。
+          <h2 className="type-section-sm text-[#F3F5F8]">
+            如果你正在寻找能把复杂业务<br className="hidden sm:block" />
+            <span className="text-[#34D378]">真正推进落地的人</span>，我们可以聊聊。
           </h2>
-          <p className="mt-5 text-base text-[#A8B0BC] leading-relaxed">
-            欢迎就跨境业务中台、SOP 流程架构、系统割接交付或 Vibe Coding 原型实践展开探讨。可通过邮箱预约线上沟通，或直接添加微信交流。
+          <p className="type-lead mt-6 max-w-[42rem] text-[#A8B0BC]">
+            欢迎讨论跨境中台、流程架构、系统迁移或 AI 原型实践。可直接邮件预约，或添加微信交流。
           </p>
         </div>
 
-        {/* Direct Channels */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 contact-reveal border-t border-[#3A424E] pt-12 pb-16">
-          {/* Email Channel */}
-          <div className="p-6 bg-[#111418] border border-[#232A33] rounded-xl shadow-xs flex flex-col justify-between">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 contact-reveal">
+          <div className="p-6 bg-[#111418] border border-[#232A33] rounded-2xl shadow-[0_2px_14px_rgba(0,0,0,0.06)] flex flex-col justify-between">
             <div>
-              <div className="text-xs font-mono text-[#A8B0BC] tracking-wider uppercase mb-2">
-                DIRECT EMAIL
-              </div>
-              <div className="font-mono text-sm sm:text-base text-[#F3F5F8] font-medium break-all">
+              <div className="type-label text-[#A8B0BC]">邮箱</div>
+              <div className="type-body mt-3 font-medium text-[#F3F5F8] break-words">
                 {WORK_DATA.contact.email}
               </div>
             </div>
             <button
               id="contact-copy-email-btn"
               onClick={handleCopyEmail}
-              className="mt-6 text-xs font-mono tracking-widest uppercase flex items-center justify-between text-[#5B89FF] hover:text-[#5B89FF] transition-colors pt-3 border-t border-[#232A33] font-semibold"
+              className={copyButtonClass(copyState.email)}
             >
-              <span>{copiedEmail ? '已复制到剪贴板' : '复制邮箱地址'}</span>
-              {copiedEmail ? <Check className="w-3.5 h-3.5 text-[#5B89FF]" /> : <Copy className="w-3.5 h-3.5" />}
+              <span aria-live="polite">
+                {copyState.email === 'success'
+                  ? '已复制 · 期待来信'
+                  : copyState.email === 'error'
+                    ? '复制失败，请手动复制'
+                    : '复制邮箱地址'}
+              </span>
+              {copyState.email === 'success' ? (
+                <Check className="copy-confirm-icon w-4 h-4" />
+              ) : copyState.email === 'error' ? (
+                <AlertCircle className="w-4 h-4" />
+              ) : (
+                <Copy className="w-4 h-4" />
+              )}
             </button>
           </div>
 
-          {/* WeChat Channel */}
-          <div className="p-6 bg-[#111418] border border-[#232A33] rounded-xl shadow-xs flex flex-col justify-between">
+          <div className="p-6 bg-[#111418] border border-[#232A33] rounded-2xl shadow-[0_2px_14px_rgba(0,0,0,0.06)] flex flex-col justify-between">
             <div>
-              <div className="text-xs font-mono text-[#A8B0BC] tracking-wider uppercase mb-2">
-                WECHAT ID
-              </div>
-              <div className="font-mono text-sm sm:text-base text-[#F3F5F8] font-medium">
+              <div className="type-label text-[#A8B0BC]">微信</div>
+              <div className="type-body mt-3 font-medium text-[#F3F5F8] break-words">
                 {WORK_DATA.contact.wechat}
               </div>
             </div>
             <button
               id="contact-copy-wechat-btn"
               onClick={handleCopyWechat}
-              className="mt-6 text-xs font-mono tracking-widest uppercase flex items-center justify-between text-[#5B89FF] hover:text-[#5B89FF] transition-colors pt-3 border-t border-[#232A33] font-semibold"
+              className={copyButtonClass(copyState.wechat)}
             >
-              <span>{copiedWechat ? '已复制到剪贴板' : '复制微信号'}</span>
-              {copiedWechat ? <Check className="w-3.5 h-3.5 text-[#5B89FF]" /> : <Copy className="w-3.5 h-3.5" />}
+              <span aria-live="polite">
+                {copyState.wechat === 'success'
+                  ? '已复制 · 欢迎添加'
+                  : copyState.wechat === 'error'
+                    ? '复制失败，请手动复制'
+                    : '复制微信号'}
+              </span>
+              {copyState.wechat === 'success' ? (
+                <Check className="copy-confirm-icon w-4 h-4" />
+              ) : copyState.wechat === 'error' ? (
+                <AlertCircle className="w-4 h-4" />
+              ) : (
+                <Copy className="w-4 h-4" />
+              )}
             </button>
           </div>
 
-          {/* LinkedIn / GitHub */}
-          <div className="p-6 bg-[#111418] border border-[#232A33] rounded-xl shadow-xs flex flex-col justify-between">
+          <div className="p-6 bg-[#111418] border border-[#232A33] rounded-2xl shadow-[0_2px_14px_rgba(0,0,0,0.06)] flex flex-col justify-between">
             <div>
-              <div className="text-xs font-mono text-[#A8B0BC] tracking-wider uppercase mb-2">
-                NETWORKS
-              </div>
-              <div className="space-y-2">
+              <div className="type-label text-[#A8B0BC]">社交网络</div>
+              <div className="mt-2 divide-y divide-[#232A33]">
                 <ProfileLink label="LinkedIn" href={WORK_DATA.contact.linkedin} />
                 <ProfileLink label="GitHub" href={WORK_DATA.contact.github} />
               </div>
             </div>
-            <div className="mt-6 text-[10px] font-mono text-[#A8B0BC] uppercase pt-3 border-t border-[#232A33]">
-              {WORK_DATA.contact.linkedin || WORK_DATA.contact.github
-                ? 'VERIFIED PROFILES'
-                : 'PROFILE LINKS · 整理中'}
-            </div>
           </div>
 
-          {/* Resume Sheet Modal Trigger */}
-          <div className="p-6 bg-[#111418] border border-[#232A33] rounded-xl shadow-xs flex flex-col justify-between">
+          <div className="p-6 bg-[#111418] border border-[#232A33] rounded-2xl shadow-[0_2px_14px_rgba(0,0,0,0.06)] flex flex-col justify-between">
             <div>
-              <div className="text-xs font-mono text-[#A8B0BC] tracking-wider uppercase mb-2">
-                FORMAL RESUME
-              </div>
-              <div className="text-sm text-[#F3F5F8] font-semibold">
-                标准 PDF / 简历查看
-              </div>
-              <p className="text-xs text-[#A8B0BC] mt-1">
-                Formatted for recruitment & HR filing
-              </p>
+              <div className="type-label text-[#A8B0BC]">正式简历</div>
+              <div className="type-body mt-3 font-semibold text-[#F3F5F8]">PDF 简历</div>
             </div>
             {onOpenResume && (
               <button
                 id="contact-open-resume-btn"
                 onClick={onOpenResume}
-                className="mt-6 text-xs font-mono tracking-widest uppercase flex items-center justify-between text-[#5B89FF] hover:text-[#5B89FF] transition-colors pt-3 border-t border-[#232A33] font-semibold"
+                className="mt-6 inline-flex min-h-11 items-center justify-between gap-3 border-t border-[#232A33] pt-4 text-sm font-semibold text-[#34D378] transition-colors hover:text-[#86EFB3]"
               >
-                <span>OPEN RESUME SHEET</span>
-                <Download className="w-3.5 h-3.5" />
+                <span>打开简历</span>
+                <Download className="w-4 h-4" />
               </button>
             )}
           </div>
         </div>
 
-        {/* Footer & Back to Top */}
-        <div className="border-t border-[#232A33] pt-8 flex flex-wrap items-center justify-between gap-4 text-xs font-mono text-[#A8B0BC]">
-          <div className="flex items-center gap-4">
-            <span>© 2026 LEO HU</span>
-            <span>·</span>
-            <span>SHENZHEN, CHINA</span>
-            <span>·</span>
-            <span className="text-[#5B89FF] font-semibold">PORTFOLIO</span>
-          </div>
-
+        <div className="type-meta pt-10 flex flex-wrap items-center justify-between gap-4 text-[#A8B0BC]">
+          <span>© 2026 LEO HU · 中国深圳</span>
           <button
             id="contact-back-to-top-btn"
             onClick={scrollToTop}
-            className="flex items-center gap-2 hover:text-[#F3F5F8] transition-colors uppercase tracking-widest focus:outline-none"
+            className="inline-flex min-h-11 items-center gap-2 text-[#A8B0BC] hover:text-[#F3F5F8] transition-colors"
           >
-            <span>BACK TO TOP</span>
-            <ArrowUp className="w-3.5 h-3.5 text-[#5B89FF]" />
+            <span>回到顶部</span>
+            <ArrowUp className="w-4 h-4 text-[#34D378]" />
           </button>
         </div>
       </div>

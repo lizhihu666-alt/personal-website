@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { WORK_DATA } from '../../data/portfolioData';
-import { X, Printer, Check, Copy, Download, ExternalLink, Mail } from 'lucide-react';
+import { X, Printer, Check, AlertCircle, Copy, Download, ExternalLink, Mail } from 'lucide-react';
+import { copyText } from '../../utils/clipboard';
 
 interface WorkResumeModalProps {
   isOpen: boolean;
@@ -8,9 +9,10 @@ interface WorkResumeModalProps {
 }
 
 export const WorkResumeModal: React.FC<WorkResumeModalProps> = ({ isOpen, onClose }) => {
-  const [copied, setCopied] = useState(false);
+  const [copyStatus, setCopyStatus] = useState<'idle' | 'success' | 'error'>('idle');
   const dialogRef = useRef<HTMLDivElement>(null);
   const previouslyFocusedRef = useRef<HTMLElement | null>(null);
+  const copyResetTimerRef = useRef<number | null>(null);
 
   // 打开时：锁定背景滚动 + 把焦点送进弹窗；关闭时：完整恢复
   useEffect(() => {
@@ -104,12 +106,28 @@ export const WorkResumeModal: React.FC<WorkResumeModalProps> = ({ isOpen, onClos
     return () => document.removeEventListener('keydown', handleKeyDown, true);
   }, [isOpen, onClose]);
 
+  useEffect(() => {
+    return () => {
+      if (copyResetTimerRef.current !== null) {
+        window.clearTimeout(copyResetTimerRef.current);
+      }
+    };
+  }, []);
+
   if (!isOpen) return null;
 
-  const handleCopyEmail = () => {
-    navigator.clipboard.writeText(WORK_DATA.contact.email);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
+  const handleCopyEmail = async () => {
+    const didCopy = await copyText(WORK_DATA.contact.email);
+
+    if (copyResetTimerRef.current !== null) {
+      window.clearTimeout(copyResetTimerRef.current);
+    }
+
+    setCopyStatus(didCopy ? 'success' : 'error');
+    copyResetTimerRef.current = window.setTimeout(() => {
+      setCopyStatus('idle');
+      copyResetTimerRef.current = null;
+    }, 2200);
   };
 
   const handlePrint = () => {
@@ -134,24 +152,36 @@ export const WorkResumeModal: React.FC<WorkResumeModalProps> = ({ isOpen, onClos
         {/* Modal Top Control Bar (Hidden on print) */}
         <div className="no-print flex items-center justify-between px-6 py-4 border-b border-[#232A33] bg-[#0A0B0D]">
           <div className="flex items-center gap-2 text-xs font-mono uppercase tracking-wider text-[#A8B0BC]">
-            <span className="w-2 h-2 rounded-full bg-[#5B89FF]" />
-            <span>RESUME PREVIEW · 个人简历预览</span>
+            <span className="w-2 h-2 rounded-full bg-[#0E7C3D]" />
+            <span>个人简历预览</span>
           </div>
 
           <div className="flex items-center gap-2">
             <button
               id="resume-btn-copy-email"
               onClick={handleCopyEmail}
-              className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-mono uppercase tracking-wider text-[#5B89FF] hover:bg-black/5 rounded-md transition-colors"
+              className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-mono uppercase tracking-wider rounded-md transition-colors ${
+                copyStatus === 'error'
+                  ? 'text-[#FFB4AB] hover:bg-black/5'
+                  : 'text-[#34D378] hover:bg-black/5'
+              }`}
             >
-              {copied ? <Check className="w-3.5 h-3.5 text-[#5B89FF]" /> : <Copy className="w-3.5 h-3.5" />}
-              <span>{copied ? '已复制' : '复制邮箱'}</span>
+              {copyStatus === 'success' ? (
+                <Check className="w-3.5 h-3.5 text-[#34D378]" />
+              ) : copyStatus === 'error' ? (
+                <AlertCircle className="w-3.5 h-3.5" />
+              ) : (
+                <Copy className="w-3.5 h-3.5" />
+              )}
+              <span aria-live="polite">
+                {copyStatus === 'success' ? '已复制' : copyStatus === 'error' ? '复制失败' : '复制邮箱'}
+              </span>
             </button>
 
             <button
               id="resume-btn-print"
               onClick={handlePrint}
-              className="flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-mono uppercase tracking-wider bg-[#002FA7] text-white hover:bg-[#002585] rounded-md transition-colors shadow-xs"
+              className="flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-mono uppercase tracking-wider bg-[#0E7C3D] text-white hover:bg-[#0A6631] rounded-md transition-colors shadow-xs"
             >
               <Printer className="w-3.5 h-3.5" />
               <span>打印 / 另存为 PDF</span>
@@ -161,7 +191,7 @@ export const WorkResumeModal: React.FC<WorkResumeModalProps> = ({ isOpen, onClos
               id="resume-btn-close"
               onClick={onClose}
               className="p-1.5 text-[#A8B0BC] hover:text-[#F3F5F8] hover:bg-black/5 rounded-md transition-colors ml-2"
-              aria-label="Close"
+              aria-label="关闭"
             >
               <X className="w-4 h-4" />
             </button>
@@ -169,15 +199,15 @@ export const WorkResumeModal: React.FC<WorkResumeModalProps> = ({ isOpen, onClos
         </div>
 
         {/* Printable Resume Sheet */}
-        <div className="resume-print-body overflow-y-auto p-8 sm:p-12 text-[#F3F5F8] bg-[#111418] selection:bg-[#002FA7] selection:text-white">
+        <div className="resume-print-body overflow-y-auto p-8 sm:p-12 text-[#F3F5F8] bg-[#111418] selection:bg-[#0E7C3D] selection:text-white">
           {/* Header */}
           <div className="border-b border-black/10 pb-6 mb-8 flex flex-col sm:flex-row justify-between sm:items-end gap-4">
             <div>
               <h1 id="resume-title" className="text-3xl font-bold tracking-tight text-[#F3F5F8]">
-                胡子 / LEO HU
+                胡利致 / LEO HU
               </h1>
-              <p className="text-sm font-semibold text-[#5B89FF] mt-1 font-mono tracking-wide">
-                Cross-border Project Manager / Product Operations
+              <p className="text-sm font-semibold text-[#34D378] mt-1 font-mono tracking-wide">
+                跨境项目经理 / 产品运营
               </p>
               <p className="text-xs text-[#A8B0BC] mt-2 max-w-xl leading-relaxed">
                 擅长连接业务、产品、供应链与外部合作伙伴，在不确定中梳理流程、推动协作并完成交付。具备完整的跨境中台落地与 Vibe Coding 原型验证经验。
@@ -187,18 +217,18 @@ export const WorkResumeModal: React.FC<WorkResumeModalProps> = ({ isOpen, onClos
             <div className="text-xs text-[#A8B0BC] space-y-1 font-mono text-left sm:text-right border-t sm:border-t-0 pt-2 sm:pt-0 border-[#232A33]">
               <div className="whitespace-nowrap">深圳 · 基于全职 / 顾问合作</div>
               <div className="whitespace-nowrap">{WORK_DATA.contact.email}</div>
-              <div className="whitespace-nowrap">WeChat: {WORK_DATA.contact.wechat}</div>
+              <div className="whitespace-nowrap">微信：{WORK_DATA.contact.wechat}</div>
             </div>
           </div>
 
           {/* Core Competencies */}
           <div className="mb-8">
             <h2 className="text-xs font-mono uppercase tracking-widest text-[#A8B0BC] border-b border-[#232A33] pb-1.5 mb-4 font-semibold">
-              CORE COMPETENCIES · 核心能力
+              核心能力
             </h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-3 text-xs">
               {WORK_DATA.capabilities.map((cap) => (
-                <div key={cap.key} className="border-l-2 border-[#002FA7] pl-3">
+                <div key={cap.key} className="border-l-2 border-[#34D378] pl-3">
                   <div className="font-semibold text-[#F3F5F8]">{cap.name}</div>
                   <div className="text-[#A8B0BC] mt-0.5 leading-normal">{cap.details}</div>
                 </div>
@@ -209,7 +239,7 @@ export const WorkResumeModal: React.FC<WorkResumeModalProps> = ({ isOpen, onClos
           {/* Key Work Experience */}
           <div className="mb-8">
             <h2 className="text-xs font-mono uppercase tracking-widest text-[#A8B0BC] border-b border-[#232A33] pb-1.5 mb-4 font-semibold">
-              EXPERIENCE · 工作经历
+              工作经历
             </h2>
             <div className="space-y-6">
               {WORK_DATA.experiences.map((exp) => (
@@ -218,7 +248,7 @@ export const WorkResumeModal: React.FC<WorkResumeModalProps> = ({ isOpen, onClos
                     <span className="font-bold text-sm text-[#F3F5F8]">{exp.company}</span>
                     <span className="text-[#A8B0BC] font-mono">{exp.period} · {exp.location}</span>
                   </div>
-                  <div className="text-[#5B89FF] font-mono font-medium mt-0.5">{exp.title}</div>
+                  <div className="text-[#34D378] font-mono font-medium mt-0.5">{exp.title}</div>
                   <p className="text-[#A8B0BC] mt-1.5 leading-relaxed">{exp.description}</p>
                   <div className="mt-2 text-[#C3CAD5]">
                     <span className="font-semibold">核心交付成果：</span>
@@ -236,7 +266,7 @@ export const WorkResumeModal: React.FC<WorkResumeModalProps> = ({ isOpen, onClos
           {/* Selected Case Studies */}
           <div className="mb-8">
             <h2 className="text-xs font-mono uppercase tracking-widest text-[#A8B0BC] border-b border-[#232A33] pb-1.5 mb-4 font-semibold">
-              SELECTED PROJECTS · 重点项目精选
+              重点项目精选
             </h2>
             <div className="space-y-5 text-xs">
               {WORK_DATA.projects.map((proj) => (
@@ -245,7 +275,7 @@ export const WorkResumeModal: React.FC<WorkResumeModalProps> = ({ isOpen, onClos
                     <h3 className="font-bold text-sm text-[#F3F5F8]">{proj.title} · {proj.subtitle}</h3>
                     <span className="text-[#A8B0BC] font-mono">{proj.period}</span>
                   </div>
-                  <div className="text-[#5B89FF] font-mono font-medium mb-1.5">{proj.myRole}</div>
+                  <div className="text-[#34D378] font-mono font-medium mb-1.5">{proj.myRole}</div>
                   <p className="text-[#A8B0BC] mb-2 leading-relaxed">{proj.problem}</p>
                   <div className="text-[#F3F5F8] font-semibold mb-1">关键行动与执行：</div>
                   <ul className="list-disc list-inside space-y-0.5 text-[#A8B0BC] mb-2">
@@ -253,7 +283,7 @@ export const WorkResumeModal: React.FC<WorkResumeModalProps> = ({ isOpen, onClos
                       <li key={idx}>{item}</li>
                     ))}
                   </ul>
-                  <div className="text-[#5B89FF] font-mono text-[11px] pt-2 border-t border-[#232A33] font-medium">
+                  <div className="text-[#34D378] text-sm pt-2 border-t border-[#232A33] font-medium">
                     交付成效：{proj.result}
                   </div>
                 </div>
@@ -264,7 +294,7 @@ export const WorkResumeModal: React.FC<WorkResumeModalProps> = ({ isOpen, onClos
           {/* Education */}
           <div>
             <h2 className="text-xs font-mono uppercase tracking-widest text-[#98A1AF] border-b border-[#232A33] pb-1.5 mb-4">
-              EDUCATION · 教育背景
+              教育背景
             </h2>
             <div className="space-y-3 text-xs">
               {WORK_DATA.education.map((edu, idx) => (

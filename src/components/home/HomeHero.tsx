@@ -26,7 +26,7 @@ export const HomeHero: React.FC<HomeHeroProps> = ({
           hoveredDirection === 'left' ? 'opacity-100' : 'opacity-0'
         }`}
         style={{
-          background: 'radial-gradient(ellipse 60% 70% at 20% 50%, rgba(77, 127, 255, 0.06), transparent 70%)',
+          background: 'radial-gradient(ellipse 60% 70% at 20% 50%, rgba(52, 211, 120, 0.06), transparent 70%)',
         }}
       />
       <div
@@ -34,7 +34,7 @@ export const HomeHero: React.FC<HomeHeroProps> = ({
           hoveredDirection === 'right' ? 'opacity-100' : 'opacity-0'
         }`}
         style={{
-          background: 'radial-gradient(ellipse 60% 70% at 80% 50%, rgba(77, 127, 255, 0.07), transparent 70%)',
+          background: 'radial-gradient(ellipse 60% 70% at 80% 50%, rgba(52, 211, 120, 0.07), transparent 70%)',
         }}
       />
 
@@ -45,7 +45,7 @@ export const HomeHero: React.FC<HomeHeroProps> = ({
           <span className="font-medium text-[#F3F5F8]">PORTFOLIO & LIFE</span>
         </div>
         <div className="flex items-center gap-2">
-          <span className="w-2 h-2 rounded-full bg-[#5B89FF]" />
+          <span className="w-2 h-2 rounded-full bg-[#34D378]" />
           <span className="text-[#A8B0BC]">Based in Shenzhen · Open to opportunities</span>
         </div>
       </div>
@@ -87,8 +87,8 @@ export const HomeHero: React.FC<HomeHeroProps> = ({
             >
               {/* Badge & Time tag */}
               <div className="flex items-center justify-between text-xs text-[#A8B0BC] mb-3">
-                <span className="font-mono tracking-wider flex items-center gap-1 text-[#5B89FF] font-medium">
-                  <Briefcase className="w-3.5 h-3.5 text-[#5B89FF]" />
+                <span className="font-mono tracking-wider flex items-center gap-1 text-[#34D378] font-medium">
+                  <Briefcase className="w-3.5 h-3.5 text-[#34D378]" />
                   LEO AT WORK
                 </span>
                 <span className="flex items-center gap-1 font-mono text-[11px] text-[#98A1AF]">
@@ -99,10 +99,10 @@ export const HomeHero: React.FC<HomeHeroProps> = ({
 
               {/* Main Text */}
               <div className="flex items-baseline gap-2">
-                <h2 className="text-xl sm:text-2xl font-bold text-[#F3F5F8] group-hover:text-[#5B89FF] transition-colors">
+                <h2 className="text-xl sm:text-2xl font-bold text-[#F3F5F8] group-hover:text-[#34D378] transition-colors">
                   上班的我
                 </h2>
-                <ArrowLeft className="w-4 h-4 text-[#5B89FF] opacity-0 -translate-x-1 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-200" />
+                <ArrowLeft className="w-4 h-4 text-[#34D378] opacity-0 -translate-x-1 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-200" />
               </div>
 
               <p className="text-xs sm:text-sm text-[#A8B0BC] mt-1.5 font-light">
@@ -112,7 +112,7 @@ export const HomeHero: React.FC<HomeHeroProps> = ({
               {/* Editorial preview bullet */}
               <div className="mt-4 pt-3 border-t border-[#232A33]/80 text-[12px] text-[#A8B0BC] flex items-center justify-between">
                 <span>跨境中台 · 流程设计 · Vibe Coding</span>
-                <span className="text-[#5B89FF] font-medium text-xs">进入职业页 →</span>
+                <span className="text-[#34D378] font-medium text-xs">进入职业页 →</span>
               </div>
             </button>
           </div>
@@ -158,8 +158,8 @@ export const HomeHero: React.FC<HomeHeroProps> = ({
             >
               {/* Badge & Time tag */}
               <div className="flex items-center justify-between text-xs text-[#A8B0BC] mb-3">
-                <span className="font-mono tracking-wider flex items-center gap-1 text-[#5B89FF] font-medium">
-                  <Compass className="w-3.5 h-3.5 text-[#5B89FF]" />
+                <span className="font-mono tracking-wider flex items-center gap-1 text-[#34D378] font-medium">
+                  <Compass className="w-3.5 h-3.5 text-[#34D378]" />
                   LEO OFF DUTY
                 </span>
                 <span className="flex items-center gap-1 font-mono text-[11px] text-[#98A1AF]">
@@ -170,10 +170,10 @@ export const HomeHero: React.FC<HomeHeroProps> = ({
 
               {/* Main Text */}
               <div className="flex items-baseline gap-2">
-                <h2 className="text-xl sm:text-2xl font-bold text-[#F3F5F8] group-hover:text-[#5B89FF] transition-colors">
+                <h2 className="text-xl sm:text-2xl font-bold text-[#F3F5F8] group-hover:text-[#34D378] transition-colors">
                   下班的我
                 </h2>
-                <ArrowRight className="w-4 h-4 text-[#5B89FF] opacity-0 translate-x-1 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-200" />
+                <ArrowRight className="w-4 h-4 text-[#34D378] opacity-0 translate-x-1 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-200" />
               </div>
 
               <p className="text-xs sm:text-sm text-[#A8B0BC] mt-1.5 font-light">
@@ -183,7 +183,7 @@ export const HomeHero: React.FC<HomeHeroProps> = ({
               {/* Editorial preview bullet */}
               <div className="mt-4 pt-3 border-t border-[#232A33]/80 text-[12px] text-[#A8B0BC] flex items-center justify-between">
                 <span>宠物肖像 · 羽毛球 · 个人手账</span>
-                <span className="text-[#5B89FF] font-medium text-xs">进入生活页 →</span>
+                <span className="text-[#34D378] font-medium text-xs">进入生活页 →</span>
               </div>
             </button>
           </div>

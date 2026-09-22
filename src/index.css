@@ -9,6 +9,8 @@
     -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
     monospace;
+  --color-work-proof: #34D378;
+  --color-work-proof-strong: #86EFB3;
 }
 
 @layer base {
@@ -21,19 +23,24 @@
     --border-subtle: #232A33;
     --border-divider: #2B323C;
     
-    /* 全站只有两支蓝，色相都是 223° 的克莱因蓝：
-       1) 克莱因蓝 #002FA7 —— 只用于"面"：大色块、按钮、菜单抽屉（配白字，对比度 ~10.7:1）
-       2) 提亮版 #5B89FF —— 只用于"点/线/小字"：近黑底上的小图标、细线、小号强调文字（对比度 ~6:1）
-       按钮按下/悬停时用加深的 #002585，保证反馈看得见 */
-    --work-primary: #002FA7;
-    --work-primary-hover: #002585;
-    --work-accent: #5B89FF;
+    /* 全站只有两支绿（原来是克莱因蓝，整站改配色时换成绿）：
+       1) 深绿 #0E7C3D —— 只用于"面"：大色块、按钮、菜单抽屉（配白字，对比度 ~7.8:1）
+       2) 提亮版 #34D378 —— 只用于"点/线/小字"：近黑底上的小图标、细线、小号强调文字，
+          也是 --color-work-proof（时间/进度/结果这组数字）现在用的颜色，
+          不再单独留一支琥珀色当"第二品牌色"。
+       两支绿必须同色相：提亮版原来是 #34D399，色相比 #0E7C3D 偏了将近
+       13°（更靠青色），按钮和文字并排时能看出是两种绿；改成 #34D378 后
+       两者色相一致，只是明度不同，才算真的同一支绿的深浅两级。
+       按钮按下/悬停时用加深的 #0A6631，保证反馈看得见。 */
+    --work-primary: #0E7C3D;
+    --work-primary-hover: #0A6631;
+    --work-accent: #34D378;
     --work-surface: #0A0B0D;
     --work-border: #232A33;
 
-    /* Life 页沿用同一支蓝，深色底上统一用提亮版，保证小字看得清 */
-    --life-primary: #002FA7;
-    --life-accent: #5B89FF;
+    /* Life 页沿用同一支绿，深色底上统一用提亮版，保证小字看得清 */
+    --life-primary: #0E7C3D;
+    --life-accent: #34D378;
     --life-surface: #0D1014;
     --life-border: #232A33;
   }
@@ -53,7 +60,7 @@
   }
 
   ::selection {
-    background-color: #002FA7;
+    background-color: #0E7C3D;
     color: #FFFFFF;
   }
 
@@ -66,16 +73,82 @@
   input:focus-visible,
   textarea:focus-visible,
   select:focus-visible {
-    outline: 2px solid #5B89FF !important;
+    outline: 2px solid #34D378 !important;
     outline-offset: 2px !important;
   }
 
-  /* 克莱因蓝底上的控件换成白描边，否则蓝线压在蓝底上看不见 */
+  /* 菜单抽屉是绿色底，默认绿色描边会看不见，换成白描边 */
   #site-menu-drawer button:focus-visible,
-  #site-menu-drawer a:focus-visible,
-  #work-projects button:focus-visible,
-  #work-projects a:focus-visible {
+  #site-menu-drawer a:focus-visible {
     outline-color: #FFFFFF !important;
+  }
+}
+
+/* 工作页排版角色：
+   展示标题负责气质；区块标题建立章节；正文用于阅读；元数据保持紧凑。
+   中文不依赖斜体或负字距制造强调，层级主要由字号、字重、颜色与间距承担。 */
+@layer components {
+  .type-display {
+    font-size: clamp(1.875rem, calc(5.4vw + 0.35rem), 5rem);
+    font-weight: 700;
+    line-height: 1.08;
+    letter-spacing: -0.02em;
+    text-wrap: balance;
+  }
+
+  .type-section {
+    font-size: clamp(2rem, calc(4.4vw + 0.25rem), 3.75rem);
+    font-weight: 700;
+    line-height: 1.14;
+    letter-spacing: -0.02em;
+    text-wrap: balance;
+  }
+
+  .type-section-sm {
+    font-size: clamp(1.75rem, calc(3.2vw + 0.2rem), 2.75rem);
+    font-weight: 700;
+    line-height: 1.22;
+    letter-spacing: -0.015em;
+    text-wrap: balance;
+  }
+
+  .type-subheading {
+    font-size: 1.25rem;
+    font-weight: 600;
+    line-height: 1.4;
+    letter-spacing: -0.005em;
+  }
+
+  .type-lead {
+    font-size: clamp(1.125rem, calc(0.7vw + 0.98rem), 1.375rem);
+    line-height: 1.72;
+    letter-spacing: 0.006em;
+    text-wrap: pretty;
+  }
+
+  .type-body {
+    font-size: clamp(1rem, calc(0.25vw + 0.95rem), 1.125rem);
+    line-height: 1.82;
+    letter-spacing: 0.006em;
+    text-wrap: pretty;
+  }
+
+  .type-label {
+    font-size: 0.875rem;
+    font-weight: 600;
+    line-height: 1.5;
+    letter-spacing: 0.025em;
+  }
+
+  .type-meta {
+    font-size: 0.875rem;
+    line-height: 1.55;
+    letter-spacing: 0.015em;
+  }
+
+  .type-number {
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.025em;
   }
 }
 
@@ -89,13 +162,13 @@
 .photo-placeholder-plate {
   background-image: repeating-linear-gradient(
       135deg,
-      rgba(91, 137, 255, 0.05) 0 1px,
+      rgba(52, 211, 120, 0.05) 0 1px,
       transparent 1px 14px
     ),
     linear-gradient(155deg, #191e26 0%, #0f1216 58%, #131820 100%);
 }
 
-/* 向下滚动的提示箭头：用缓慢的位移代替弹跳（弹跳会显得陈旧） */
+/* 向下滚动的提示箭头：用缓慢的位移代替弹跳，保持克制。 */
 @keyframes scrollCueDrift {
   0%,
   100% {
@@ -113,11 +186,268 @@
   animation: scrollCueDrift 2.4s cubic-bezier(0.33, 1, 0.68, 1) infinite;
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .scroll-cue-drift {
-    animation: none;
+/* 履历不是一组静态卡片，而是一条从过去推进到当下的轨道。 */
+.career-track-rail {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 13px;
+  width: 1px;
+  background: linear-gradient(to bottom, rgba(52, 211, 120, 0.14), rgba(52, 211, 120, 0.4));
+}
+
+.career-track-progress {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 13px;
+  width: 1px;
+  background: var(--color-work-proof);
+  box-shadow: 0 0 12px rgba(52, 211, 120, 0.48);
+  transform: scaleY(0);
+  transform-origin: top;
+  will-change: transform;
+}
+
+.career-track-node {
+  width: 11px;
+  height: 11px;
+  flex: 0 0 auto;
+  border-radius: 9999px;
+  border: 1px solid rgba(52, 211, 120, 0.5);
+  background: #0A0B0D;
+  box-shadow: 0 0 0 5px rgba(52, 211, 120, 0.07);
+  transition:
+    background-color 280ms cubic-bezier(0.16, 1, 0.3, 1),
+    border-color 280ms cubic-bezier(0.16, 1, 0.3, 1),
+    box-shadow 280ms cubic-bezier(0.16, 1, 0.3, 1),
+    transform 280ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.career-track-item.is-reached .career-track-node {
+  background: var(--color-work-proof);
+  border-color: var(--color-work-proof-strong);
+  box-shadow: 0 0 0 6px rgba(52, 211, 120, 0.13);
+  transform: scale(1.08);
+}
+
+/* 参考站把指针当作轻微的物理输入，但不让控件追着光标跑。 */
+.project-row-title,
+.project-row-action,
+.pointer-reactive {
+  transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
+  transition-duration: 260ms;
+  transition-property: transform, background-color, border-color, color, opacity;
+}
+
+.project-scroll-rail {
+  left: clamp(1.5rem, 4vw, 4rem);
+  width: 1px;
+  background: rgba(52, 211, 120, 0.18);
+}
+
+.project-scroll-rail-progress {
+  width: 100%;
+  height: 100%;
+  transform: scaleY(0);
+  transform-origin: top;
+  background: var(--color-work-proof);
+  box-shadow: 0 0 16px rgba(52, 211, 120, 0.42);
+  will-change: transform;
+}
+
+.project-stage-rule {
+  display: block;
+  width: min(100%, 10rem);
+  height: 1px;
+  margin-top: 1.5rem;
+  transform: scaleX(0);
+  transform-origin: left;
+  background: rgba(255, 255, 255, 0.42);
+}
+
+.project-stage-rule-proof {
+  background: var(--color-work-proof);
+  box-shadow: 0 0 12px rgba(52, 211, 120, 0.42);
+}
+
+/* 方法论动画：四条路径在滚动的后段逐渐收束，最终留下"系统落地"这条主线。
+   钉住这一屏靠 WorkMethodTrace.tsx 里的 GSAP ScrollTrigger pin 实现，
+   会自己在 .method-trace-section 内插入等高的 pin-spacer 撑开滚动
+   距离，这里不需要再手动给 section 定高度。 */
+.method-trace-sticky {
+  height: 100svh;
+}
+
+.method-trace-veil {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background-image: linear-gradient(
+    to right,
+    rgba(10, 11, 13, 0.9),
+    rgba(10, 11, 13, 0) 20%
+  );
+}
+
+.method-trace-label {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 2;
+  color: #F7F7F7;
+  font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  line-height: 1;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  text-shadow:
+    0 0 5px rgba(247, 247, 247, 0.72),
+    0 0 12px rgba(52, 211, 120, 0.22);
+  will-change: transform, opacity;
+}
+
+.method-trace-outcome {
+  position: absolute;
+  top: 50%;
+  left: 61%;
+  z-index: 3;
+  width: min(34rem, 34vw);
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(-50%);
+}
+
+.method-trace-outcome-inner {
+  transform: translate3d(0, var(--method-outcome-shift, 18px), 0);
+}
+
+.method-trace-outcome-kicker {
+  color: var(--work-accent);
+  font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: 0.14em;
+}
+
+.method-trace-outcome-title {
+  margin-top: 1rem;
+  color: #F7F7F7;
+  font-size: clamp(1.75rem, 2.7vw, 3.25rem);
+  font-weight: 700;
+  line-height: 1.14;
+  letter-spacing: -0.03em;
+  text-wrap: balance;
+}
+
+.method-trace-outcome-title span {
+  color: var(--work-accent);
+}
+
+.method-trace-outcome-copy {
+  max-width: 32rem;
+  margin-top: 1.25rem;
+  color: rgba(247, 247, 247, 0.68);
+  font-size: 1rem;
+  line-height: 1.78;
+  text-wrap: pretty;
+}
+
+.method-trace-outcome-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-height: 2.75rem;
+  margin-top: 1.75rem;
+  padding-bottom: 0.2rem;
+  border-bottom: 1px solid rgba(52, 211, 120, 0.65);
+  color: #F7F7F7;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  transition:
+    color 220ms cubic-bezier(0.16, 1, 0.3, 1),
+    border-color 220ms cubic-bezier(0.16, 1, 0.3, 1),
+    gap 220ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.method-trace-outcome-link:hover {
+  gap: 0.75rem;
+  border-color: var(--work-accent);
+  color: var(--work-accent);
+}
+
+@media (max-width: 767px) {
+  .method-trace-label {
+    font-size: 0.625rem;
+  }
+
+  /* 手机上没有位置摆一张跟桌面端一样的右侧卡片，之前是直接把这块
+     结尾文案连同"查看精选项目"入口一起隐藏掉——但那样手机用户滚完
+     整段线条动画后什么解释都没有，也没有继续往下的入口。改成贴底部
+     的一条渐变遮罩条，宽度铺满、文案收窄字号，跟桌面端共用同一套
+     JS 揭示逻辑（opacity/pointer-events），只是布局换成移动端合适的
+     位置。 */
+  .method-trace-outcome {
+    top: auto;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    padding: 2rem 1.5rem 2.25rem;
+    background: linear-gradient(to top, rgba(10, 11, 13, 0.95) 60%, rgba(10, 11, 13, 0));
+    transform: none;
+  }
+
+  .method-trace-outcome-inner {
+    max-width: 26rem;
+  }
+
+  .method-trace-outcome-title {
+    font-size: clamp(1.5rem, 6vw, 2rem);
+  }
+
+  .method-trace-outcome-copy {
+    max-width: none;
   }
 }
+
+@media (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
+  .project-row:hover .project-row-title {
+    transform: translate3d(
+      var(--pointer-shift-soft-x, 0px),
+      var(--pointer-shift-soft-y, 0px),
+      0
+    );
+  }
+
+  .project-row:hover .project-row-action,
+  .pointer-reactive:hover {
+    transform: translate3d(var(--pointer-shift-x, 0px), var(--pointer-shift-y, 0px), 0);
+  }
+}
+
+.copy-confirm-icon {
+  animation: copyConfirmPop 0.32s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@keyframes copyConfirmPop {
+  0% {
+    opacity: 0.4;
+    transform: scale(0.6);
+  }
+  65% {
+    transform: scale(1.16);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
 
 /* CHARACTER PROCEDURAL KEYFRAMES */
 
@@ -263,87 +593,11 @@
   animation: shuttlecockFlight 1.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
-/* Modal String Line Markers & Canvas Overlay */
-.line-marker {
-  position: absolute;
-  top: 0;
-  left: 0;
-  pointer-events: none;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  transform: translate3d(0, 0, 0);
-  will-change: transform, opacity;
-  white-space: nowrap;
-  z-index: 10;
-}
-
-.marker-dot {
-  width: 8px;
-  height: 8px;
-  border-radius: 9999px;
-  background-color: #5B89FF;
-  box-shadow: 0 0 10px #5B89FF, 0 0 20px #5B89FF;
-  flex-shrink: 0;
-}
-
-.marker-label {
-  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-  font-size: 11px;
-  font-weight: 600;
-  letter-spacing: 0.12em;
-  color: #f4f4f5;
-  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.9);
-}
-
-/* 窄屏：最长的一条标签（STAKEHOLDER ALIGNMENT）在 360~430px 会被右边缘切掉尾巴，
-   这里把字号与字距收一点，保证标签完整显示。 */
-@media (max-width: 480px) {
-  .marker-label {
-    font-size: 10px;
-    letter-spacing: 0.04em;
-  }
-}
-
-/* Modal String Tuner Controls */
-.tuner-row {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.tuner-row-top {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-  font-size: 11px;
-  color: #d4d4d8;
-}
-
-.tuner-row-top output {
-  color: #5B89FF;
-  font-weight: 600;
-}
-
-.tuner-hint {
-  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-  font-size: 10px;
-  color: #8A93A0;
-  line-height: 1.35;
-}
-
-.tuner-row input[type="range"] {
-  width: 100%;
-  accent-color: #5B89FF;
-  cursor: pointer;
-}
-
 /* Print style for Clean Resume
    打印时把简历弹窗还原成一张正常的白纸文档：
    1) 去掉"固定定位 + 最高 92vh + 内部滚动"，否则只会打印出屏幕上那一屏，后面全被裁掉
    2) 深色底改成白底黑字，省墨也方便 HR 打印
-   3) 保留克莱因蓝做重点（职位、职责、成效） */
+   3) 保留品牌绿做重点（职位、职责、成效） */
 @media print {
   /* 隔离：只有简历弹窗打开时，才把页面上其它所有内容藏起来。
      弹窗和作品集首页是"兄弟节点"，不藏的话第一屏会先打出作品集首页，
@@ -411,12 +665,12 @@
     break-inside: auto;
   }
 
-  /* 重点信息保留克莱因蓝，打印出来仍有品牌感 */
-  .resume-print-body [class~="text-[#5B89FF]"] {
-    color: #002FA7 !important;
+  /* 重点信息保留品牌绿，打印出来仍有品牌感 */
+  .resume-print-body [class~="text-[#34D378]"] {
+    color: #0E7C3D !important;
   }
   .resume-print-body [class~="border-l-2"] {
-    border-left-color: #002FA7 !important;
+    border-left-color: #0E7C3D !important;
   }
   /* 小标题（英文栏目名）压成中灰，层级仍清楚 */
   .resume-print-body [class~="text-[#A8B0BC]"] {
@@ -425,5 +679,76 @@
   /* 项目卡片不要被撕成两半 */
   .resume-print-body [class~="rounded-xl"] {
     break-inside: avoid;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-ping {
+    animation: none;
+  }
+  .scroll-cue-drift {
+    animation: none;
+  }
+  .career-track-progress {
+    transform: scaleY(1) !important;
+  }
+  .career-track-node,
+  .copy-confirm-icon {
+    animation: none !important;
+    opacity: 1;
+    transform: none;
+  }
+  .career-track-node {
+    background: var(--color-work-proof);
+    border-color: var(--color-work-proof-strong);
+    box-shadow: none;
+  }
+  /* 静态降级保留原生 SVG 的完整收束结果，不依赖 WebGL。 */
+  .method-trace-section {
+    min-height: 0;
+    height: auto;
+  }
+  .method-trace-sticky {
+    position: relative;
+    height: min(100svh, 720px);
+  }
+  .method-trace-label {
+    opacity: 1;
+    top: var(--method-label-top);
+    left: var(--method-label-left);
+    transform: translate(-50%, -136%) !important;
+  }
+  .method-trace-outcome {
+    opacity: 1 !important;
+    pointer-events: auto !important;
+  }
+  .method-trace-outcome-inner {
+    transform: none !important;
+  }
+  .project-scroll-rail-progress,
+  .project-stage-rule,
+  .project-row-title,
+  .project-row-action,
+  .pointer-reactive {
+    transition: none !important;
+  }
+  .project-scroll-rail-progress,
+  .project-stage-rule {
+    transform: none;
+  }
+  .leo-breathing-bob,
+  .leo-walking-bob,
+  .leo-leg-front,
+  .leo-leg-back,
+  .leo-arm-front,
+  .leo-arm-back,
+  .leo-racket-swing,
+  .shuttlecock-fly {
+    animation: none;
+  }
+  /* 展开/收起仍有清楚的透明度反馈，但不让内容高度运动。 */
+  .motion-disclosure {
+    transition-property: opacity;
+    transition-duration: 150ms;
   }
 }

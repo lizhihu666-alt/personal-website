@@ -1,30 +1,79 @@
-import React, { useState, useEffect } from 'react';
-import { ArrowDown, FileText, Mail, ArrowUpRight } from 'lucide-react';
+import React, { useLayoutEffect, useRef } from 'react';
+import { FileText, Mail, ArrowDown } from 'lucide-react';
 import { LeoCharacter } from '../character/LeoCharacter';
+import Topography from '../effects/Topography';
+import { gsap, isReducedMotion, ScrollTrigger } from '../../utils/gsapSetup';
+import { resetPointerMotion, updatePointerMotion } from '../../utils/pointerMotion';
 
 interface WorkHeroProps {
   onOpenResume?: () => void;
 }
 
 export const WorkHero: React.FC<WorkHeroProps> = ({ onOpenResume }) => {
-  const [cstTime, setCstTime] = useState('');
+  const sectionRef = useRef<HTMLElement>(null);
 
-  // Real-time Shenzhen CST Clock
-  useEffect(() => {
-    const updateTime = () => {
-      const now = new Date();
-      const options: Intl.DateTimeFormatOptions = {
-        timeZone: 'Asia/Shanghai',
-        hour: '2-digit',
-        minute: '2-digit',
-        second: '2-digit',
-        hour12: false,
-      };
-      setCstTime(new Intl.DateTimeFormat('en-GB', options).format(now));
-    };
-    updateTime();
-    const interval = setInterval(updateTime, 1000);
-    return () => clearInterval(interval);
+  useLayoutEffect(() => {
+    if (isReducedMotion()) return;
+
+    const ctx = gsap.context(() => {
+      const tl = gsap.timeline({ defaults: { ease: 'power3.out' } });
+
+      tl.fromTo(
+        '.hero-headline-line',
+        { yPercent: 115 },
+        {
+          yPercent: 0,
+          duration: 0.85,
+          stagger: 0.11,
+          clearProps: 'transform',
+        },
+        0.05
+      )
+        .fromTo(
+          '.hero-highlight',
+          { clipPath: 'inset(0 100% 0 0)' },
+          {
+            clipPath: 'inset(0 0% 0 0)',
+            duration: 0.55,
+            ease: 'power2.inOut',
+            clearProps: 'clipPath',
+          },
+          0.42
+        )
+        .fromTo(
+          '.hero-subtitle',
+          { y: 16, opacity: 0 },
+          { y: 0, opacity: 1, duration: 0.55, clearProps: 'transform,opacity' },
+          0.42
+        )
+        .fromTo(
+          '.hero-actions',
+          { y: 12, opacity: 0 },
+          { y: 0, opacity: 1, duration: 0.5, clearProps: 'transform,opacity' },
+          0.54
+        )
+        .fromTo(
+          '.hero-scroll-cue',
+          { y: 8, opacity: 0 },
+          { y: 0, opacity: 1, duration: 0.45, clearProps: 'transform,opacity' },
+          0.82
+        );
+
+      // 开场钉住不动，让"成果"区块从下方整块滑上来盖住它——参考 GSAP
+      // 官方 ScrollTrigger 的 layered-pinning 案例（pinSpacing 必须是
+      // false）：pinSpacing 用默认的 true 会多留一段等长的占位空间，
+      // 导致要多滚一倍距离才能看到下一屏盖上来，效果几乎感觉不到。
+      // 设为 false 后不留占位，"成果"紧贴着 Hero 原来的位置起步，滚动
+      // 一屏的距离就能看到它完整地盖上来。
+      ScrollTrigger.create({
+        trigger: sectionRef.current,
+        start: 'top top',
+        pin: true,
+        pinSpacing: false,
+      });
+    }, sectionRef);
+
+    return () => ctx.revert();
   }, []);
 
   const scrollToSection = (id: string) => {
@@ -37,188 +86,105 @@ export const WorkHero: React.FC<WorkHeroProps> = ({ onOpenResume }) => {
   return (
     <section
       id="work-hero"
-      className="relative min-h-[calc(100vh-4rem)] flex flex-col justify-between pt-10 pb-12 px-6 sm:px-10 lg:px-16 border-b border-[#232A33] bg-[#0A0B0D] text-[#F3F5F8]"
+      ref={sectionRef}
+      className="relative min-h-[calc(100dvh-4rem)] flex flex-col justify-between overflow-hidden pt-10 pb-12 px-6 sm:px-10 lg:px-16 bg-[#0A0B0D] text-[#F3F5F8]"
     >
-      {/* Top Metadata Bar */}
-      <div className="max-w-7xl mx-auto w-full">
-        <div className="flex flex-wrap items-center justify-between gap-4 pb-6 border-b border-[#232A33]">
-          <div className="flex items-center gap-3">
-            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-[#002FA7]/10 text-[#5B89FF] text-xs font-mono font-medium tracking-wide">
-              <span className="w-1.5 h-1.5 rounded-full bg-[#5B89FF]" />
-              SYSTEM & PRODUCT ARCHITECTURE
-            </span>
-            <span className="text-xs font-mono text-[#A8B0BC] hidden sm:inline">
-              LEO HU · 2026 WORK PORTFOLIO
-            </span>
-          </div>
+      {/* 官方 React Bits Topography 组件（ogl 版）。背景层用 z-0（不用负数
+          z-index，之前排查出来负数 z-index 在某些渲染链路下会让整层内容
+          彻底不可见）。组件自己在 canvas 上监听 mousemove 做鼠标跟随，
+          但前景内容的包裹 div 即使视觉上大片透明，它的布局盒子本身还是
+          会整块拦截鼠标事件——之前忘了给前景包裹层加 pointer-events-none，
+          导致鼠标一进入文字/按钮所在的那个大矩形范围，事件根本传不到
+          下面的 canvas，图案自然看起来"不跟着鼠标动"。现在前景包裹层统一
+          设为 pointer-events-none，只在真正需要点击的按钮上单独加回
+          pointer-events-auto。 */}
+      <div className="absolute inset-0 z-0" aria-hidden="true">
+        <Topography
+          lowColor="#0A0B0D"
+          midColor="#0E7C3D"
+          highColor="#34D378"
+          speed={0.35}
+          morphAmount={2.0}
+          morphSpeed={0.05}
+          bands={2.0}
+          thickness={0.01}
+          scale={1.8}
+          pixelSize={1.0}
+          glow={0.5}
+          colorMode="elevation"
+          contrast={3.0}
+          brightness={1.0}
+          fillBands={false}
+          opacity={1.0}
+          grain={true}
+          grainIntensity={0.05}
+          mouseInteraction={true}
+          mouseRadius={0.3}
+          mouseStrength={0.4}
+        />
+      </div>
 
-          <div className="flex items-center gap-4 text-xs font-mono text-[#A8B0BC]">
-            <span className="hidden md:inline">SHENZHEN, CHINA · CST (UTC+8)</span>
-            <span className="text-[#A8B0BC] hidden md:inline">/</span>
+      <div className="relative z-10 max-w-6xl mx-auto w-full my-auto py-10 sm:py-14 pointer-events-none">
+        <div className="lg:hidden flex items-center gap-4 mb-10">
+          <div className="shrink-0 w-20 h-20 rounded-xl bg-[#111418] border border-[#232A33] flex items-center justify-center overflow-hidden">
+            <LeoCharacter action="sit-desk" className="w-16 h-16" />
+          </div>
+          <div className="min-w-0">
+            <div className="text-lg font-semibold text-[#F3F5F8] leading-tight">Leo Hu · 胡利致</div>
+            <div className="text-sm text-[#A8B0BC] mt-1">资深出海产品经理 · 深圳</div>
+          </div>
+        </div>
+
+        <h1 className="type-display text-[#F3F5F8]">
+          <span className="block overflow-hidden pb-[0.08em] -mb-[0.08em]">
+            <span className="hero-headline-line block">以系统化思维，</span>
+          </span>
+          <span className="block overflow-hidden pb-[0.08em] -mb-[0.08em]">
+            <span className="hero-headline-line block">做跨境中台与业务架构</span>
+          </span>
+        </h1>
+
+        <div className="mt-10 sm:mt-14 space-y-7 max-w-[34rem]">
+          <p className="hero-subtitle type-lead text-[#C3CAD5]">
+            把复杂业务，接到<span className="hero-highlight inline-block text-[#34D378] font-semibold">真正跑得起来的系统</span>上。
+          </p>
+
+          <div className="hero-actions flex flex-wrap items-center gap-3">
             <button
-              id="hero-top-contact-btn"
+              id="hero-primary-contact-btn"
               onClick={() => scrollToSection('work-contact')}
-              className="text-[#5B89FF] hover:text-[#5B89FF] font-medium transition-colors flex items-center gap-1 focus:outline-none"
+              onPointerMove={updatePointerMotion}
+              onPointerLeave={resetPointerMotion}
+              className="pointer-reactive pointer-events-auto inline-flex min-h-11 items-center gap-2 rounded-xl bg-[#0E7C3D] hover:bg-[#0A6631] px-5 py-3 text-sm font-medium text-white transition-colors"
             >
-              <span>联系交流</span>
-              <ArrowUpRight className="w-3.5 h-3.5" />
+              <Mail className="w-4 h-4" />
+              <span>发起交流</span>
             </button>
+
+            {onOpenResume && (
+              <button
+                id="hero-open-resume-btn"
+                onClick={onOpenResume}
+                className="pointer-events-auto inline-flex min-h-11 items-center gap-2 rounded-xl bg-[#111418] hover:bg-[#0A0B0D] border border-[#2B323C] hover:border-[#3A424E] px-5 py-3 text-sm font-medium text-[#F3F5F8] transition-colors"
+              >
+                <FileText className="w-4 h-4 text-[#34D378]" />
+                <span>查看履历</span>
+              </button>
+            )}
           </div>
         </div>
       </div>
 
-      {/* Main Hero Content: Clean, Asymmetrical 2-Column Grid */}
-      <div className="max-w-7xl mx-auto w-full my-auto py-10 sm:py-14">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-16 items-center">
-          
-          {/* Left Column: Clear, High-Contrast Typography & Value Proposition */}
-          <div className="lg:col-span-7 space-y-6">
-
-            {/* 手机端身份条：让第一屏先出现「人」，再进入系统术语 */}
-            <div className="lg:hidden flex items-center gap-4">
-              <div className="shrink-0 w-20 h-20 rounded-xl bg-[#0A0B0D] border border-[#232A33] flex items-center justify-center overflow-hidden">
-                <LeoCharacter action="sit-desk" className="w-16 h-16" />
-              </div>
-              <div className="min-w-0">
-                <div className="text-base font-semibold text-[#F3F5F8] leading-tight">
-                  Leo Hu · 胡子
-                </div>
-                <div className="text-xs font-mono text-[#A8B0BC] mt-1 leading-relaxed">
-                  资深出海产品经理 · 深圳
-                </div>
-              </div>
-            </div>
-
-            <div className="space-y-2">
-              <div className="text-xs font-mono tracking-widest text-[#5B89FF] uppercase font-semibold">
-                Cross-Border PM & System Builder
-              </div>
-              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight text-[#F3F5F8] leading-[1.12]">
-                以系统化思维
-                <br />
-                做跨境中台
-                <br className="sm:hidden" />
-                与业务架构
-              </h1>
-              <p className="text-lg sm:text-xl text-[#C3CAD5] font-normal leading-snug">
-                Connecting business logic to <span className="text-[#5B89FF] font-semibold italic">working systems</span>.
-              </p>
-            </div>
-
-            <p className="text-sm sm:text-base text-[#A8B0BC] leading-relaxed max-w-2xl">
-              深耕跨境出海领域，将错综复杂的业务诉求拆解为标准化 SOP、容错接口与高可用履约中台。践行敏捷全栈 Vibe Coding，以天为单位交付高保真原型，消除部门协同摩擦，驱动商业落地。
-            </p>
-
-            {/* CTAs */}
-            <div className="flex flex-wrap items-center gap-3 pt-2">
-              <button
-                id="hero-primary-contact-btn"
-                onClick={() => scrollToSection('work-contact')}
-                className="px-5 py-3 rounded-lg bg-[#002FA7] hover:bg-[#002585] text-white text-xs font-mono font-medium tracking-wider uppercase transition-colors flex items-center gap-2 shadow-xs focus:outline-none"
-              >
-                <Mail className="w-4 h-4" />
-                <span>发起交流 · Contact</span>
-              </button>
-
-              {onOpenResume && (
-                <button
-                  id="hero-open-resume-btn"
-                  onClick={onOpenResume}
-                  className="px-5 py-3 rounded-lg bg-[#111418] hover:bg-[#0A0B0D] text-[#F3F5F8] border border-[#2B323C] hover:border-[#3A424E] text-xs font-mono font-medium tracking-wider uppercase transition-colors flex items-center gap-2 shadow-xs focus:outline-none"
-                >
-                  <FileText className="w-4 h-4 text-[#5B89FF]" />
-                  <span>查看履历 · Resume Sheet</span>
-                </button>
-              )}
-
-              <button
-                id="hero-view-method-btn"
-                onClick={() => scrollToSection('work-method')}
-                className="px-4 py-3 text-xs font-mono text-[#A8B0BC] hover:text-[#F3F5F8] tracking-wider uppercase transition-colors flex items-center gap-1.5 focus:outline-none"
-              >
-                <span>工作方法论</span>
-                <ArrowDown className="w-3.5 h-3.5 text-[#5B89FF]" />
-              </button>
-            </div>
-          </div>
-
-          {/* Right Column: Architectural Profile Card */}
-          <div className="lg:col-span-5">
-            <div className="bg-[#111418] border border-[#232A33] rounded-xl p-6 sm:p-7 shadow-[0_2px_12px_rgba(0,0,0,0.03)] space-y-6">
-              
-              {/* Card Header with Live Status */}
-              <div className="flex items-center justify-between border-b border-[#232A33] pb-4">
-                <div className="flex items-center gap-2">
-                  <span className="w-2 h-2 rounded-full bg-[#5B89FF]" />
-                  <span className="text-xs font-mono text-[#F3F5F8] font-semibold">LEO @ DESK</span>
-                </div>
-                <div className="text-xs font-mono text-[#5B89FF] font-semibold bg-[#002FA7]/10 px-2 py-0.5 rounded">
-                  {cstTime || '18:00:00 CST'}
-                </div>
-              </div>
-
-              {/* Central Visual: Leo Character at Desk */}
-              <div className="hidden lg:flex flex-col items-center justify-center py-4 bg-[#0A0B0D] rounded-lg border border-[#232A33]">
-                <LeoCharacter action="sit-desk" className="w-36 h-36" />
-                <div className="text-center mt-2">
-                  <div className="text-sm font-semibold text-[#F3F5F8]">Leo Hu · 胡子</div>
-                  <div className="text-xs font-mono text-[#A8B0BC] mt-0.5">
-                    威斯康星麦迪逊 MSBA · 资深出海产品经理
-                  </div>
-                </div>
-              </div>
-
-              {/* Key Domains Pills */}
-              <div className="space-y-2">
-                <div className="text-[11px] font-mono text-[#A8B0BC] uppercase tracking-wider">
-                  Core Practice Focus
-                </div>
-                <div className="flex flex-wrap gap-2">
-                  {[
-                    '跨境中台架构',
-                    '标准化 SOP 流程',
-                    '数据对账规范',
-                    '全栈原型交付',
-                  ].map((tag) => (
-                    <span
-                      key={tag}
-                      className="px-2.5 py-1 rounded-md bg-[#0A0B0D] border border-[#232A33] text-xs font-mono text-[#C3CAD5]"
-                    >
-                      {tag}
-                    </span>
-                  ))}
-                </div>
-              </div>
-
-              {/* Verification Footer */}
-              <div className="pt-3 border-t border-[#232A33] flex items-center justify-between text-xs font-mono text-[#A8B0BC]">
-                <span>SHENZHEN / REMOTE</span>
-                <span className="text-[#F3F5F8] font-medium">BILINGUAL (EN/ZH)</span>
-              </div>
-            </div>
-          </div>
-
-        </div>
-      </div>
-
-      {/* Bottom Status Strip */}
-      <div className="max-w-7xl mx-auto w-full pt-6 border-t border-[#232A33]">
-        <div className="flex flex-wrap items-center justify-between gap-4 text-xs font-mono text-[#A8B0BC]">
-          <div className="flex items-center gap-2">
-            <span className="text-[#F3F5F8] font-semibold">LEO HU</span>
-            <span>/</span>
-            <span>CROSS-BORDER E-COMMERCE & DIGITAL SUPPLY CHAIN</span>
-          </div>
-
-          <button
-            id="hero-scroll-cue-bottom"
-            onClick={() => scrollToSection('work-signal')}
-            className="flex items-center gap-2 text-[#5B89FF] hover:text-[#5B89FF] transition-colors focus:outline-none"
-          >
-            <span>向下浏览核心能力</span>
-            <ArrowDown className="w-3.5 h-3.5" />
-          </button>
-        </div>
+      <div className="relative z-10 max-w-6xl mx-auto w-full pointer-events-none">
+        <button
+          type="button"
+          onClick={() => scrollToSection('work-impact')}
+          className="hero-scroll-cue group pointer-events-auto inline-flex min-h-11 items-center gap-3 text-sm text-[#8C95A3] hover:text-[#F3F5F8] transition-colors"
+        >
+          <span className="h-px w-8 bg-[#3A424E] group-hover:bg-[#34D378] transition-colors" />
+          <span>向下查看成果</span>
+          <ArrowDown className="scroll-cue-drift w-4 h-4 text-[#34D378]" aria-hidden="true" />
+        </button>
       </div>
     </section>
   );
