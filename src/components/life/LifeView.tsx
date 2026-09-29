@@ -402,7 +402,7 @@ export const LifeView: React.FC = () => {
                   className="w-full h-full"
                 />
               </div>
-              <div className="text-[11px] font-mono text-[#98A1AF] tracking-tight mt-1 flex items-center gap-1.5">
+              <div className="text-[12px] font-mono text-[#98A1AF] tracking-tight mt-1 flex items-center gap-1.5">
                 <span className="w-1.5 h-1.5 rounded-full bg-[#4F8CFF]" />
                 <span>Leo @ Court · 换下正装，认真出汗与生活</span>
               </div>
@@ -417,7 +417,7 @@ export const LifeView: React.FC = () => {
                 “没有 KPI 的热爱，才是精神真正的锚点。”
               </span>
             </div>
-            <div className="font-mono text-[11px] text-[#98A1AF] self-end sm:self-auto">
+            <div className="font-mono text-[12px] text-[#98A1AF] self-end sm:self-auto">
               50mm Lens · Yonex Astrox · Road Trips
             </div>
           </div>
@@ -451,7 +451,7 @@ export const LifeView: React.FC = () => {
                     <span className="font-mono text-xs text-[#4F8CFF] font-medium">
                       0{idx + 1} / 04
                     </span>
-                    <span className="text-[11px] font-mono text-[#98A1AF]">
+                    <span className="text-[12px] font-mono text-[#98A1AF]">
                       PERSONAL ESSAY
                     </span>
                   </div>
@@ -565,10 +565,10 @@ export const LifeView: React.FC = () => {
 
                 {/* Subtle Framing Guides */}
                 <div className="absolute inset-6 border border-white/10 pointer-events-none" />
-                <div className="hidden sm:block absolute top-8 left-8 text-[10px] font-mono text-white/55 uppercase">
+                <div className="hidden sm:block absolute top-8 left-8 text-[12px] font-mono text-white/55 uppercase">
                   RAW 14-BIT · {activePhoto.focalLength} · {activePhoto.aperture}
                 </div>
-                <div className="hidden sm:block absolute bottom-8 right-8 text-[10px] font-mono text-white/55 uppercase">
+                <div className="hidden sm:block absolute bottom-8 right-8 text-[12px] font-mono text-white/55 uppercase">
                   LEO PET ARCHIVE
                 </div>
 
@@ -589,7 +589,7 @@ export const LifeView: React.FC = () => {
                     className={`photo-placeholder-plate relative w-full max-w-sm overflow-hidden rounded-sm border border-white/10 flex flex-col items-center justify-center gap-2 px-6 text-center ${activePhoto.aspectRatio}`}
                   >
                     <Camera className="w-5 h-5 text-[#4F8CFF]" />
-                    <div className="text-[11px] font-mono tracking-[0.2em] text-[#A8B0BC] uppercase">
+                    <div className="text-[12px] font-mono tracking-[0.2em] text-[#A8B0BC] uppercase">
                       Photo Pending
                     </div>
                     <div className="max-w-[15rem] text-xs leading-relaxed text-[#C3CAD5]">
@@ -623,19 +623,19 @@ export const LifeView: React.FC = () => {
                   {/* Camera parameters grid */}
                   <div className="photo-meta-reveal grid grid-cols-3 gap-2 p-4 rounded-lg bg-[#0D1014] border border-[#232A33] text-xs font-mono mb-5 text-[#A8B0BC]">
                     <div>
-                      <div className="text-[10px] text-[#98A1AF]">FOCAL</div>
+                      <div className="text-[12px] text-[#98A1AF]">FOCAL</div>
                       <div className="mt-0.5 text-sm font-semibold text-[#F3F5F8]">
                         {activePhoto.focalLength}
                       </div>
                     </div>
                     <div>
-                      <div className="text-[10px] text-[#98A1AF]">APERTURE</div>
+                      <div className="text-[12px] text-[#98A1AF]">APERTURE</div>
                       <div className="mt-0.5 text-sm font-semibold text-[#F3F5F8]">
                         {activePhoto.aperture}
                       </div>
                     </div>
                     <div>
-                      <div className="text-[10px] text-[#98A1AF]">ISO</div>
+                      <div className="text-[12px] text-[#98A1AF]">ISO</div>
                       <div className="mt-0.5 text-sm font-semibold text-[#F3F5F8]">
                         {activePhoto.iso}
                       </div>
@@ -659,7 +659,7 @@ export const LifeView: React.FC = () => {
                   </div>
                 </div>
 
-                <div className="photo-meta-reveal mt-6 pt-4 border-t border-[#232A33] flex items-center justify-between text-[11px] font-mono text-[#98A1AF]">
+                <div className="photo-meta-reveal mt-6 pt-4 border-t border-[#232A33] flex items-center justify-between text-[12px] font-mono text-[#98A1AF]">
                   <span>GENUINE PORTRAITS ONLY</span>
                   <span>NO STOCK FILLERS</span>
                 </div>
@@ -807,7 +807,7 @@ export const LifeView: React.FC = () => {
                   <text
                     x="305"
                     y="185"
-                    fontSize="9"
+                    fontSize="12"
                     fill="#4A5361"
                     fontFamily="monospace"
                   >
@@ -914,7 +914,7 @@ export const LifeView: React.FC = () => {
                 {/* Center / Right: Memory snippet & Highlight */}
                 <div className="md:max-w-md text-xs text-[#A8B0BC] space-y-1 font-light border-t md:border-t-0 pt-3 md:pt-0 border-[#232A33]">
                   <p className="leading-relaxed">{dest.memory}</p>
-                  <div className="text-[11px] font-mono text-[#A8B0BC] pt-1">
+                  <div className="text-[12px] font-mono text-[#A8B0BC] pt-1">
                     <span className="text-[#4F8CFF] font-semibold">记忆亮点：</span>{' '}
                     {dest.highlight}
                   </div>

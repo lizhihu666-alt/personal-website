@@ -62,13 +62,12 @@ const PIXEL_EXIT_COLOR = '#F3F5F8';
 const PIXEL_CELL_SIZE = 80;
 // 文字全部出现后先留一段停顿(HOLD_END 之前什么都不发生)再触发转场——
 // 不然鼠标一下滑，惯性马上就把变白动画带出来了，跟 WorkImpact 变黑
-// 之前加缓冲是同一个道理。缓冲的物理滚动量由下面 ScrollTrigger 的
-// end(`innerHeight * 8.5`，即 850vh 的额外滚动距离)提供——这 850vh
-// 加上钉住元素自己的 100vh(.method-trace-sticky 的高度)，总跨度正好
-// 是原先(750svh)的设计意图上再加 200svh 的缓冲，凑成 950vh。线条
-// 汇合、文字揭示、变白转场这三段自己的实际滚动距离不变，只是被更长
-// 的总滚动范围稀释成了更小的百分比，多出来的量全部划给缓冲。
-const HOLD_END = 0.9082;
+// 之前加缓冲是同一个道理，但停顿不能太长：之前留了 265vh 的纯空滚动
+// （950vh 总跨度里，文字在 507vh 处就已经揭示完，转场却要等到 772vh
+// 才开始），读者滑到怀疑人生才能翻到下一个板块。现在把总跨度收到
+// window.innerHeight * 4.9（约 490vh），停顿只留 50vh，线条汇合/文字
+// 揭示的相对节奏不变，只是整体更紧凑。
+const HOLD_END = 0.8776;
 const PIXEL_TRANSITION_START = HOLD_END;
 
 const clamp = (value: number, min = 0, max = 1) => Math.min(max, Math.max(min, value));
@@ -92,13 +91,13 @@ const smoothstep = (start: number, end: number, value: number) => {
   return progress * progress * (3 - 2 * progress);
 };
 
-// 线条汇合(fuse)、文字揭示、变白转场三段各自的物理滚动距离固定，
-// 换算成新总滚动范围(ScrollTrigger 的 850vh 距离 + 钉住元素自身的
-// 100vh，合计 950vh)下的百分比就是这几个数——同一批常量还要跟着
-// HOLD_END/TEXT_REVEAL_END 一起改，不能只改其中一个。
-const ENTER_END = 0.3059;
-const FUSE_END = 0.4741;
-const TEXT_REVEAL_END = 0.5965;
+// 线条汇合(fuse)、文字揭示、变白转场几段各自的物理滚动距离（进入
+// 200vh、汇合 100vh、文字揭示 80vh、停顿 50vh、转场 60vh，共 490vh），
+// 换算成 ScrollTrigger 总滚动范围下的百分比就是这几个数——同一批常量
+// 要跟着 HOLD_END 一起改，不能只改其中一个。
+const ENTER_END = 0.4082;
+const FUSE_END = 0.6122;
+const TEXT_REVEAL_END = 0.7755;
 
 const getScrollState = (progress: number) => {
   const enterProgress = easeOutQuad(clamp(progress / ENTER_END));
@@ -500,7 +499,7 @@ export const WorkMethodTrace: React.FC = () => {
     const trigger = ScrollTrigger.create({
       trigger: sticky,
       start: 'top top',
-      end: () => `+=${window.innerHeight * 8.5}`,
+      end: () => `+=${window.innerHeight * 4.9}`,
       pin: true,
       scrub: true,
       anticipatePin: 1,

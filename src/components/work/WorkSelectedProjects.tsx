@@ -24,6 +24,7 @@ export const WorkSelectedProjects: React.FC = () => {
   const containerRef = useRef<HTMLElement>(null);
   const pinRef = useRef<HTMLDivElement>(null);
   const trackRef = useRef<HTMLDivElement>(null);
+  const progressLabelRef = useRef<HTMLSpanElement>(null);
 
   useLayoutEffect(() => {
     if (isReducedMotion()) return;
@@ -64,6 +65,18 @@ export const WorkSelectedProjects: React.FC = () => {
           anticipatePin: 1,
           onUpdate: (self) => {
             track.style.transform = `translate3d(${-(self.progress * getDistance())}px, 0, 0)`;
+            // 横向滑卡没有原生滚动条能给方向/数量提示，靠这个小标签告诉
+            // 用户"现在第几张、一共几张"——直接改 textContent 而不是走
+            // React state，避免每个滚动帧都触发一次组件重渲染。
+            if (progressLabelRef.current) {
+              const activeIndex = Math.min(
+                projects.length - 1,
+                Math.round(self.progress * (projects.length - 1))
+              );
+              progressLabelRef.current.textContent = `${String(activeIndex + 1).padStart(2, '0')} / ${String(
+                projects.length
+              ).padStart(2, '0')}`;
+            }
           },
         });
       }, containerRef);
@@ -105,10 +118,22 @@ export const WorkSelectedProjects: React.FC = () => {
     >
       <div ref={pinRef} className="project-rail relative overflow-hidden pt-8 pb-16 sm:pt-12 sm:pb-24">
         <div className="max-w-6xl mx-auto w-full px-6 sm:px-10 lg:px-16">
-          <h2 className="type-section text-[#0A0B0D] max-w-4xl">
-            精选项目，<br className="sm:hidden" />
-            皆以系统落地。
-          </h2>
+          <div className="flex items-end justify-between gap-4">
+            <h2 className="type-section text-[#0A0B0D] max-w-4xl">
+              精选项目，<br className="sm:hidden" />
+              皆以系统落地。
+            </h2>
+            {/* 横向滑卡没有原生滚动条，加个"当前/总数"提示，告诉用户还有
+                更多卡片、以及大概滑到哪了——纯装饰性的滚动进度提示，不是
+                真实的可交互控件，对读屏隐藏。 */}
+            <span
+              ref={progressLabelRef}
+              aria-hidden="true"
+              className="hidden shrink-0 pb-1 font-mono text-sm tabular-nums text-[#6B7280] sm:block"
+            >
+              {`01 / ${String(projects.length).padStart(2, '0')}`}
+            </span>
+          </div>
           <p className="type-lead mt-6 max-w-[62ch] text-[#4B5563]">
             进入全屏案例，从问题、系统到结果，完整看清每一次落地。
           </p>
@@ -132,7 +157,10 @@ export const WorkSelectedProjects: React.FC = () => {
                   onPointerLeave={resetPointerMotion}
                   className="project-card group flex w-[300px] shrink-0 flex-col rounded-2xl border border-[#D8DCE2] bg-white/70 p-7 transition-colors duration-300 hover:bg-white sm:w-[360px] sm:p-8"
                 >
-                  <div className="flex items-center justify-between type-meta text-[#8A94A3] tabular-nums">
+                  {/* #8A94A3 对 bg-white/70 只有 3.0:1 对比度，低于 WCAG AA
+                      文本要求的 4.5:1——换成同样偏灰但更深一档的 #6B7280
+                      （约 4.8:1），仍然读作弱化的元信息，但不再是真的看不清。 */}
+                  <div className="flex items-center justify-between type-meta text-[#6B7280] tabular-nums">
                     <span>
                       {String(index + 1).padStart(2, '0')} / {project.category}
                     </span>
@@ -149,7 +177,7 @@ export const WorkSelectedProjects: React.FC = () => {
                       <div className="type-number text-4xl font-semibold text-[#0E7C3D]">
                         {metric.value}
                       </div>
-                      <div className="type-meta mt-1 text-[#8A94A3]">{metric.label}</div>
+                      <div className="type-meta mt-1 text-[#6B7280]">{metric.label}</div>
                     </div>
                   )}
 

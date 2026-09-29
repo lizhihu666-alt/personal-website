@@ -756,7 +756,11 @@ struct PostParams {
 fn visibleResidual(uv: vec2f) -> vec4f {
   let scene = textureSampleLevel(sceneTexture, sceneSampler, uv, 0.0).rgb;
   let residual = scene - post.background.rgb;
-  let energy = dot(abs(residual), vec3f(0.2126, 0.7152, 0.0722));
+  // 用色相无关的最大通道强度判断"这个像素有多显眼"，而不是按人眼亮度
+  // 加权（那样绿色权重 0.7152 远高于蓝色 0.0722，同样饱和度下绿色碎片
+  // 会被判定成亮得多，触发强得多的 bloom，边缘显得锐利有光泽；蓝色几乎
+  // 不触发 bloom，就会显得发糊、像水滴而不是有棱角的碎片）。
+  let energy = max(abs(residual.r), max(abs(residual.g), abs(residual.b)));
   let threshold = post.bloomInfo.z;
   let knee = post.bloomInfo.w;
   let contribution = smoothstep(threshold - knee, threshold + knee, energy);

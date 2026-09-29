@@ -39,7 +39,7 @@ const AERO_BASE = {
   depth: 1,
   speed: 0.8,
   spin: 1,
-  interaction: 'repel',
+  interaction: 'none',
   density: 1.5,
   shardSize: 1.1,
   stretch: 1,

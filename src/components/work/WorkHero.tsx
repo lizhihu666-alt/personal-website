@@ -71,11 +71,20 @@ export const WorkHero: React.FC<WorkHeroProps> = ({ onOpenResume, skipIntro = fa
       // 导致要多滚一倍距离才能看到下一屏盖上来，效果几乎感觉不到。
       // 设为 false 后不留占位，"成果"紧贴着 Hero 原来的位置起步，滚动
       // 一屏的距离就能看到它完整地盖上来。
-      ScrollTrigger.create({
-        trigger: sectionRef.current,
-        start: 'top top',
-        pin: true,
-        pinSpacing: false,
+      //
+      // 只在 md 以上启用：移动端的 dvh 计算受地址栏收起/展开影响，
+      // Hero 自身内容（含只在移动端显示的头像卡）也更容易比一屏高，
+      // 这套叠层钉住在窄屏上曾经出现"成果"区块在还没滚动时就已经
+      // 盖住 Hero，标题和 CTA 基本看不到的问题。移动端直接走正常的
+      // 文档流滚动，不钉住、不叠层，更稳妥。
+      const mm = gsap.matchMedia();
+      mm.add('(min-width: 768px)', () => {
+        ScrollTrigger.create({
+          trigger: sectionRef.current,
+          start: 'top top',
+          pin: true,
+          pinSpacing: false,
+        });
       });
     }, sectionRef);
 
