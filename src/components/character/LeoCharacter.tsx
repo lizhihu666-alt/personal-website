@@ -1,11 +1,9 @@
 import React from 'react';
 
-export type CharacterAction = 
+export type CharacterAction =
   | 'idle'
   | 'look-left'
   | 'look-right'
-  | 'walk-left'
-  | 'walk-right'
   | 'sit-desk'
   | 'swing-racket';
 
@@ -13,24 +11,19 @@ interface LeoCharacterProps {
   action?: CharacterAction;
   facing?: 'front' | 'left' | 'right';
   className?: string;
-  showProps?: boolean;
 }
 
 export const LeoCharacter: React.FC<LeoCharacterProps> = ({
   action = 'idle',
   facing = 'front',
   className = '',
-  showProps = true,
 }) => {
   // Determine computed facing direction based on action or prop
-  const currentFacing = 
-    action === 'walk-left' || action === 'look-left' ? 'left' :
-    action === 'walk-right' || action === 'swing-racket' || action === 'look-right' ? 'right' :
+  const currentFacing =
+    action === 'look-left' ? 'left' :
+    action === 'swing-racket' || action === 'look-right' ? 'right' :
     action === 'sit-desk' ? 'left' : facing;
 
-  const isWalkingLeft = action === 'walk-left';
-  const isWalkingRight = action === 'walk-right';
-  const isWalking = isWalkingLeft || isWalkingRight;
   const isSitting = action === 'sit-desk';
   const isSwinging = action === 'swing-racket';
   const isIdle = action === 'idle';
@@ -128,23 +121,20 @@ export const LeoCharacter: React.FC<LeoCharacterProps> = ({
         <ellipse
           cx="80"
           cy="210"
-          rx={isSitting ? "30" : isWalking ? "24" : "28"}
+          rx={isSitting ? "30" : "28"}
           ry="5"
           fill="#111A2C"
           opacity="0.12"
-          className={isWalking ? 'animate-pulse' : ''}
         />
 
-        {/* ROOT CHARACTER CONTAINER WITH WALKING BOBBING */}
-        <g className={`transition-transform duration-200 ${
-          isWalking ? 'leo-walking-bob' : isIdle ? 'leo-breathing-bob' : ''
-        }`}>
-          
+        {/* ROOT CHARACTER CONTAINER */}
+        <g className={`transition-transform duration-200 ${isIdle ? 'leo-breathing-bob' : ''}`}>
+
           {/* ==================== LEGS ==================== */}
           {!isSitting ? (
             <g id="legs">
               {/* Back Leg (Right leg visually) */}
-              <g className={isWalking ? 'leo-leg-back' : ''} style={{ transformOrigin: '84px 145px' }}>
+              <g style={{ transformOrigin: '84px 145px' }}>
                 <line
                   x1="84"
                   y1="145"
@@ -164,7 +154,7 @@ export const LeoCharacter: React.FC<LeoCharacterProps> = ({
               </g>
 
               {/* Front Leg (Left leg visually) */}
-              <g className={isWalking ? 'leo-leg-front' : ''} style={{ transformOrigin: '74px 145px' }}>
+              <g style={{ transformOrigin: '74px 145px' }}>
                 <line
                   x1="74"
                   y1="145"
@@ -368,10 +358,9 @@ export const LeoCharacter: React.FC<LeoCharacterProps> = ({
               </g>
             </g>
           ) : (
-            /* NORMAL STANDING / WALKING ARMS */
+            /* NORMAL STANDING ARMS */
             <g id="default-arms">
-              {/* Back Arm (Swinging when walking) */}
-              <g className={isWalking ? 'leo-arm-back' : ''} style={{ transformOrigin: '88px 94px' }}>
+              <g style={{ transformOrigin: '88px 94px' }}>
                 <path
                   d="M 88 94 L 94 122 L 96 140"
                   stroke="#333B46"
@@ -381,20 +370,9 @@ export const LeoCharacter: React.FC<LeoCharacterProps> = ({
                   fill="none"
                 />
                 <circle cx="96" cy="141" r="3.5" fill="#E0BC9F" />
-
-                {/* If walking to life, holding badminton racket in hand! */}
-                {isWalkingRight && showProps && (
-                  <g transform="translate(97, 142) rotate(25)">
-                    {/* Racket handle & shaft */}
-                    <line x1="0" y1="0" x2="-8" y2="-20" stroke="#1A2433" strokeWidth="3.5" strokeLinecap="round" />
-                    <line x1="-8" y1="-20" x2="-18" y2="-45" stroke="#34D378" strokeWidth="2" />
-                    <ellipse cx="-26" cy="-62" rx="10" ry="14" fill="none" stroke="#1A2433" strokeWidth="2" />
-                  </g>
-                )}
               </g>
 
-              {/* Front Arm (holding briefcase if walking left, or relaxed) */}
-              <g className={isWalking ? 'leo-arm-front' : ''} style={{ transformOrigin: '72px 94px' }}>
+              <g style={{ transformOrigin: '72px 94px' }}>
                 <path
                   d="M 72 94 L 68 122 L 67 140"
                   stroke="#2A313B"
@@ -404,19 +382,6 @@ export const LeoCharacter: React.FC<LeoCharacterProps> = ({
                   fill="none"
                 />
                 <circle cx="67" cy="141" r="3.5" fill="#EFCFBA" />
-
-                {/* Professional Leather Briefcase / Tech Messenger when heading to work */}
-                {isWalkingLeft && showProps && (
-                  <g transform="translate(62, 138)">
-                    {/* Handle */}
-                    <path d="M 2 0 C 2 -4 8 -4 8 0" stroke="#132038" strokeWidth="2" fill="none" />
-                    {/* Bag body */}
-                    <rect x="-6" y="0" width="22" height="17" rx="2.5" fill="#1E2C45" stroke="#132038" strokeWidth="1" />
-                    <line x1="-6" y1="6" x2="16" y2="6" stroke="#3E4A5C" strokeWidth="1" />
-                    {/* Brass buckle */}
-                    <rect x="3" y="5" width="4" height="3" rx="0.5" fill="#34D378" />
-                  </g>
-                )}
               </g>
             </g>
           )}

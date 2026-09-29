@@ -1,212 +1,215 @@
-import React, { useState } from 'react';
-import { LeoCharacter } from '../character/LeoCharacter';
-import { ArrowLeft, ArrowRight, Briefcase, Sparkles, Clock, Compass } from 'lucide-react';
+import React, { useEffect, useRef, useState } from 'react';
+import AeroShards from '../effects/AeroShards';
+import { ArrowRight } from 'lucide-react';
 
 interface HomeHeroProps {
-  onChooseMode: (mode: 'work' | 'life') => void;
+  onChooseMode: (mode: 'work' | 'life', sourceEl?: HTMLElement | null) => void;
   isTransitioning?: boolean;
 }
+
+// 桌面端只挂一份贯穿全屏的 AeroShards，靠 shardColor/crossColor 表达左右
+// 分区的差异：每个碎片按自己所在的屏幕水平位置，在两个颜色之间二选一——
+// 在 AeroShards.jsx 的着色器里用 ndc.x 与 0 的关系做了近乎硬切的判断，
+// 所以视觉上就是"越过中间分界线，颜色从绿变蓝"，而不是渐变过渡。
+// 跟职业/生活页正文里用的主色调对齐（#34D378 / #4F8CFF），而不是自己
+// 另挑一套偏暗的色号——不然背景和标题、CTA 的强调色对不上，显得发暗。
+const WORK_COLOR = '#34D378';
+const LIFE_COLOR = '#4F8CFF';
+
+// 这两个只在桌面端（md+）生效，自己调整数值就行——改完存盘，Vite 会
+// 热更新，不用重启。数值是 Tailwind 任意值，写成完整字符串常量只是为了
+// 让编译器能扫描到，不要写成模板字符串插值（那样会被 Tailwind 的静态
+// 扫描漏掉，导致样式不生效）。
+// 标题距离顶部的距离，越大标题越往下。
+const HEADLINE_TOP_OFFSET = 'md:pt-42';
+// 两张卡片内容相对居中位置向下偏移的距离，'md:translate-y-0' 就是完全
+// 居中，数值越大越往下。
+const CARD_VERTICAL_OFFSET = 'md:translate-y-[25vh]';
+
+const AERO_BASE = {
+  backgroundColor: '#0A0B0D',
+  accentColor: '#ffffff',
+  placement: 'full',
+  effect: 'none',
+  flow: 'stream',
+  material: 'pearl',
+  detail: 'balanced',
+  scale: 1,
+  spread: 1,
+  depth: 1,
+  speed: 0.8,
+  spin: 1,
+  interaction: 'repel',
+  density: 1.5,
+  shardSize: 1.1,
+  stretch: 1,
+  turbulence: 1,
+  glow: 1,
+  edgeSoftness: 2,
+  bloom: 0.5,
+  grain: 0.05,
+  chromaticAberration: 0.0075,
+  transitionDuration: 1,
+  interactionRadius: 1.5,
+  interactionStrength: 0.5,
+  rippleIntensity: 1,
+  holdToGather: true,
+  onError: () => {},
+} as const;
+
+// 桌面端把两份 AeroShards 叠成一块共享背景横跨两个分区；移动端两个分区
+// 各自独立堆叠、没有"接缝"可言，所以干脆只挂一份对应模式的实例。用
+// matchMedia 而不是纯 CSS 隐藏，是为了避免同时挂载四份 GPU 画布。
+const useIsDesktop = () => {
+  const [isDesktop, setIsDesktop] = useState(
+    () => typeof window !== 'undefined' && window.matchMedia('(min-width: 768px)').matches
+  );
+
+  useEffect(() => {
+    const mq = window.matchMedia('(min-width: 768px)');
+    const onChange = () => setIsDesktop(mq.matches);
+    mq.addEventListener('change', onChange);
+    return () => mq.removeEventListener('change', onChange);
+  }, []);
+
+  return isDesktop;
+};
+
+// 悬停/聚焦门卡片时就提前拉取目标模块，用户真正点击时懒加载多半已经
+// 命中缓存——纯预取，不渲染任何东西，跟下面的 View Transition 变形
+// 机制互相独立，出错也不影响点击本身能正常跳转。
+const prefetchWork = () => {
+  import('../work/WorkView').catch(() => {});
+};
+const prefetchLife = () => {
+  import('../life/LifeView').catch(() => {});
+};
 
 export const HomeHero: React.FC<HomeHeroProps> = ({
   onChooseMode,
   isTransitioning = false,
 }) => {
-  const [hoveredDirection, setHoveredDirection] = useState<'none' | 'left' | 'right'>('none');
-
-  // Character action based on hover state
-  const characterAction =
-    hoveredDirection === 'left' ? 'look-left' :
-    hoveredDirection === 'right' ? 'look-right' : 'idle';
+  const workHeadingRef = useRef<HTMLHeadingElement>(null);
+  const lifeHeadingRef = useRef<HTMLHeadingElement>(null);
+  const isDesktop = useIsDesktop();
 
   return (
-    <main className="relative min-h-[calc(100vh-4rem)] flex flex-col justify-between overflow-hidden bg-[#0A0B0D] transition-colors duration-500">
-      {/* Background subtle atmospheric ambient tints based on hover */}
-      <div
-        className={`absolute inset-0 pointer-events-none transition-opacity duration-700 ${
-          hoveredDirection === 'left' ? 'opacity-100' : 'opacity-0'
-        }`}
-        style={{
-          background: 'radial-gradient(ellipse 60% 70% at 20% 50%, rgba(52, 211, 120, 0.06), transparent 70%)',
-        }}
-      />
-      <div
-        className={`absolute inset-0 pointer-events-none transition-opacity duration-700 ${
-          hoveredDirection === 'right' ? 'opacity-100' : 'opacity-0'
-        }`}
-        style={{
-          background: 'radial-gradient(ellipse 60% 70% at 80% 50%, rgba(52, 211, 120, 0.07), transparent 70%)',
-        }}
-      />
-
-      {/* Top Meta Bar */}
-      <div className="w-full max-w-6xl mx-auto px-6 pt-8 flex items-center justify-between text-xs tracking-wider text-[#A8B0BC] uppercase font-mono">
-        <div className="flex items-center gap-2">
-          <span className="w-1.5 h-1.5 rounded-full bg-[#4A5361]" />
-          <span className="font-medium text-[#F3F5F8]">PORTFOLIO & LIFE</span>
-        </div>
-        <div className="flex items-center gap-2">
-          <span className="w-2 h-2 rounded-full bg-[#34D378]" />
-          <span className="text-[#A8B0BC]">Based in Shenzhen · Open to opportunities</span>
-        </div>
+    <main className="relative min-h-dvh overflow-hidden bg-[#0A0B0D]">
+      {/* Brand mark：叠在两个分区上面，纯展示，不挡下面按钮的点击。 */}
+      <div className="absolute top-0 left-0 right-0 z-20 px-6 sm:px-10 pt-6 sm:pt-8 pointer-events-none">
+        <span className="font-bold text-lg sm:text-xl tracking-tight text-[#F3F5F8]">Leo Hu</span>
+        <span className="ml-2 text-sm text-[#C7CDD6] hidden sm:inline-block">/ 胡利致</span>
       </div>
 
-      {/* Central Interactive Composition */}
-      <div className="w-full max-w-5xl mx-auto px-6 py-6 flex-1 flex flex-col items-center justify-center relative">
-        
-        {/* Editorial Headline Group */}
-        <div className="text-center max-w-2xl mx-auto mb-8 sm:mb-12">
-          <p className="text-xs sm:text-sm uppercase tracking-[0.25em] text-[#98A1AF] font-mono mb-3">
-            HELLO, I’M LEO
-          </p>
-          <h1 className="text-3xl sm:text-5xl font-bold tracking-tight text-[#F3F5F8] leading-tight mb-4 font-sans">
+      {/* 中间悬浮的标题——桌面端两个分区的卡片内容都改成了垂直居中，
+          标题如果还留在正中间会跟卡片打架，所以桌面端不再用 items-center
+          居中定位，改成贴近顶部（items-start + pt-28），跟下面居中的
+          卡片内容错开。移动端两个分区各自只有半屏高，改回正常文档流
+          （撑开高度，允许整页滚动），只有桌面端才用 absolute 叠加。 */}
+      <div
+        className={`relative md:absolute md:inset-0 z-20 flex items-center md:items-start justify-center px-6 pt-24 pb-10 md:pb-0 pointer-events-none ${HEADLINE_TOP_OFFSET}`}
+      >
+        <div className="text-center max-w-xl">
+          <h1 className="text-3xl sm:text-5xl font-bold tracking-tight text-[#F3F5F8] leading-tight mb-4 [text-shadow:0_2px_24px_rgba(0,0,0,0.65)]">
             今天，你想认识哪一个我？
           </h1>
-          <p className="text-sm sm:text-base text-[#A8B0BC] leading-relaxed max-w-xl mx-auto font-light">
+          <p className="text-sm sm:text-base text-[#D5DAE1] leading-relaxed max-w-xl mx-auto font-light [text-shadow:0_2px_16px_rgba(0,0,0,0.65)]">
             一个把复杂项目理顺的人，也是一个认真生活、喜欢不断折腾新东西的人。
           </p>
         </div>
-
-        {/* The Dual Interaction Hub: Left Work Door | Center Leo | Right Life Door */}
-        <div className="w-full grid grid-cols-1 md:grid-cols-12 items-center gap-8 md:gap-4 my-2 relative">
-          
-          {/* ================= LEFT: WORK ENTRANCE ================= */}
-          <div className="md:col-span-4 order-2 md:order-1 flex justify-center md:justify-end">
-            <button
-              id="home-work-door-btn"
-              disabled={isTransitioning}
-              onClick={() => onChooseMode('work')}
-              onMouseEnter={() => setHoveredDirection('left')}
-              onMouseLeave={() => setHoveredDirection('none')}
-              onFocus={() => setHoveredDirection('left')}
-              onBlur={() => setHoveredDirection('none')}
-              className={`group w-full max-w-xs text-left p-5 sm:p-6 rounded-xl transition-all duration-300 relative border ${
-                hoveredDirection === 'left'
-                  ? 'bg-[#151A21] border-[#2B323C] shadow-sm translate-x-[-4px]'
-                  : 'bg-transparent border-transparent hover:border-[#232A33]'
-              }`}
-            >
-              {/* Badge & Time tag */}
-              <div className="flex items-center justify-between text-xs text-[#A8B0BC] mb-3">
-                <span className="font-mono tracking-wider flex items-center gap-1 text-[#34D378] font-medium">
-                  <Briefcase className="w-3.5 h-3.5 text-[#34D378]" />
-                  LEO AT WORK
-                </span>
-                <span className="flex items-center gap-1 font-mono text-[11px] text-[#98A1AF]">
-                  <Clock className="w-3 h-3" />
-                  09:30 - 18:30
-                </span>
-              </div>
-
-              {/* Main Text */}
-              <div className="flex items-baseline gap-2">
-                <h2 className="text-xl sm:text-2xl font-bold text-[#F3F5F8] group-hover:text-[#34D378] transition-colors">
-                  上班的我
-                </h2>
-                <ArrowLeft className="w-4 h-4 text-[#34D378] opacity-0 -translate-x-1 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-200" />
-              </div>
-
-              <p className="text-xs sm:text-sm text-[#A8B0BC] mt-1.5 font-light">
-                项目经历 · 作品集 · 简历
-              </p>
-
-              {/* Editorial preview bullet */}
-              <div className="mt-4 pt-3 border-t border-[#232A33]/80 text-[12px] text-[#A8B0BC] flex items-center justify-between">
-                <span>跨境中台 · 流程设计 · Vibe Coding</span>
-                <span className="text-[#34D378] font-medium text-xs">进入职业页 →</span>
-              </div>
-            </button>
-          </div>
-
-          {/* ================= CENTER: LITTLE LEO ================= */}
-          <div className="md:col-span-4 order-1 md:order-2 flex flex-col items-center justify-center relative py-4">
-            
-            {/* Soft Focus Grounding Ring */}
-            <div className="w-44 h-44 sm:w-56 sm:h-56 rounded-full border border-dashed border-[#232A33]/60 absolute pointer-events-none -z-0" />
-            
-            {/* The Character (25% - 35% height footprint) */}
-            <div className="w-40 h-52 sm:w-48 sm:h-64 relative z-10 flex items-center justify-center">
-              <LeoCharacter
-                action={characterAction}
-                facing={hoveredDirection === 'left' ? 'left' : hoveredDirection === 'right' ? 'right' : 'front'}
-                className="w-full h-full"
-              />
-            </div>
-
-            {/* Hint badge under character */}
-            <div className="mt-2 text-center text-xs text-[#98A1AF] font-mono tracking-tight flex items-center gap-1.5">
-              <span>← 选择左侧</span>
-              <span className="w-1 h-1 rounded-full bg-[#4A5361]" />
-              <span>选择右侧 →</span>
-            </div>
-          </div>
-
-          {/* ================= RIGHT: LIFE ENTRANCE ================= */}
-          <div className="md:col-span-4 order-3 md:order-3 flex justify-center md:justify-start">
-            <button
-              id="home-life-door-btn"
-              disabled={isTransitioning}
-              onClick={() => onChooseMode('life')}
-              onMouseEnter={() => setHoveredDirection('right')}
-              onMouseLeave={() => setHoveredDirection('none')}
-              onFocus={() => setHoveredDirection('right')}
-              onBlur={() => setHoveredDirection('none')}
-              className={`group w-full max-w-xs text-left p-5 sm:p-6 rounded-xl transition-all duration-300 relative border ${
-                hoveredDirection === 'right'
-                  ? 'bg-[#151A21] border-[#232A33] shadow-sm translate-x-[4px]'
-                  : 'bg-transparent border-transparent hover:border-[#232A33]'
-              }`}
-            >
-              {/* Badge & Time tag */}
-              <div className="flex items-center justify-between text-xs text-[#A8B0BC] mb-3">
-                <span className="font-mono tracking-wider flex items-center gap-1 text-[#34D378] font-medium">
-                  <Compass className="w-3.5 h-3.5 text-[#34D378]" />
-                  LEO OFF DUTY
-                </span>
-                <span className="flex items-center gap-1 font-mono text-[11px] text-[#98A1AF]">
-                  <Clock className="w-3 h-3" />
-                  19:00 - 23:30
-                </span>
-              </div>
-
-              {/* Main Text */}
-              <div className="flex items-baseline gap-2">
-                <h2 className="text-xl sm:text-2xl font-bold text-[#F3F5F8] group-hover:text-[#34D378] transition-colors">
-                  下班的我
-                </h2>
-                <ArrowRight className="w-4 h-4 text-[#34D378] opacity-0 translate-x-1 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-200" />
-              </div>
-
-              <p className="text-xs sm:text-sm text-[#A8B0BC] mt-1.5 font-light">
-                兴趣爱好 · 摄影 · 旅行与生活
-              </p>
-
-              {/* Editorial preview bullet */}
-              <div className="mt-4 pt-3 border-t border-[#232A33]/80 text-[12px] text-[#A8B0BC] flex items-center justify-between">
-                <span>宠物肖像 · 羽毛球 · 个人手账</span>
-                <span className="text-[#34D378] font-medium text-xs">进入生活页 →</span>
-              </div>
-            </button>
-          </div>
-
-        </div>
-
-        {/* Bottom subtle quote / footnote */}
-        <div className="mt-8 text-center">
-          <p className="text-xs text-[#98A1AF] font-editorial italic">
-            “工作是打磨认知的方式，生活是安放灵魂的地方。”
-          </p>
-        </div>
-
       </div>
 
-      {/* Bottom Quiet Luxury Footer */}
-      <div className="w-full max-w-6xl mx-auto px-6 pb-6 pt-4 border-t border-[#232A33]/60 flex flex-col sm:flex-row items-center justify-between text-xs text-[#98A1AF] gap-2">
-        <span>© {new Date().getFullYear()} Leo Hu. All rights reserved.</span>
-        <div className="flex items-center gap-4">
-          <span>Not a template. Designed with intention.</span>
-          <span className="w-1 h-1 rounded-full bg-[#2E3742]" />
-          <span>Vibe Coding in Action</span>
-        </div>
+      {/* 双选分区：桌面端左右对半，移动端上下堆叠。 */}
+      <div className="relative grid grid-cols-1 md:grid-cols-2 md:min-h-dvh">
+        {/* 桌面端共享背景：只挂一份贯穿全屏的 AeroShards，同一片碎片流
+            飘过中线时颜色从工作绿变成生活蓝——不再是两份画布拼接，动画
+            本身连续不断，只是颜色随位置切换。 */}
+        {isDesktop && (
+          <div className="absolute inset-0 z-0 pointer-events-none">
+            <AeroShards {...AERO_BASE} shardColor={WORK_COLOR} crossColor={LIFE_COLOR} />
+          </div>
+        )}
+
+        {/* 中间的分界线：上下两端淡出，只在中段可见，标出两个分区的
+            边界，同时不会把背景的交叉淡出切成生硬的两半。 */}
+        <div
+          className="hidden md:block absolute left-1/2 top-0 bottom-0 w-px z-[5] pointer-events-none -translate-x-1/2"
+          style={{
+            background:
+              'linear-gradient(to bottom, transparent 0%, rgba(255,255,255,0.16) 15%, rgba(255,255,255,0.16) 85%, transparent 100%)',
+          }}
+        />
+
+        {/* ================= LEFT: WORK ENTRANCE ================= */}
+        <button
+          id="home-work-door-btn"
+          type="button"
+          disabled={isTransitioning}
+          onClick={() => onChooseMode('work', workHeadingRef.current)}
+          onMouseEnter={prefetchWork}
+          onFocus={prefetchWork}
+          className="group relative z-10 flex flex-col items-center justify-center text-center p-8 sm:p-14 min-h-[65dvh] md:min-h-dvh overflow-hidden border-b md:border-b-0 border-[#1C2128] focus:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[#34D378]"
+        >
+          {/* 移动端各分区没有接缝可言，各挂一份单色实例即可。 */}
+          {!isDesktop && (
+            <div className="absolute inset-0 opacity-80">
+              <AeroShards {...AERO_BASE} shardColor={WORK_COLOR} crossColor={WORK_COLOR} />
+            </div>
+          )}
+          <div className="absolute inset-0 bg-white/0 group-hover:bg-white/[0.04] transition-colors duration-300" />
+          <div className="absolute inset-0 bg-gradient-to-t from-[#0A0B0D] via-[#0A0B0D]/40 to-transparent" />
+
+          <div className={`relative z-10 ${CARD_VERTICAL_OFFSET}`}>
+            <h2
+              ref={workHeadingRef}
+              className="text-3xl sm:text-4xl font-bold text-[#F3F5F8] group-hover:text-[#34D378] transition-colors"
+            >
+              上班的我
+            </h2>
+            <p className="mt-3 text-sm sm:text-base text-[#C7CDD6] font-light">
+              项目经历 · 作品集 · 简历
+            </p>
+            <div className="mt-5 flex items-center justify-center gap-1.5 text-sm font-medium text-[#34D378]">
+              <span>进入职业页</span>
+              <ArrowRight className="w-4 h-4 transition-transform duration-200 group-hover:translate-x-1" aria-hidden="true" />
+            </div>
+          </div>
+        </button>
+
+        {/* ================= RIGHT: LIFE ENTRANCE ================= */}
+        <button
+          id="home-life-door-btn"
+          type="button"
+          disabled={isTransitioning}
+          onClick={() => onChooseMode('life', lifeHeadingRef.current)}
+          onMouseEnter={prefetchLife}
+          onFocus={prefetchLife}
+          className="group relative z-10 flex flex-col items-center justify-center text-center p-8 sm:p-14 min-h-[65dvh] md:min-h-dvh overflow-hidden border-t md:border-t-0 border-[#1C2128] focus:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[#4F8CFF]"
+        >
+          {!isDesktop && (
+            <div className="absolute inset-0 opacity-80">
+              <AeroShards {...AERO_BASE} shardColor={LIFE_COLOR} crossColor={LIFE_COLOR} />
+            </div>
+          )}
+          <div className="absolute inset-0 bg-white/0 group-hover:bg-white/[0.04] transition-colors duration-300" />
+          <div className="absolute inset-0 bg-gradient-to-t from-[#0A0B0D] via-[#0A0B0D]/40 to-transparent" />
+
+          <div className={`relative z-10 ${CARD_VERTICAL_OFFSET}`}>
+            <h2
+              ref={lifeHeadingRef}
+              className="text-3xl sm:text-4xl font-bold text-[#F3F5F8] group-hover:text-[#4F8CFF] transition-colors"
+            >
+              下班的我
+            </h2>
+            <p className="mt-3 text-sm sm:text-base text-[#C7CDD6] font-light">
+              兴趣爱好 · 摄影 · 旅行与生活
+            </p>
+            <div className="mt-5 flex items-center justify-center gap-1.5 text-sm font-medium text-[#4F8CFF]">
+              <span>进入生活页</span>
+              <ArrowRight className="w-4 h-4 transition-transform duration-200 group-hover:translate-x-1" aria-hidden="true" />
+            </div>
+          </div>
+        </button>
       </div>
     </main>
   );

@@ -7,57 +7,63 @@ import { resetPointerMotion, updatePointerMotion } from '../../utils/pointerMoti
 
 interface WorkHeroProps {
   onOpenResume?: () => void;
+  /** 从首页"上班的我"卡片做 View Transition 变形跳转过来时传 true——
+      标题的位置/大小已经由那次变形动画负责了，这里的入场滑入动画
+      不用再叠一遍，直接以最终状态显示。 */
+  skipIntro?: boolean;
 }
 
-export const WorkHero: React.FC<WorkHeroProps> = ({ onOpenResume }) => {
+export const WorkHero: React.FC<WorkHeroProps> = ({ onOpenResume, skipIntro = false }) => {
   const sectionRef = useRef<HTMLElement>(null);
 
   useLayoutEffect(() => {
     if (isReducedMotion()) return;
 
     const ctx = gsap.context(() => {
-      const tl = gsap.timeline({ defaults: { ease: 'power3.out' } });
-
-      tl.fromTo(
-        '.hero-headline-line',
-        { yPercent: 115 },
-        {
-          yPercent: 0,
-          duration: 0.85,
-          stagger: 0.11,
-          clearProps: 'transform',
-        },
-        0.05
-      )
-        .fromTo(
-          '.hero-highlight',
-          { clipPath: 'inset(0 100% 0 0)' },
-          {
-            clipPath: 'inset(0 0% 0 0)',
-            duration: 0.55,
-            ease: 'power2.inOut',
-            clearProps: 'clipPath',
-          },
-          0.42
-        )
-        .fromTo(
-          '.hero-subtitle',
-          { y: 16, opacity: 0 },
-          { y: 0, opacity: 1, duration: 0.55, clearProps: 'transform,opacity' },
-          0.42
-        )
-        .fromTo(
-          '.hero-actions',
-          { y: 12, opacity: 0 },
-          { y: 0, opacity: 1, duration: 0.5, clearProps: 'transform,opacity' },
-          0.54
-        )
-        .fromTo(
-          '.hero-scroll-cue',
-          { y: 8, opacity: 0 },
-          { y: 0, opacity: 1, duration: 0.45, clearProps: 'transform,opacity' },
-          0.82
-        );
+      if (!skipIntro) {
+        gsap
+          .timeline({ defaults: { ease: 'power3.out' } })
+          .fromTo(
+            '.hero-headline-line',
+            { yPercent: 115 },
+            {
+              yPercent: 0,
+              duration: 0.85,
+              stagger: 0.11,
+              clearProps: 'transform',
+            },
+            0.05
+          )
+          .fromTo(
+            '.hero-highlight',
+            { clipPath: 'inset(0 100% 0 0)' },
+            {
+              clipPath: 'inset(0 0% 0 0)',
+              duration: 0.55,
+              ease: 'power2.inOut',
+              clearProps: 'clipPath',
+            },
+            0.42
+          )
+          .fromTo(
+            '.hero-subtitle',
+            { y: 16, opacity: 0 },
+            { y: 0, opacity: 1, duration: 0.55, clearProps: 'transform,opacity' },
+            0.42
+          )
+          .fromTo(
+            '.hero-actions',
+            { y: 12, opacity: 0 },
+            { y: 0, opacity: 1, duration: 0.5, clearProps: 'transform,opacity' },
+            0.54
+          )
+          .fromTo(
+            '.hero-scroll-cue',
+            { y: 8, opacity: 0 },
+            { y: 0, opacity: 1, duration: 0.45, clearProps: 'transform,opacity' },
+            0.82
+          );
+      }
 
       // 开场钉住不动，让"成果"区块从下方整块滑上来盖住它——参考 GSAP
       // 官方 ScrollTrigger 的 layered-pinning 案例（pinSpacing 必须是
@@ -135,7 +141,7 @@ export const WorkHero: React.FC<WorkHeroProps> = ({ onOpenResume }) => {
           </div>
         </div>
 
-        <h1 className="type-display text-[#F3F5F8]">
+        <h1 id="work-hero-title" className="type-display text-[#F3F5F8]">
           <span className="block overflow-hidden pb-[0.08em] -mb-[0.08em]">
             <span className="hero-headline-line block">以系统化思维，</span>
           </span>

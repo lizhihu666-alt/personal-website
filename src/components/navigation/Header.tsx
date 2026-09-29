@@ -127,7 +127,11 @@ export const Header: React.FC<HeaderProps> = ({
               className="group flex items-center gap-2 text-left focus:outline-none py-1 min-h-11 sm:min-h-0 shrink-0"
               aria-label="回到首页"
             >
-              <span className="font-bold text-lg sm:text-xl tracking-tight text-[#F3F5F8] group-hover:text-[#34D378] transition-colors whitespace-nowrap">
+              <span
+                className={`font-bold text-lg sm:text-xl tracking-tight text-[#F3F5F8] transition-colors whitespace-nowrap ${
+                  currentMode === 'life' ? 'group-hover:text-[#4F8CFF]' : 'group-hover:text-[#34D378]'
+                }`}
+              >
                 Leo Hu
               </span>
               <span className="text-sm text-[#A8B0BC] hidden sm:inline-block">/ 胡利致</span>
@@ -157,16 +161,18 @@ export const Header: React.FC<HeaderProps> = ({
                 onNavigate={handleMenuNavigate}
                 footer={
                   <div className="relative bg-[#E9ECEF] p-1 rounded-full flex items-center gap-1 w-full max-w-[11rem]">
-                    {/* 滑动的绿色高亮块：宽度固定为半个轨道减去 gap/padding 的
+                    {/* 滑动的高亮块：宽度固定为半个轨道减去 gap/padding 的
                         份额（calc(50% - 6px)），左边贴着 padding 固定不动，
                         只用 translateX 在两个按钮之间平移，纯 CSS 过渡，
-                        不需要额外的动画库。在首页打开菜单时 currentMode
-                        是 'home'，两个按钮都不算"当前"，这时把高亮块透明度
-                        降到 0，避免出现绿块在但文字没变白、看起来"字消失了"
-                        的情况。 */}
+                        不需要额外的动画库。颜色跟随当前模式——职业绿、
+                        生活蓝。在首页打开菜单时 currentMode 是 'home'，
+                        两个按钮都不算"当前"，这时把高亮块透明度降到 0，
+                        避免出现色块在但文字没变白、看起来"字消失了"的情况。 */}
                     <span
                       aria-hidden="true"
-                      className="absolute top-1 bottom-1 left-1 rounded-full bg-[#0E7C3D] shadow-xs transition-[transform,opacity] duration-300 ease-out"
+                      className={`absolute top-1 bottom-1 left-1 rounded-full shadow-xs transition-[transform,opacity,background-color] duration-300 ease-out ${
+                        currentMode === 'life' ? 'bg-[#2F6FED]' : 'bg-[#0E7C3D]'
+                      }`}
                       style={{
                         width: 'calc(50% - 6px)',
                         transform: currentMode === 'life' ? 'translateX(calc(100% + 4px))' : 'translateX(0)',

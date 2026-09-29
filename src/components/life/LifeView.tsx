@@ -328,7 +328,7 @@ export const LifeView: React.FC = () => {
   return (
     <div
       ref={rootRef}
-      className="w-full bg-[#0A0B0D] text-[#F3F5F8] pb-24 selection:bg-[#0E7C3D] selection:text-white"
+      className="w-full bg-[#0A0B0D] text-[#F3F5F8] pb-24 selection:bg-[#2F6FED] selection:text-white"
     >
       {/* ================= HERO SECTION ================= */}
       <section
@@ -339,12 +339,13 @@ export const LifeView: React.FC = () => {
         <div className="max-w-5xl mx-auto px-6">
           <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-8 mb-10">
             <div className="max-w-2xl">
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#0E7C3D]/10 text-[#34D378] text-xs font-mono mb-4 tracking-wide">
-                <span className="w-2 h-2 rounded-full bg-[#34D378]" />
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#2F6FED]/10 text-[#4F8CFF] text-xs font-mono mb-4 tracking-wide">
+                <span className="w-2 h-2 rounded-full bg-[#4F8CFF]" />
                 <span>LEO OFF DUTY · 个人生活向</span>
               </div>
 
               <h1
+                id="life-hero-title"
                 ref={heroTitleRef}
                 className="text-3xl sm:text-5xl font-bold tracking-tight text-[#F3F5F8] leading-[1.2] mb-6"
               >
@@ -359,31 +360,31 @@ export const LifeView: React.FC = () => {
               <div className="flex flex-wrap gap-2 text-xs font-mono">
                 <a
                   href="#life-values"
-                  className="px-3.5 py-1.5 rounded-full bg-[#0A0B0D] border border-[#232A33] text-[#C3CAD5] hover:text-[#34D378] hover:border-[#34D378]/50 transition-colors"
+                  className="px-3.5 py-1.5 rounded-full bg-[#0A0B0D] border border-[#232A33] text-[#C3CAD5] hover:text-[#4F8CFF] hover:border-[#4F8CFF]/50 transition-colors"
                 >
                   #01 价值观
                 </a>
                 <a
                   href="#life-photography"
-                  className="px-3.5 py-1.5 rounded-full bg-[#0A0B0D] border border-[#232A33] text-[#C3CAD5] hover:text-[#34D378] hover:border-[#34D378]/50 transition-colors"
+                  className="px-3.5 py-1.5 rounded-full bg-[#0A0B0D] border border-[#232A33] text-[#C3CAD5] hover:text-[#4F8CFF] hover:border-[#4F8CFF]/50 transition-colors"
                 >
                   #02 宠物摄影
                 </a>
                 <a
                   href="#life-badminton"
-                  className="px-3.5 py-1.5 rounded-full bg-[#0A0B0D] border border-[#232A33] text-[#C3CAD5] hover:text-[#34D378] hover:border-[#34D378]/50 transition-colors"
+                  className="px-3.5 py-1.5 rounded-full bg-[#0A0B0D] border border-[#232A33] text-[#C3CAD5] hover:text-[#4F8CFF] hover:border-[#4F8CFF]/50 transition-colors"
                 >
                   #03 羽毛球
                 </a>
                 <a
                   href="#life-travel"
-                  className="px-3.5 py-1.5 rounded-full bg-[#0A0B0D] border border-[#232A33] text-[#C3CAD5] hover:text-[#34D378] hover:border-[#34D378]/50 transition-colors"
+                  className="px-3.5 py-1.5 rounded-full bg-[#0A0B0D] border border-[#232A33] text-[#C3CAD5] hover:text-[#4F8CFF] hover:border-[#4F8CFF]/50 transition-colors"
                 >
                   #04 旅行痕迹
                 </a>
                 <a
                   href="#life-tinkering"
-                  className="px-3.5 py-1.5 rounded-full bg-[#0A0B0D] border border-[#232A33] text-[#C3CAD5] hover:text-[#34D378] hover:border-[#34D378]/50 transition-colors"
+                  className="px-3.5 py-1.5 rounded-full bg-[#0A0B0D] border border-[#232A33] text-[#C3CAD5] hover:text-[#4F8CFF] hover:border-[#4F8CFF]/50 transition-colors"
                 >
                   #05 最近在折腾
                 </a>
@@ -399,11 +400,10 @@ export const LifeView: React.FC = () => {
                 <LeoCharacter
                   action="swing-racket"
                   className="w-full h-full"
-                  showProps={true}
                 />
               </div>
               <div className="text-[11px] font-mono text-[#98A1AF] tracking-tight mt-1 flex items-center gap-1.5">
-                <span className="w-1.5 h-1.5 rounded-full bg-[#34D378]" />
+                <span className="w-1.5 h-1.5 rounded-full bg-[#4F8CFF]" />
                 <span>Leo @ Court · 换下正装，认真出汗与生活</span>
               </div>
             </div>
@@ -412,7 +412,7 @@ export const LifeView: React.FC = () => {
           {/* Life Quote Ticker */}
           <div className="p-4 sm:p-5 rounded-xl bg-[#111418] border border-[#232A33] flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs text-[#A8B0BC]">
             <div className="flex items-center gap-2">
-              <Sparkles className="w-4 h-4 text-[#34D378] shrink-0" />
+              <Sparkles className="w-4 h-4 text-[#4F8CFF] shrink-0" />
               <span className="font-editorial text-sm italic text-[#F3F5F8]">
                 “没有 KPI 的热爱，才是精神真正的锚点。”
               </span>
@@ -444,11 +444,11 @@ export const LifeView: React.FC = () => {
             {LIFE_DATA.values.map((v, idx) => (
               <div
                 key={v.id}
-                className="life-value-card p-6 sm:p-8 rounded-xl bg-[#111418] border border-[#232A33] shadow-xs flex flex-col justify-between hover:border-[#34D378]/50 transition-colors"
+                className="life-value-card p-6 sm:p-8 rounded-xl bg-[#111418] border border-[#232A33] shadow-xs flex flex-col justify-between hover:border-[#4F8CFF]/50 transition-colors"
               >
                 <div>
                   <div className="flex items-baseline justify-between mb-3">
-                    <span className="font-mono text-xs text-[#34D378] font-medium">
+                    <span className="font-mono text-xs text-[#4F8CFF] font-medium">
                       0{idx + 1} / 04
                     </span>
                     <span className="text-[11px] font-mono text-[#98A1AF]">
@@ -458,7 +458,7 @@ export const LifeView: React.FC = () => {
                   <h3 className="text-lg font-bold text-[#F3F5F8] tracking-tight mb-2">
                     {v.title}
                   </h3>
-                  <p className="text-xs font-medium text-[#34D378] mb-3">
+                  <p className="text-xs font-medium text-[#4F8CFF] mb-3">
                     {v.summary}
                   </p>
                 </div>
@@ -488,7 +488,7 @@ export const LifeView: React.FC = () => {
               <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-[#F3F5F8]">
                 {LIFE_DATA.photography.brand}
               </h2>
-              <p className="text-sm text-[#34D378] font-mono mt-1">
+              <p className="text-sm text-[#4F8CFF] font-mono mt-1">
                 {LIFE_DATA.photography.tagline}
               </p>
             </div>
@@ -588,7 +588,7 @@ export const LifeView: React.FC = () => {
                   <div
                     className={`photo-placeholder-plate relative w-full max-w-sm overflow-hidden rounded-sm border border-white/10 flex flex-col items-center justify-center gap-2 px-6 text-center ${activePhoto.aspectRatio}`}
                   >
-                    <Camera className="w-5 h-5 text-[#34D378]" />
+                    <Camera className="w-5 h-5 text-[#4F8CFF]" />
                     <div className="text-[11px] font-mono tracking-[0.2em] text-[#A8B0BC] uppercase">
                       Photo Pending
                     </div>
@@ -611,7 +611,7 @@ export const LifeView: React.FC = () => {
                 className="lg:col-span-5 p-6 sm:p-8 flex flex-col bg-[#111418]"
               >
                 <div className="flex-1 flex flex-col justify-center py-2">
-                  <div className="photo-meta-reveal flex items-center gap-2 text-xs font-mono text-[#34D378] mb-2 font-medium">
+                  <div className="photo-meta-reveal flex items-center gap-2 text-xs font-mono text-[#4F8CFF] mb-2 font-medium">
                     <Camera className="w-3.5 h-3.5" />
                     <span>EXIF & LIGHTING SPEC</span>
                   </div>
@@ -683,7 +683,7 @@ export const LifeView: React.FC = () => {
             <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-[#F3F5F8]">
               {LIFE_DATA.badminton.title}
             </h2>
-            <p className="text-sm font-editorial italic text-[#34D378] mt-1 text-base">
+            <p className="text-sm font-editorial italic text-[#4F8CFF] mt-1 text-base">
               “{LIFE_DATA.badminton.quote}”
             </p>
           </div>
@@ -693,7 +693,7 @@ export const LifeView: React.FC = () => {
             <div className="md:col-span-6 bg-[#111418] p-6 rounded-xl border border-[#232A33] shadow-xs relative">
               <div className="flex items-center justify-between text-xs font-mono text-[#A8B0BC] mb-3">
                 <span>FLIGHT TRAJECTORY & COURT GEOMETRY</span>
-                <span className="text-[#34D378]">ASTROX 88D PRO</span>
+                <span className="text-[#4F8CFF]">ASTROX 88D PRO</span>
               </div>
 
               {/* Court Vector Diagram with Animated Shuttlecock */}
@@ -715,7 +715,7 @@ export const LifeView: React.FC = () => {
                     y1="20"
                     x2="200"
                     y2="220"
-                    stroke="#34D378"
+                    stroke="#4F8CFF"
                     strokeWidth="2"
                   />
                   {/* Singles & Doubles Lines */}
@@ -759,7 +759,7 @@ export const LifeView: React.FC = () => {
                     ref={badmintonPathRef}
                     d="M 60 175 Q 200 40 345 155"
                     fill="none"
-                    stroke="#34D378"
+                    stroke="#4F8CFF"
                     strokeWidth="2"
                     strokeDasharray="5 4"
                     opacity="0.65"
@@ -778,8 +778,8 @@ export const LifeView: React.FC = () => {
                       cy="0"
                       rx="3.5"
                       ry="3"
-                      fill="#34D378"
-                      stroke="#0A6631"
+                      fill="#4F8CFF"
+                      stroke="#1E3A8A"
                       strokeWidth="1"
                     />
                     <polygon
@@ -796,9 +796,9 @@ export const LifeView: React.FC = () => {
                     cx="345"
                     cy="155"
                     r="6"
-                    fill="#34D378"
+                    fill="#4F8CFF"
                     fillOpacity="0.25"
-                    stroke="#34D378"
+                    stroke="#4F8CFF"
                     strokeWidth="1.5"
                     style={{ transformOrigin: '345px 155px', transform: 'scale(0)' }}
                   />
@@ -885,7 +885,7 @@ export const LifeView: React.FC = () => {
             {LIFE_DATA.travels.map((dest) => (
               <div
                 key={dest.id}
-                className="travel-ticket-card bg-[#111418] rounded-xl border border-[#232A33] p-5 sm:p-6 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-6 hover:border-[#34D378]/50 transition-colors"
+                className="travel-ticket-card bg-[#111418] rounded-xl border border-[#232A33] p-5 sm:p-6 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-6 hover:border-[#4F8CFF]/50 transition-colors"
               >
                 {/* Left: City & Airport Code */}
                 <div className="flex items-start gap-4">
@@ -905,7 +905,7 @@ export const LifeView: React.FC = () => {
                         {dest.country} · {dest.year}
                       </span>
                     </div>
-                    <p className="text-xs text-[#34D378] font-medium mt-0.5">
+                    <p className="text-xs text-[#4F8CFF] font-medium mt-0.5">
                       {dest.tagline}
                     </p>
                   </div>
@@ -915,7 +915,7 @@ export const LifeView: React.FC = () => {
                 <div className="md:max-w-md text-xs text-[#A8B0BC] space-y-1 font-light border-t md:border-t-0 pt-3 md:pt-0 border-[#232A33]">
                   <p className="leading-relaxed">{dest.memory}</p>
                   <div className="text-[11px] font-mono text-[#A8B0BC] pt-1">
-                    <span className="text-[#34D378] font-semibold">记忆亮点：</span>{' '}
+                    <span className="text-[#4F8CFF] font-semibold">记忆亮点：</span>{' '}
                     {dest.highlight}
                   </div>
                 </div>
@@ -948,7 +948,7 @@ export const LifeView: React.FC = () => {
               >
                 <div>
                   <div className="flex items-center justify-between text-xs font-mono mb-3">
-                    <span className="text-[#34D378] font-medium flex items-center gap-1.5">
+                    <span className="text-[#4F8CFF] font-medium flex items-center gap-1.5">
                       <Zap className="w-3.5 h-3.5" />
                       {item.category}
                     </span>

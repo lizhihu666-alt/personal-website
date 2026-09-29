@@ -31,9 +31,6 @@ const SECTIONS_BY_MODE: Record<AppMode, NavItem[]> = {
   life: LIFE_SECTIONS,
 };
 
-// 深色底上的细线，用提亮版绿色才看得见
-const ACTIVE_COLOR = '#34D378';
-
 interface ReadingProgressNavProps {
   currentMode: AppMode;
 }
@@ -44,6 +41,8 @@ export const ReadingProgressNav: React.FC<ReadingProgressNavProps> = ({ currentM
   const [hoveredId, setHoveredId] = useState<string | null>(null);
 
   const sections = SECTIONS_BY_MODE[currentMode];
+  // 深色底上的细线，用提亮版主色调才看得见——职业绿、生活蓝。
+  const ACTIVE_COLOR = currentMode === 'life' ? '#4F8CFF' : '#34D378';
 
   useEffect(() => {
     if (sections.length === 0) return;
@@ -127,7 +126,9 @@ export const ReadingProgressNav: React.FC<ReadingProgressNavProps> = ({ currentM
                 <button
                   onClick={() => scrollToSection(sec.id)}
                   aria-label={`跳转到${sec.label}`}
-                  className="p-[9px] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#34D378] rounded-full transition-transform"
+                  className={`p-[9px] focus:outline-none focus-visible:ring-2 rounded-full transition-transform ${
+                    currentMode === 'life' ? 'focus-visible:ring-[#4F8CFF]' : 'focus-visible:ring-[#34D378]'
+                  }`}
                 >
                   <span
                     className={`block rounded-full transition-all duration-200 ${

@@ -232,8 +232,8 @@
 }
 
 /* 参考站把指针当作轻微的物理输入，但不让控件追着光标跑。 */
-.project-row-title,
-.project-row-action,
+.project-card-title,
+.project-card-action,
 .pointer-reactive {
   transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
   transition-duration: 260ms;
@@ -416,7 +416,7 @@
 }
 
 @media (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
-  .project-row:hover .project-row-title {
+  .project-card:hover .project-card-title {
     transform: translate3d(
       var(--pointer-shift-soft-x, 0px),
       var(--pointer-shift-soft-y, 0px),
@@ -424,7 +424,7 @@
     );
   }
 
-  .project-row:hover .project-row-action,
+  .project-card:hover .project-card-action,
   .pointer-reactive:hover {
     transform: translate3d(var(--pointer-shift-x, 0px), var(--pointer-shift-y, 0px), 0);
   }
@@ -449,6 +449,25 @@
 }
 
 
+/* SCENE TRANSITION：终端光标闪烁。独立于 GSAP 时间线之外——如果放进
+   timeline 用 repeat:-1 会让 tl.duration() 变成 Infinity，onComplete
+   永远不触发，所以用一个纯 CSS 循环动画，组件卸载时自然停止。 */
+@keyframes sceneCursorBlink {
+  0%, 45% {
+    opacity: 1;
+  }
+  50%, 95% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+.scene-cursor-blink {
+  animation: sceneCursorBlink 0.9s step-end infinite;
+}
+
 /* CHARACTER PROCEDURAL KEYFRAMES */
 
 /* Idle Breathing */
@@ -463,86 +482,6 @@
 
 .leo-breathing-bob {
   animation: leoBreathe 3.6s ease-in-out infinite;
-}
-
-/* Walking Vertical Bob */
-@keyframes leoWalkBob {
-  0%, 100% {
-    transform: translateY(0);
-  }
-  50% {
-    transform: translateY(-4px);
-  }
-}
-
-.leo-walking-bob {
-  animation: leoWalkBob 0.44s ease-in-out infinite;
-}
-
-/* Walking Legs */
-@keyframes leoLegFront {
-  0% {
-    transform: rotate(-24deg);
-  }
-  50% {
-    transform: rotate(24deg);
-  }
-  100% {
-    transform: rotate(-24deg);
-  }
-}
-
-@keyframes leoLegBack {
-  0% {
-    transform: rotate(24deg);
-  }
-  50% {
-    transform: rotate(-24deg);
-  }
-  100% {
-    transform: rotate(24deg);
-  }
-}
-
-.leo-leg-front {
-  animation: leoLegFront 0.44s ease-in-out infinite;
-}
-
-.leo-leg-back {
-  animation: leoLegBack 0.44s ease-in-out infinite;
-}
-
-/* Walking Arms Counter-Swing */
-@keyframes leoArmFront {
-  0% {
-    transform: rotate(20deg);
-  }
-  50% {
-    transform: rotate(-20deg);
-  }
-  100% {
-    transform: rotate(20deg);
-  }
-}
-
-@keyframes leoArmBack {
-  0% {
-    transform: rotate(-20deg);
-  }
-  50% {
-    transform: rotate(20deg);
-  }
-  100% {
-    transform: rotate(-20deg);
-  }
-}
-
-.leo-arm-front {
-  animation: leoArmFront 0.44s ease-in-out infinite;
-}
-
-.leo-arm-back {
-  animation: leoArmBack 0.44s ease-in-out infinite;
 }
 
 /* Dynamic Badminton Stroke Swing */
@@ -565,6 +504,8 @@
 }
 
 .leo-racket-swing {
+  /* 现在只在生活页 Hero 那张静态小人物照片里播一次（"Leo @ Court"），
+     不再受转场时长约束，用回从容的 1.2s。 */
   animation: leoRacketSwing 1.2s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
 }
 
@@ -727,8 +668,8 @@
   }
   .project-scroll-rail-progress,
   .project-stage-rule,
-  .project-row-title,
-  .project-row-action,
+  .project-card-title,
+  .project-card-action,
   .pointer-reactive {
     transition: none !important;
   }
@@ -736,12 +677,14 @@
   .project-stage-rule {
     transform: none;
   }
+  /* 关闭动画时 GSAP 的横向 pin 效果根本不会启动（JS 里直接 return 了），
+     .project-rail 上 Tailwind 的 overflow-hidden 会把第一张卡片之后的
+     内容全部裁掉、且没有滚动条能补救——改成原生横向滚动，保证每张
+     项目卡片在这种情况下依然可以触达。 */
+  .project-rail {
+    overflow-x: auto !important;
+  }
   .leo-breathing-bob,
-  .leo-walking-bob,
-  .leo-leg-front,
-  .leo-leg-back,
-  .leo-arm-front,
-  .leo-arm-back,
   .leo-racket-swing,
   .shuttlecock-fly {
     animation: none;
@@ -750,5 +693,33 @@
   .motion-disclosure {
     transition-property: opacity;
     transition-duration: 150ms;
+  }
+  /* JS 那边 prefers-reduced-motion 为真时根本不会触发 View Transition
+     变形（App.tsx 里提前 return 掉了），这条只是双保险：万一
+     view-transition-name 还是被设置了，也不放它自己的动画。 */
+  ::view-transition-group(door-hero-morph),
+  ::view-transition-old(door-hero-morph),
+  ::view-transition-new(door-hero-morph) {
+    animation: none !important;
+  }
+}
+
+/* 首页"上班的我/下班的我"卡片跳转到目的地 Hero 大标题的 View
+   Transition 变形——把浏览器默认的 0.25s 交叉淡入淡出换成更从容的
+   指数缓出（跟 craft-floor 的动效基线一致），根节点的交叉淡入淡出
+   时长跟着对齐，避免两层动画各跑各的、收尾时间对不上。 */
+@media (prefers-reduced-motion: no-preference) {
+  ::view-transition-group(door-hero-morph) {
+    animation-duration: 0.6s;
+    animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  ::view-transition-old(door-hero-morph),
+  ::view-transition-new(door-hero-morph) {
+    animation-duration: 0.45s;
+    animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  ::view-transition-old(root),
+  ::view-transition-new(root) {
+    animation-duration: 0.5s;
   }
 }

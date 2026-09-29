@@ -2,7 +2,7 @@ import React, { useLayoutEffect, useRef, useState } from 'react';
 import { ArrowUpRight } from 'lucide-react';
 import { WORK_DATA } from '../../data/portfolioData';
 import { ProjectCaseStudy } from '../../types';
-import { gsap, isReducedMotion } from '../../utils/gsapSetup';
+import { gsap, isReducedMotion, ScrollTrigger } from '../../utils/gsapSetup';
 import { resetPointerMotion, updatePointerMotion } from '../../utils/pointerMotion';
 import { ProjectImmersive } from './ProjectImmersive';
 
@@ -22,32 +22,57 @@ export const WorkSelectedProjects: React.FC = () => {
   const projects = WORK_DATA.projects;
   const [activeProject, setActiveProject] = useState<ActiveProject | null>(null);
   const containerRef = useRef<HTMLElement>(null);
+  const pinRef = useRef<HTMLDivElement>(null);
+  const trackRef = useRef<HTMLDivElement>(null);
 
   useLayoutEffect(() => {
     if (isReducedMotion()) return;
 
-    const ctx = gsap.context(() => {
-      gsap.fromTo(
-        '.project-row',
-        { y: 24, opacity: 0, clipPath: 'inset(0 0 16% 0)' },
-        {
-          y: 0,
-          opacity: 1,
-          clipPath: 'inset(0 0 0% 0)',
-          stagger: 0.08,
-          duration: 0.65,
-          ease: 'power3.out',
-          clearProps: 'opacity,transform,clipPath',
-          scrollTrigger: {
-            trigger: containerRef.current,
-            start: 'top 85%',
-            once: true,
-          },
-        }
-      );
-    }, containerRef);
+    const pin = pinRef.current;
+    const track = trackRef.current;
+    if (!pin || !track) return;
 
-    return () => ctx.revert();
+    // 标题这一块留在 track 外面，不参与横向位移，滚动驱动的只是
+    // track 的位移——效果就是标题钉在原地，下面的项目卡片横向滑过去。
+    // track 现在跟标题共用同一个 max-w-6xl 容器，起始位置不再贴着
+    // 视口左边缘，而是有 track.offsetLeft 这一段居中留白——滚动需要
+    // 吃掉的距离要把这段留白也算进去，否则最后一张卡片的右边缘会
+    // 停在视口内侧、露出一截，而不是贴齐视口右边缘。
+    const getDistance = () =>
+      Math.max(0, track.offsetLeft + track.scrollWidth - window.innerWidth);
+
+    let ctx: gsap.Context | null = null;
+
+    // 这一段紧跟在方法论页那个 8.5 屏的钉住区块后面。两个组件的
+    // useLayoutEffect 在同一次 React 提交里同步依次跑，但方法论页那个
+    // pin 真正把 spacer 撑到最终高度是在它自己的下一帧 rAF 里才做的——
+    // 这里如果在同一次提交里就同步创建 ScrollTrigger，量到的
+    // #work-projects 位置还是方法论页 spacer 撑开之前的临时布局，算出来
+    // 的 start/end 会整体错位，横向滑动一上来就已经是终点状态。用 rAF
+    // 把创建动作也推迟一帧，调度顺序上必然排在方法论页那个 rAF 后面，
+    // 到这里执行时前面的布局已经定型。
+    const frame = window.requestAnimationFrame(() => {
+      ctx = gsap.context(() => {
+        ScrollTrigger.create({
+          trigger: pin,
+          // 顶栏 sticky + z-40 会盖住钉住的内容，跟 WorkImpact 同样的
+          // 顶栏偏移处理。
+          start: 'top 64px',
+          end: () => `+=${getDistance()}`,
+          pin: true,
+          scrub: true,
+          anticipatePin: 1,
+          onUpdate: (self) => {
+            track.style.transform = `translate3d(${-(self.progress * getDistance())}px, 0, 0)`;
+          },
+        });
+      }, containerRef);
+    });
+
+    return () => {
+      window.cancelAnimationFrame(frame);
+      ctx?.revert();
+    };
   }, []);
 
   const openProject = (project: ProjectCaseStudy, trigger: HTMLButtonElement) => {
@@ -76,48 +101,75 @@ export const WorkSelectedProjects: React.FC = () => {
     <section
       id="work-projects"
       ref={containerRef}
-      className="relative py-20 sm:py-28 px-6 sm:px-10 lg:px-16 bg-[#F3F5F8] text-[#0A0B0D]"
+      className="relative bg-[#F3F5F8] text-[#0A0B0D]"
     >
-      <div className="max-w-6xl mx-auto w-full">
-        <div className="mb-14 sm:mb-20 max-w-4xl">
-          <h2 className="type-section text-[#0A0B0D]">
+      <div ref={pinRef} className="project-rail relative overflow-hidden pt-8 pb-16 sm:pt-12 sm:pb-24">
+        <div className="max-w-6xl mx-auto w-full px-6 sm:px-10 lg:px-16">
+          <h2 className="type-section text-[#0A0B0D] max-w-4xl">
             精选项目，<br className="sm:hidden" />
             皆以系统落地。
           </h2>
           <p className="type-lead mt-6 max-w-[62ch] text-[#4B5563]">
             进入全屏案例，从问题、系统到结果，完整看清每一次落地。
           </p>
-        </div>
 
-        <div className="border-t border-[#D8DCE2]">
-          {projects.map((project, index) => (
-            <article
-              key={project.id}
-              onPointerMove={updatePointerMotion}
-              onPointerLeave={resetPointerMotion}
-              className="project-row border-b border-[#D8DCE2] transition-colors duration-300 hover:bg-black/[0.03]"
-            >
-              <div className="grid grid-cols-1 gap-8 py-10 sm:py-14 md:grid-cols-12 md:items-end">
-                <div className="md:col-span-7">
-                  <div className="type-meta mb-4 text-[#8A94A3] tabular-nums">
-                    {String(index + 1).padStart(2, '0')} / {project.category}
+          {/* track 跟标题共用同一个 max-w-6xl 容器，左边缘就能对齐——
+              容器本身没有 overflow-hidden，宽度超出 max-w-6xl 的部分
+              照样能视觉溢出到右边，不会被截断（真正裁剪可视范围的是
+              最外层 .project-rail 的 overflow-hidden）。 */}
+          <div
+            ref={trackRef}
+            className="mt-6 flex gap-6 sm:mt-8 sm:gap-8"
+            style={{ width: 'max-content' }}
+          >
+            {projects.map((project, index) => {
+              const metric = project.metrics?.[0];
+
+              return (
+                <article
+                  key={project.id}
+                  onPointerMove={updatePointerMotion}
+                  onPointerLeave={resetPointerMotion}
+                  className="project-card group flex w-[300px] shrink-0 flex-col rounded-2xl border border-[#D8DCE2] bg-white/70 p-7 transition-colors duration-300 hover:bg-white sm:w-[360px] sm:p-8"
+                >
+                  <div className="flex items-center justify-between type-meta text-[#8A94A3] tabular-nums">
+                    <span>
+                      {String(index + 1).padStart(2, '0')} / {project.category}
+                    </span>
+                    <span className="font-medium text-[#0E7C3D]">{project.period}</span>
                   </div>
-                  <h3 className="project-row-title type-section-sm text-[#0A0B0D]">{project.title}</h3>
-                  <p className="type-body mt-4 max-w-[42rem] text-[#4B5563]">
-                    {project.subtitle}
-                  </p>
-                </div>
 
-                <div className="flex flex-col gap-5 md:col-span-5 md:items-end md:text-right">
-                  <span className="type-meta font-medium text-[#0E7C3D] tabular-nums">
-                    {project.period}
-                  </span>
+                  <h3 className="project-card-title type-section-sm mt-5 text-[#0A0B0D]">
+                    {project.title}
+                  </h3>
+                  <p className="type-body mt-4 text-[#4B5563]">{project.subtitle}</p>
+
+                  {metric && (
+                    <div className="mt-6">
+                      <div className="type-number text-4xl font-semibold text-[#0E7C3D]">
+                        {metric.value}
+                      </div>
+                      <div className="type-meta mt-1 text-[#8A94A3]">{metric.label}</div>
+                    </div>
+                  )}
+
+                  <div className="mt-5 flex flex-wrap gap-2">
+                    {project.tags.slice(0, 3).map((tag) => (
+                      <span
+                        key={tag}
+                        className="rounded-full border border-[#D8DCE2] px-3 py-1 text-xs text-[#4B5563]"
+                      >
+                        {tag}
+                      </span>
+                    ))}
+                  </div>
+
                   <button
                     type="button"
                     onClick={(event) => openProject(project, event.currentTarget)}
                     aria-haspopup="dialog"
                     aria-label={`进入${project.title}全屏案例`}
-                    className="project-row-action group inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-[#0E7C3D] hover:bg-[#0A6631] px-5 py-2.5 text-sm font-medium text-white transition-colors"
+                    className="project-card-action group mt-5 inline-flex min-h-11 items-center justify-center gap-2 self-start rounded-xl bg-[#0E7C3D] px-5 py-2.5 text-sm font-medium text-white transition-colors hover:bg-[#0A6631]"
                   >
                     进入全屏案例
                     <ArrowUpRight
@@ -125,10 +177,13 @@ export const WorkSelectedProjects: React.FC = () => {
                       aria-hidden="true"
                     />
                   </button>
-                </div>
-              </div>
-            </article>
-          ))}
+                </article>
+              );
+            })}
+
+            {/* 收尾留白，滑到底时最后一张卡片右边不会紧贴视口边缘。 */}
+            <div className="w-6 shrink-0 sm:w-10 lg:w-16" aria-hidden="true" />
+          </div>
         </div>
       </div>
 
