@@ -1,5 +1,6 @@
 import React, { Suspense, lazy, useState, useEffect, useRef } from 'react';
 import { flushSync } from 'react-dom';
+import Lenis from 'lenis';
 import { AppMode } from './types';
 import { Header } from './components/navigation/Header';
 import { HomeHero } from './components/home/HomeHero';
@@ -7,6 +8,7 @@ import { SceneTransition } from './components/character/SceneTransition';
 import { WorkResumeModal } from './components/work/WorkResumeModal';
 import { ReadingProgressNav } from './components/navigation/ReadingProgressNav';
 import ClickSpark from './components/effects/ClickSpark';
+import { gsap, ScrollTrigger, isReducedMotion } from './utils/gsapSetup';
 
 // 按需加载：Work 页包含 three.js 3D 场景，Life 页体积也不小。
 // 首页不再把这些代码一起下载，首屏更快；进入对应模式时再加载。
@@ -59,6 +61,31 @@ export default function App() {
       loadedModesRef.current.add(currentMode);
     }
   }, [currentMode]);
+
+  // 全站滚动平滑层：Work 页那几处钉住动画（Hero 覆盖、成果数字揭示、
+  // 方法论线条、项目横滑）都是 GSAP ScrollTrigger 的 scrub:true，直接
+  // 1:1 跟着原生 scrollY 走——原生滚轮/触控板本身不是连续平滑的（一截
+  // 一截地跳），这些毛刺会原封不动地传导到动画上，观感发涩。Lenis 在
+  // 原生滚动事件和 scrollY 之间加一层惯性缓动，ScrollTrigger 只监听
+  // Lenis 磨平之后的滚动值，所有 scrub 动画就都跟着丝滑，不用逐个组件
+  // 改。reduced-motion 时完全不启用，保留浏览器原生的即时滚动响应。
+  useEffect(() => {
+    if (isReducedMotion()) return;
+
+    const lenis = new Lenis();
+    lenis.on('scroll', ScrollTrigger.update);
+
+    const onTick = (time: number) => {
+      lenis.raf(time * 1000);
+    };
+    gsap.ticker.add(onTick);
+    gsap.ticker.lagSmoothing(0);
+
+    return () => {
+      gsap.ticker.remove(onTick);
+      lenis.destroy();
+    };
+  }, []);
 
   // 1. Initial URL detection (direct link to /work or #work skips opening animation)
   useEffect(() => {
