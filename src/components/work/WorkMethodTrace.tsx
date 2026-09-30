@@ -525,7 +525,14 @@ export const WorkMethodTrace: React.FC = () => {
       anticipatePin: 1,
       onUpdate: (self) => {
         progress = self.progress;
-        if (!frameId && isVisible) renderFrame();
+        // 一定要在这里强制画一帧，不能靠 isVisible 门槛——快速滚轮
+        // 猛地滑过这一段时，IntersectionObserver 的回调本身有延迟
+        // （不是逐帧同步的），可能滚动早就把 progress 推到了 1（该
+        // 转场完、该收尾），但 isVisible 还没来得及更新成 false 之前
+        // 的最后一帧循环已经停了——canvas 就定格在半转场的旧画面上，
+        // 直到下一次可见性变化才刷新，肉眼看到的就是"卡片已经滚出来了，
+        // 上一屏的线条+黑底还叠在上面"那种一闪而过的诡异画面。
+        renderFrame();
       },
     });
 
