@@ -44,9 +44,9 @@ const AERO_BASE = {
   shardSize: 1.1,
   stretch: 1,
   turbulence: 1,
-  glow: 1,
+  glow: 1.35,
   edgeSoftness: 2,
-  bloom: 0.5,
+  bloom: 0.7,
   grain: 0.05,
   chromaticAberration: 0.0075,
   transitionDuration: 1,
@@ -96,9 +96,9 @@ export const HomeHero: React.FC<HomeHeroProps> = ({
   return (
     <main className="relative min-h-dvh overflow-hidden bg-[#0A0B0D]">
       {/* Brand mark：叠在两个分区上面，纯展示，不挡下面按钮的点击。 */}
-      <div className="absolute top-0 left-0 right-0 z-20 px-6 sm:px-10 pt-6 sm:pt-8 pointer-events-none">
+      <div className="absolute top-0 left-0 right-0 z-20 flex items-center gap-2 px-6 sm:px-10 pt-6 sm:pt-8 pointer-events-none">
         <span className="font-bold text-lg sm:text-xl tracking-tight text-[#F3F5F8]">Leo Hu</span>
-        <span className="ml-2 text-sm text-[#C7CDD6] hidden sm:inline-block">/ 胡利致</span>
+        <span className="ml-1 text-sm text-[#C7CDD6] hidden sm:inline-block">/ 胡利致</span>
       </div>
 
       {/* 中间悬浮的标题——桌面端两个分区的卡片内容都改成了垂直居中，

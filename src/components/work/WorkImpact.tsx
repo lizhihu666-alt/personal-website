@@ -28,7 +28,7 @@ export const WorkImpact: React.FC = () => {
   const containerRef = useRef<HTMLElement>(null);
   const headingRef = useRef<HTMLHeadingElement>(null);
   const gridRef = useRef<HTMLDivElement>(null);
-  const pixelGridRef = useRef<HTMLDivElement>(null);
+  const pixelGridRef = useRef<HTMLCanvasElement>(null);
 
   useLayoutEffect(() => {
     if (isReducedMotion()) return;
@@ -42,9 +42,6 @@ export const WorkImpact: React.FC = () => {
     // 会先把页面滚到一块空白区域，再在空白区域上变黑，观感上就是
     // "先滚走、再变黑"，而不是"当前画面直接被黑方块盖住"。铺在同一个
     // 钉住的容器里，滚动驱动的还是同一根时间线，行为上就是原地覆盖。
-    const pixelGridEl = pixelGridRef.current;
-    const pixelEls: Array<{ el: HTMLElement; threshold: number }> = [];
-
     // 格子按容器当下的实际宽高来建——列数按目标格子边长四舍五入后，
     // 宽度不一定正好是它的整数倍，实际格子宽度会跟 80px 有出入；行数
     // 如果还是拿 80px 去除高度，跟这个"实际"格子宽度对不上，最终格子
@@ -55,28 +52,46 @@ export const WorkImpact: React.FC = () => {
     // 百分比宽高会被拉伸到新的容器尺寸上，重新变回长方形——所以要能
     // 在 resize 时原地清空重建，而不是只建一次。这段不涉及 GSAP 补间，
     // 不需要放进下面的 gsap.context。
+    // 之前这层是几百个各自用 opacity 做淡入的绝对定位 div——每帧同时
+    // 改几百个节点的样式，在集显卡机器上会跟同一帧里其他动画抢资源，
+    // 合成器来不及消化就出现撕裂，画面上表现成一条条细长的白色竖线
+    // （而不是设计好的棋盘格）。改成一块 canvas，每帧只用一次 2D 绘制
+    // 把所有格子画上去，没有几百个独立图层要合成。
+    const pixelGridEl = pixelGridRef.current;
+    const pixelCtx = pixelGridEl?.getContext('2d') ?? null;
+    let pixelCells: Array<{ col: number; row: number; threshold: number }> = [];
+    // 格子的宽/高分开算（各自用画布的宽、高去除总列数/行数），保证
+    // 无论列数、行数怎么四舍五入，最后一列/最后一行都精确顶到画布
+    // 边缘——如果两个方向共用同一个"标准格子边长"，累积出来的总宽高
+    // 跟画布实际尺寸会有几十像素的出入，差的这一截就會露出画布本身
+    // 的透明背景，表现成一条黑边。
+    let pixelCellW = 0;
+    let pixelCellH = 0;
+    let pixelCanvasWidth = 0;
+    let pixelCanvasHeight = 0;
+
     const buildPixelGrid = () => {
       if (!pixelGridEl) return;
       const pixelRect = pixelGridEl.getBoundingClientRect();
       const cols = Math.max(1, Math.round(pixelRect.width / PIXEL_CELL_SIZE));
       const actualCellWidth = pixelRect.width / cols;
       const pixelRows = Math.max(1, Math.round(pixelRect.height / actualCellWidth));
-      pixelGridEl.innerHTML = '';
-      pixelEls.length = 0;
-      const colSize = 100 / cols;
-      const rowSize = 100 / pixelRows;
+      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+
+      pixelCellW = pixelRect.width / cols;
+      pixelCellH = pixelRect.height / pixelRows;
+      pixelCanvasWidth = pixelRect.width;
+      pixelCanvasHeight = pixelRect.height;
+      pixelGridEl.width = pixelRect.width * dpr;
+      pixelGridEl.height = pixelRect.height * dpr;
+      pixelGridEl.style.width = `${pixelRect.width}px`;
+      pixelGridEl.style.height = `${pixelRect.height}px`;
+      pixelCtx?.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+      pixelCells = [];
       for (let row = 0; row < pixelRows; row++) {
         for (let col = 0; col < cols; col++) {
-          const pixel = document.createElement('div');
-          pixel.style.position = 'absolute';
-          pixel.style.backgroundColor = PIXEL_TO_COLOR;
-          pixel.style.width = `${colSize}%`;
-          pixel.style.height = `${rowSize}%`;
-          pixel.style.left = `${col * colSize}%`;
-          pixel.style.top = `${row * rowSize}%`;
-          pixel.style.opacity = '0';
-          pixelGridEl.appendChild(pixel);
-          pixelEls.push({ el: pixel, threshold: Math.random() });
+          pixelCells.push({ col, row, threshold: Math.random() });
         }
       }
     };
@@ -119,15 +134,26 @@ export const WorkImpact: React.FC = () => {
           scrub: true,
           anticipatePin: 1,
           onUpdate: (self) => {
-            if (!pixelEls.length) return;
+            if (!pixelCtx || !pixelCells.length) return;
             // 跟 WorkMethodTrace 的黑变白转场同一套算法：每个方块按
             // 自己的随机 threshold 在这一段局部进度里错开显现，时长
             // 只取决于滚动进度（0~1），不取决于方块数量。
             const local = clamp01((self.progress - pixelStartFraction) / (1 - pixelStartFraction));
-            pixelEls.forEach(({ el, threshold }) => {
+            pixelCtx.clearRect(0, 0, pixelCanvasWidth, pixelCanvasHeight);
+            pixelCtx.fillStyle = PIXEL_TO_COLOR;
+            pixelCells.forEach(({ col, row, threshold }) => {
               const cellStart = threshold * 0.85;
-              el.style.opacity = String(smoothstep(cellStart, cellStart + 0.15, local));
+              const cellOpacity = smoothstep(cellStart, cellStart + 0.15, local);
+              if (cellOpacity <= 0) return;
+              pixelCtx.globalAlpha = cellOpacity;
+              pixelCtx.fillRect(
+                col * pixelCellW,
+                row * pixelCellH,
+                pixelCellW + 1,
+                pixelCellH + 1
+              );
             });
+            pixelCtx.globalAlpha = 1;
           },
         },
       });
@@ -315,7 +341,7 @@ export const WorkImpact: React.FC = () => {
             改用"满宽出血"的老办法：left/right 50% 配合负的视口宽度
             margin，把方块层撑出父元素本来那圈左右内边距，盖住整个
             视口宽度。 */}
-        <div
+        <canvas
           ref={pixelGridRef}
           aria-hidden="true"
           className="pointer-events-none absolute left-1/2 right-1/2 z-10"
@@ -324,12 +350,13 @@ export const WorkImpact: React.FC = () => {
             marginLeft: '-50vw',
             marginRight: '-50vw',
             top: 0,
-            // 底边多探出去几个 px：pin 是靠给父元素加 transform 做的，
-            // 父元素高度（100dvh 换算出来）经常是带小数的，跟 pin
-            // 占位用的整数高度对不上，交界处会露一条几乎看不见但很
-            // 扎眼的浅色细线。方块层的最后一排本来就是纯色块，往下
-            // 多铺一点点盖过这条缝，不会露出破绽。
-            bottom: -4,
+            // canvas 是替换元素，inset 靠 top+bottom 撑高对它不生效
+            // （不像 div 那样会自动填满），必须给一个明确的 height。
+            // 额外的 4px 是原来 bottom:-4 的用意：pin 是靠给父元素加
+            // transform 做的，父元素高度（100dvh 换算出来）经常带
+            // 小数，跟 pin 占位用的整数高度对不上，交界处会露一条
+            // 几乎看不见但很扎眼的浅色细线，往下多铺一点点盖过去。
+            height: 'calc(100% + 4px)',
           }}
         />
       </div>

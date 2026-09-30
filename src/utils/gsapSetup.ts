@@ -2,10 +2,11 @@ import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { MotionPathPlugin } from 'gsap/MotionPathPlugin';
 import { SplitText } from 'gsap/SplitText';
+import { MorphSVGPlugin } from 'gsap/MorphSVGPlugin';
 
 // Register standard plugins once
 if (typeof window !== 'undefined') {
-  gsap.registerPlugin(ScrollTrigger, MotionPathPlugin, SplitText);
+  gsap.registerPlugin(ScrollTrigger, MotionPathPlugin, SplitText, MorphSVGPlugin);
 }
 
 export const isReducedMotion = (): boolean => {
@@ -13,4 +14,4 @@ export const isReducedMotion = (): boolean => {
   return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 };
 
-export { gsap, ScrollTrigger, MotionPathPlugin, SplitText };
+export { gsap, ScrollTrigger, MotionPathPlugin, SplitText, MorphSVGPlugin };

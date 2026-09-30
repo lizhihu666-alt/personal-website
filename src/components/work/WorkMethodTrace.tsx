@@ -172,7 +172,7 @@ export const WorkMethodTrace: React.FC = () => {
   const labelRefs = useRef<Array<HTMLSpanElement | null>>([]);
   const outcomeRef = useRef<HTMLDivElement>(null);
   const outcomeLinkRef = useRef<HTMLAnchorElement>(null);
-  const pixelGridRef = useRef<HTMLDivElement>(null);
+  const pixelGridRef = useRef<HTMLCanvasElement>(null);
   const [isCanvasReady, setIsCanvasReady] = useState(false);
   const headingId = useId();
 
@@ -204,36 +204,46 @@ export const WorkMethodTrace: React.FC = () => {
     // 黑变白像素层跟视口一样宽高，section 没有左右内边距，方块层直接
     // 铺满 .method-trace-sticky 就是整屏，不需要像 WorkImpact 那样再
     // 用"满宽出血"的技巧去躲父元素的内边距。
+    // 之前这层是几百个各自用 opacity 做淡入的绝对定位 div——每帧
+    // 同时改几百个节点的样式，在集显卡机器上会跟同一帧里的 WebGL
+    // 渲染抢资源，合成器来不及消化就出现撕裂，画面上表现成一条条
+    // 细长的白色竖线（而不是设计好的棋盘格）。改成一块 canvas，每帧
+    // 只用一次 2D 绘制把所有格子画上去，没有几百个独立图层要合成。
     const pixelGridEl = pixelGridRef.current;
-    const pixelEls: Array<{ el: HTMLElement; threshold: number }> = [];
+    const pixelCtx = pixelGridEl?.getContext('2d') ?? null;
+    let pixelCells: Array<{ col: number; row: number; threshold: number }> = [];
+    // 格子的宽/高分开算（各自用画布的宽、高去除总列数/行数），保证
+    // 无论列数、行数怎么四舍五入，最后一列/最后一行都精确顶到画布
+    // 边缘——如果两个方向共用同一个"标准格子边长"，累积出来的总宽高
+    // 跟画布实际尺寸会有几十像素的出入，差的这一截就會露出画布本身
+    // 的透明背景（也就是section的纯黑底色），表现成一条黑边。
+    let pixelCellW = 0;
+    let pixelCellH = 0;
+    let pixelCanvasWidth = 0;
+    let pixelCanvasHeight = 0;
 
-    // 行数按宽度实际算出来的格子边长换算，而不是直接拿 PIXEL_CELL_SIZE
-    // 去除高度——两边各自四舍五入很容易凑不成同一个边长，方块会被
-    // 拉扁/拉长（跟 WorkImpact 同一个道理）。抽成函数是因为窗口宽度
-    // 变化后 .method-trace-sticky 的实际尺寸会变，格子如果还是挂载时
-    // 建的那一批，百分比宽高会被拉伸到新尺寸上，重新变回长方形。
     const buildPixelGrid = () => {
       if (!pixelGridEl) return;
       const pixelRect = pixelGridEl.getBoundingClientRect();
       const cols = Math.max(1, Math.round(pixelRect.width / PIXEL_CELL_SIZE));
       const actualCellWidth = pixelRect.width / cols;
       const pixelRows = Math.max(1, Math.round(pixelRect.height / actualCellWidth));
-      pixelGridEl.innerHTML = '';
-      pixelEls.length = 0;
-      const colSize = 100 / cols;
-      const rowSize = 100 / pixelRows;
+      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+
+      pixelCellW = pixelRect.width / cols;
+      pixelCellH = pixelRect.height / pixelRows;
+      pixelCanvasWidth = pixelRect.width;
+      pixelCanvasHeight = pixelRect.height;
+      pixelGridEl.width = pixelRect.width * dpr;
+      pixelGridEl.height = pixelRect.height * dpr;
+      pixelGridEl.style.width = `${pixelRect.width}px`;
+      pixelGridEl.style.height = `${pixelRect.height}px`;
+      pixelCtx?.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+      pixelCells = [];
       for (let row = 0; row < pixelRows; row++) {
         for (let col = 0; col < cols; col++) {
-          const pixel = document.createElement('div');
-          pixel.style.position = 'absolute';
-          pixel.style.backgroundColor = PIXEL_EXIT_COLOR;
-          pixel.style.width = `${colSize}%`;
-          pixel.style.height = `${rowSize}%`;
-          pixel.style.left = `${col * colSize}%`;
-          pixel.style.top = `${row * rowSize}%`;
-          pixel.style.opacity = '0';
-          pixelGridEl.appendChild(pixel);
-          pixelEls.push({ el: pixel, threshold: Math.random() });
+          pixelCells.push({ col, row, threshold: Math.random() });
         }
       }
     };
@@ -440,15 +450,25 @@ export const WorkMethodTrace: React.FC = () => {
 
       // 最后一段(HOLD_END ~ 100%)专门留给黑变白的像素转场，跟 WorkImpact
       // 变黑那段一样是随机顺序铺开，只是这里铺的是浅色、方向是收尾。
-      if (pixelEls.length) {
+      if (pixelCtx && pixelCells.length) {
         const transitionProgress = clamp(
           (progress - PIXEL_TRANSITION_START) / (1 - PIXEL_TRANSITION_START)
         );
-        pixelEls.forEach(({ el, threshold }) => {
+        pixelCtx.clearRect(0, 0, pixelCanvasWidth, pixelCanvasHeight);
+        pixelCtx.fillStyle = PIXEL_EXIT_COLOR;
+        pixelCells.forEach(({ col, row, threshold }) => {
           const cellStart = threshold * 0.85;
           const cellOpacity = smoothstep(cellStart, cellStart + 0.15, transitionProgress);
-          el.style.opacity = String(cellOpacity);
+          if (cellOpacity <= 0) return;
+          pixelCtx.globalAlpha = cellOpacity;
+          pixelCtx.fillRect(
+            col * pixelCellW,
+            row * pixelCellH,
+            pixelCellW + 1,
+            pixelCellH + 1
+          );
         });
+        pixelCtx.globalAlpha = 1;
       }
 
       renderer.render(scene, camera);
@@ -650,7 +670,7 @@ export const WorkMethodTrace: React.FC = () => {
           </div>
         </div>
 
-        <div ref={pixelGridRef} aria-hidden="true" className="pointer-events-none absolute inset-0 z-20" />
+        <canvas ref={pixelGridRef} aria-hidden="true" className="pointer-events-none absolute inset-0 z-20 h-full w-full" />
       </div>
     </section>
   );

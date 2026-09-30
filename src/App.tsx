@@ -8,6 +8,7 @@ import { SceneTransition } from './components/character/SceneTransition';
 import { WorkResumeModal } from './components/work/WorkResumeModal';
 import { ReadingProgressNav } from './components/navigation/ReadingProgressNav';
 import ClickSpark from './components/effects/ClickSpark';
+import { LoadingScreen } from './components/effects/LoadingScreen';
 import { gsap, ScrollTrigger, isReducedMotion } from './utils/gsapSetup';
 
 // 按需加载：Work 页包含 three.js 3D 场景，Life 页体积也不小。
@@ -33,6 +34,11 @@ type ViewTransitionDocument = Document & {
 };
 
 export default function App() {
+  // 全站唯一一次加载页：人脸<->LEO 变形循环播完之前，下面整棵应用树都
+  // 不挂载——不是叠在首页上面的角标动效，是真正的开场门槛。
+  // reduced-motion 时直接跳过，不显示这一屏。
+  const [isLoading, setIsLoading] = useState(() => !isReducedMotion());
+
   // Navigation & Mode state
   const [currentMode, setCurrentMode] = useState<AppMode>('home');
   const [transitioningTo, setTransitioningTo] = useState<'work' | 'life' | null>(null);
@@ -257,6 +263,10 @@ export default function App() {
     updateUrlHistory(mode);
     restoreScroll(mode);
   };
+
+  if (isLoading) {
+    return <LoadingScreen onDone={() => setIsLoading(false)} />;
+  }
 
   return (
     <ClickSpark
