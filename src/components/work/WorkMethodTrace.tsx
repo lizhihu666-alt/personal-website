@@ -476,6 +476,19 @@ export const WorkMethodTrace: React.FC = () => {
         hasReadyFrame = true;
         setIsCanvasReady(true);
       }
+
+      // 黑变白转场彻底走完之后，专门把 WebGL 画布(不是整块 sticky)
+      // 隐藏掉——这一段靠 GSAP 给它加 transform 位移来模拟"钉住"（配合
+      // Lenis 用的是 transform 而不是 position:fixed），个别浏览器/
+      // 显卡在这类 transform 驱动的合成层上会出现 WebGL 纹理没有及时
+      // 丢弃的问题：明明 DOM 里量出来这块已经完全移出视口了，画布上
+      // 一帧画的线条却仍残留在屏幕上，跟已经正常滚上来的下一个板块
+      // 叠在一起显示。只隐藏 canvasHost 而不是整个 sticky，是因为
+      // sticky 里同一层级还有黑变白转场用的那块不透明白色像素画布——
+      // 那时候它已经整块铺满盖住了 WebGL 画布，隐藏 canvasHost 视觉上
+      // 毫无变化；但如果连 sticky 一起隐藏，会连带把那块白色像素画布
+      // 也藏起来，反而露出 section 自己的黑底色，变成一次刺眼的黑闪。
+      canvasHost.style.visibility = progress >= 0.999 ? 'hidden' : '';
     };
 
     const loop = () => {
