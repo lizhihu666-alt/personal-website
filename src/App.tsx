@@ -47,6 +47,24 @@ export default function App() {
   // Independent scroll position memories
   const scrollPositions = useRef<{ work: number; life: number }>({ work: 0, life: 0 });
 
+  // 指向下面那个 Lenis 平滑滚动实例——首页/职业页/生活页之间切换时
+  // 强制跳转滚动位置（restoreScroll、View Transition 落点归零）必须
+  // 经过它的 scrollTo，不能直接用原生 window.scrollTo：Lenis 自己
+  // 维护一份"虚拟"滚动位置并在每帧 raf 里用它去驱动真实 scrollY，如果
+  // 绕开它直接改 scrollY，它下一帧会把这次改动当成外部干扰，按自己
+  // 记的旧目标位置纠偏跳回去——表现出来就是页面切换那一下滚动位置
+  // 跳变/错位，紧接着地跟 GSAP ScrollTrigger 的 pin 进度对不上，方法论
+  // 线条区那种钉住的滚动动画就会在残留的错误进度上短暂渲染出上一屏
+  // 内容叠加的画面。
+  const lenisRef = useRef<Lenis | null>(null);
+  const syncScrollTo = (top: number) => {
+    if (lenisRef.current) {
+      lenisRef.current.scrollTo(top, { immediate: true });
+    } else {
+      window.scrollTo({ top, behavior: 'instant' });
+    }
+  };
+
   // 记录本次会话里 work/life 懒加载模块是不是已经真正渲染成功过一次。
   // React.lazy 首次渲染必然会先 Suspense 挂起一拍（哪怕模块早就用
   // import() 预取过，Promise resolve 也至少要等一个微任务），flushSync
@@ -79,6 +97,7 @@ export default function App() {
     if (isReducedMotion()) return;
 
     const lenis = new Lenis();
+    lenisRef.current = lenis;
     lenis.on('scroll', ScrollTrigger.update);
 
     const onTick = (time: number) => {
@@ -88,6 +107,7 @@ export default function App() {
     gsap.ticker.lagSmoothing(0);
 
     return () => {
+      lenisRef.current = null;
       gsap.ticker.remove(onTick);
       lenis.destroy();
     };
@@ -156,7 +176,7 @@ export default function App() {
   const restoreScroll = (mode: AppMode) => {
     if (mode === 'work' || mode === 'life') {
       const targetY = scrollPositions.current[mode] || 0;
-      const applyTarget = () => window.scrollTo({ top: targetY, behavior: 'instant' });
+      const applyTarget = () => syncScrollTo(targetY);
 
       applyTarget();
       requestAnimationFrame(applyTarget);
@@ -165,7 +185,7 @@ export default function App() {
         window.setTimeout(applyTarget, 160);
       }
     } else {
-      window.scrollTo({ top: 0, behavior: 'instant' });
+      syncScrollTo(0);
     }
   };
 
@@ -193,7 +213,7 @@ export default function App() {
         // 变形的落点是 Hero 大标题，它只在页面顶部——不用 restoreScroll()
         // 记住的那个深处滚动位置（那是给"直接切换"用的），这次是从
         // 首页新"走进来"，就该落在目的地页面的最顶上。
-        window.scrollTo({ top: 0, behavior: 'instant' });
+        syncScrollTo(0);
       });
 
       const targetEl = document.getElementById(targetTitleId);
