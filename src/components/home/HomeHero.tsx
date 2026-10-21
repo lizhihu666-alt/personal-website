@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import AeroShards from '../effects/AeroShards';
+import Topography from '../effects/Topography';
 import { ArrowRight } from 'lucide-react';
 
 interface HomeHeroProps {
@@ -155,12 +156,48 @@ const useGpuFailed = () => {
   return [failed, markFailed] as const;
 };
 
-// 兜底背景：左绿右蓝的柔光，缓慢呼吸，和碎片背景的分区配色保持一致。
+// 兜底背景：WebGPU 画布在部分机器上（驱动问题）创建不出贴图，这时改用职业页同款的 WebGL
+// 等高线动画（ogl），左绿右蓝对应两个分区；底下再垫一层柔光，万一 WebGL 也不可用也不至于黑屏。
+const TOPO_PROPS = {
+  speed: 0.35,
+  morphAmount: 2.0,
+  morphSpeed: 0.05,
+  bands: 2.0,
+  thickness: 0.01,
+  scale: 1.8,
+  pixelSize: 1.0,
+  glow: 0.5,
+  colorMode: 'elevation' as const,
+  contrast: 3.0,
+  brightness: 1.0,
+  fillBands: false,
+  opacity: 0.7,
+  grain: true,
+  grainIntensity: 0.05,
+  mouseInteraction: false,
+};
+
 const FallbackBackdrop: React.FC<{ side?: 'full' | 'work' | 'life' }> = ({ side = 'full' }) => {
   const work = 'radial-gradient(60% 55% at 28% 62%, rgba(52,211,120,0.22) 0%, transparent 70%)';
   const life = 'radial-gradient(60% 55% at 72% 62%, rgba(79,140,255,0.22) 0%, transparent 70%)';
   const background = side === 'work' ? work : side === 'life' ? life : `${work}, ${life}`;
-  return <div className="home-fallback-glow absolute inset-0" style={{ background }} aria-hidden="true" />;
+
+  const green = <Topography lowColor="#0A0B0D" midColor="#0E7C3D" highColor="#34D378" {...TOPO_PROPS} />;
+  const blue = <Topography lowColor="#0A0B0D" midColor="#2F6FED" highColor="#4F8CFF" {...TOPO_PROPS} />;
+
+  return (
+    <div className="absolute inset-0" aria-hidden="true">
+      <div className="home-fallback-glow absolute inset-0" style={{ background }} />
+      {side === 'full' ? (
+        <>
+          <div className="absolute inset-y-0 left-0 w-1/2">{green}</div>
+          <div className="absolute inset-y-0 right-0 w-1/2">{blue}</div>
+        </>
+      ) : (
+        <div className="absolute inset-0">{side === 'work' ? green : blue}</div>
+      )}
+    </div>
+  );
 };
 
 const useIsDesktop = () => {
