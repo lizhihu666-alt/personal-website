@@ -79,11 +79,40 @@ const installGpuErrorHook = () => {
   adapterProto.requestDevice = async function (this: unknown, ...args: unknown[]) {
     const device = await original.apply(this, args);
     let reported = false;
+
+    // 记录这个设备创建过的所有贴图（名字/尺寸/格式/用途），出错时一起打印，
+    // 动画库把最初那条创建失败的错误吞掉了，靠这个反推是哪一张贴图不合法。
+    const textures: string[] = [];
+    const rawDevice = device as unknown as {
+      createTexture?: (descriptor: Record<string, unknown>) => unknown;
+      limits?: { maxTextureDimension2D?: number };
+    };
+    const createTexture = rawDevice.createTexture;
+    if (createTexture) {
+      rawDevice.createTexture = function (descriptor: Record<string, unknown>) {
+        textures.push(
+          JSON.stringify({
+            label: descriptor.label,
+            size: descriptor.size,
+            format: descriptor.format,
+            usage: descriptor.usage,
+            sampleCount: descriptor.sampleCount,
+            mipLevelCount: descriptor.mipLevelCount,
+          })
+        );
+        return createTexture.call(this, descriptor);
+      };
+    }
+
     device.addEventListener('uncapturederror', (event) => {
       if (reported) return;
       reported = true;
       const error = (event as unknown as { error?: { message?: string } }).error;
       console.error('[home] WebGPU 报错（第一条）：', error?.message ?? error);
+      console.error(
+        '[home] 已创建的贴图（maxTextureDimension2D=' + rawDevice.limits?.maxTextureDimension2D + '）：',
+        textures.join(" ; ")
+      );
       gpuErrorListeners.forEach((listener) => listener(error));
     });
     return device;
