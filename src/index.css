@@ -214,8 +214,8 @@
   height: 11px;
   flex: 0 0 auto;
   border-radius: 9999px;
-  border: 1px solid rgba(52, 211, 120, 0.5);
-  background: #0A0B0D;
+  border: 1px solid rgba(52, 211, 120, 0.3);
+  background: #2a5a43; /* 未悬停：不亮灯的灰绿色 */
   box-shadow: 0 0 0 5px rgba(52, 211, 120, 0.07);
   transition:
     background-color 280ms cubic-bezier(0.16, 1, 0.3, 1),
@@ -224,11 +224,162 @@
     transform 280ms cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-.career-track-item.is-reached .career-track-node {
+/* 圆点平时是暗的，鼠标放到对应的那一行上才亮起来（只变色，不位移、不缩放）。 */
+.career-track-item:has(.career-track-row:hover) .career-track-node {
   background: var(--color-work-proof);
   border-color: var(--color-work-proof-strong);
   box-shadow: 0 0 0 6px rgba(52, 211, 120, 0.13);
-  transform: scale(1.08);
+}
+
+/* 履历卡片的指针交互：参考 specia1ne 的作品列表——只做高亮，不挪动任何文字或圆点。
+   悬停的那一张边框和上下两道线点亮、按钮实心，其余的退后变暗。只在有悬停能力的设备上生效。 */
+.career-track-row {
+  position: relative;
+  transition:
+    border-color 320ms cubic-bezier(0.16, 1, 0.3, 1),
+    background-color 320ms cubic-bezier(0.16, 1, 0.3, 1),
+    opacity 320ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.career-track-row::before,
+.career-track-row::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: #2eb468;
+  transform: scaleX(0);
+  transform-origin: left;
+  /* 离开时瞬间消失，只有悬停进入时才有延伸动画（见下面 :hover 规则） */
+  transition: none;
+  pointer-events: none;
+}
+
+.career-track-row::before {
+  top: 0;
+}
+
+.career-track-row::after {
+  bottom: 0;
+}
+
+/* 经历行没有方框：上方一道淡线（最后一行再加下方一道）用背景画，悬停时上下两道绿线
+   都是 1px 实色、从左往右延伸；下一行的淡线在上一行被悬停时让位，避免和绿线叠成两道。 */
+.career-track-row {
+  background-image: linear-gradient(#232a33, #232a33);
+  background-repeat: no-repeat;
+  background-size: 100% 1px;
+  background-position: top;
+}
+
+.career-track-row.is-last {
+  background-image: linear-gradient(#232a33, #232a33), linear-gradient(#232a33, #232a33);
+  background-position: top, bottom;
+}
+
+@media (hover: hover) {
+  .career-track-item:has(.career-track-row:hover) + .career-track-item .career-track-row {
+    background-image: none;
+  }
+}
+
+/* 展开箭头：一根竖线加两条斜线。触屏等没有悬停的设备上直接完整显示。 */
+.career-track-arrow path {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 0;
+}
+
+.career-track-arrow {
+  transition: transform 300ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@media (hover: hover) {
+  /* 默认是灰的，悬停（或已展开）的那一行才恢复原本的亮度 */
+  .career-track-row > button {
+    opacity: 0.45;
+    transition: opacity 320ms cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .career-track-row:hover > button,
+  .career-track-row:has(button[aria-expanded='true']) > button,
+  .career-track-row:has(button:focus-visible) > button {
+    opacity: 1;
+  }
+
+  .career-track-row:hover {
+    background-color: transparent;
+  }
+
+  .career-track-row:hover::before,
+  .career-track-row:hover::after {
+    transform: scaleX(1);
+    transition: transform 500ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  /* 地点平时不显示，悬停时在同样的 500ms 里淡入；它脱离文档流画在时间下方，
+     这样时间在行内始终垂直居中、行高也不会因为它出现而变化。手机宽度下保持正常显示。 */
+  @media (min-width: 1024px) {
+    .career-track-loc {
+      position: absolute;
+      top: 100%;
+      right: 0;
+      margin-top: -10px;
+      white-space: nowrap;
+      opacity: 0;
+      transition: none;
+    }
+
+    .career-track-row:hover .career-track-loc,
+    .career-track-row:has(button[aria-expanded='true']) .career-track-loc,
+    .career-track-row:has(button:focus-visible) .career-track-loc {
+      opacity: 1;
+      transition: opacity 500ms cubic-bezier(0.22, 1, 0.36, 1);
+    }
+  }
+
+  /* 地点出现的同时，时间往上挤一点，给它让位（离开时瞬间复位）。 */
+  @media (min-width: 1024px) {
+    .career-track-period {
+      transform: translateY(0);
+      transition: none;
+    }
+
+    .career-track-row:hover .career-track-period,
+    .career-track-row:has(button[aria-expanded='true']) .career-track-period,
+    .career-track-row:has(button:focus-visible) .career-track-period {
+      transform: translateY(-0.75rem);
+      transition: transform 500ms cubic-bezier(0.22, 1, 0.36, 1);
+    }
+  }
+
+  /* 箭头平时不存在；悬停时先画出竖线（前 250ms），再画出两条斜线（后 250ms），
+     合计 500ms，和绿线延伸的时间一致；离开时瞬间消失。已展开的行和键盘聚焦时保持完整显示。 */
+  .career-track-arrow path {
+    stroke-dashoffset: 1;
+    transition: none;
+  }
+
+  .career-track-row:hover .career-track-arrow path,
+  .career-track-row:has(button[aria-expanded='true']) .career-track-arrow path,
+  .career-track-row:has(button:focus-visible) .career-track-arrow path {
+    stroke-dashoffset: 0;
+    transition: stroke-dashoffset 250ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  .career-track-row:hover .career-track-arrow path:nth-child(n + 2) {
+    transition-delay: 250ms;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .career-track-row,
+  .career-track-row::before,
+  .career-track-row::after,
+  .career-track-arrow,
+  .career-track-arrow path {
+    transition: none;
+  }
 }
 
 /* 参考站把指针当作轻微的物理输入，但不让控件追着光标跑。 */
@@ -424,8 +575,7 @@
     );
   }
 
-  .project-card:hover .project-card-action,
-  .pointer-reactive:hover {
+  .project-card:hover .project-card-action {
     transform: translate3d(var(--pointer-shift-x, 0px), var(--pointer-shift-y, 0px), 0);
   }
 }

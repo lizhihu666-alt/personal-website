@@ -16,14 +16,8 @@ const WORK_SECTIONS: NavItem[] = [
   { id: 'work-contact', label: '联系' },
 ];
 
-const LIFE_SECTIONS: NavItem[] = [
-  { id: 'life-hero', label: '关于' },
-  { id: 'life-values', label: '价值' },
-  { id: 'life-photography', label: '摄影' },
-  { id: 'life-badminton', label: '运动' },
-  { id: 'life-travel', label: '旅行' },
-  { id: 'life-tinkering', label: '近况' },
-];
+// 生活页目前是单屏「施工中」占位页，没有分节，不显示右侧阅读进度。
+const LIFE_SECTIONS: NavItem[] = [];
 
 const SECTIONS_BY_MODE: Record<AppMode, NavItem[]> = {
   home: [],

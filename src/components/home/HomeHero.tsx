@@ -82,7 +82,7 @@ const prefetchWork = () => {
   import('../work/WorkView').catch(() => {});
 };
 const prefetchLife = () => {
-  import('../life/LifeView').catch(() => {});
+  import('../life/LifeComingSoon').catch(() => {});
 };
 
 export const HomeHero: React.FC<HomeHeroProps> = ({

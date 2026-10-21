@@ -93,10 +93,10 @@ export const WorkContact: React.FC<WorkContactProps> = ({ onOpenResume }) => {
         <div className="max-w-3xl mb-16 contact-reveal">
           <h2 className="type-section-sm text-[#F3F5F8]">
             如果你正在寻找能把复杂业务<br className="hidden sm:block" />
-            <span className="text-[#34D378]">真正推进落地的人</span>，我们可以聊聊。
+            <span className="text-[#34D378]">推进落地的人</span>，我们可以聊聊
           </h2>
           <p className="type-lead mt-6 max-w-[42rem] text-[#A8B0BC]">
-            欢迎讨论跨境中台、流程架构、系统迁移或 AI 原型实践。可直接邮件预约，或添加微信交流。
+            商家入驻、跨境中台、系统迁移或 AI 落地等，欢迎添加微信交流
           </p>
         </div>
 

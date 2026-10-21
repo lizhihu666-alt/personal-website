@@ -156,8 +156,8 @@ export const Header: React.FC<HeaderProps> = ({
                 menuButtonColor="#F3F5F8"
                 openMenuButtonColor="#0A0B0D"
                 changeMenuColorOnOpen
-                colors={['#0E7C3D', '#0A6631']}
-                accentColor="#0E7C3D"
+                colors={currentMode === 'life' ? ['#2F6FED', '#2459C7'] : ['#0E7C3D', '#0A6631']}
+                accentColor={currentMode === 'life' ? '#2F6FED' : '#0E7C3D'}
                 onNavigate={handleMenuNavigate}
                 footer={
                   <div className="relative bg-[#E9ECEF] p-1 rounded-full flex items-center gap-1 w-full max-w-[11rem]">

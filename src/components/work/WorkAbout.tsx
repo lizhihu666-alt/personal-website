@@ -60,16 +60,16 @@ export const WorkAbout: React.FC<WorkAboutProps> = ({ onSwitchToLife }) => {
 
           <div className="md:col-span-7 lg:col-span-8 xl:col-span-9 space-y-8 about-reveal">
             <h2 className="type-section-sm text-[#0A0B0D]">
-              在严谨的系统设计中保持人性，<br className="hidden xl:block" />
-              在代码与业务之外<span className="text-[#0E7C3D]">保持对世界的真实感知</span>。
+              3 年跨境电商实战<br className="hidden xl:block" />
+              <span className="whitespace-nowrap text-[#0E7C3D]">从 0-1 搭建招商中台体系</span>
             </h2>
 
             <div className="type-body space-y-5 max-w-[44rem] text-[#4B5563]">
               <p>
-                我的背景横跨金融、商业分析与跨境电商一线。我习惯在复杂制约中找到清晰路径，既能在架构层面梳理流程与接口，也能深入供应链细节对齐交付。
+                擅长在复杂场景下统筹项目管理、IT 系统、供应链与商家运营，兼具业务理解与技术思维；英语可作为工作语言，长期与中美团队协作。
               </p>
               <p>
-                遇到重复到让人烦的流程，我会先把它看清楚，再用 Claude Code、RAG 做成工具，让团队把精力留给真正需要判断的事。
+                用标准化 SOP 把品牌上线周期缩短 30%，在系统迁移中保障 20+ 品牌平稳过渡，也习惯用 AI 工具解决业务痛点、提升团队效率。
               </p>
             </div>
           </div>
@@ -78,10 +78,10 @@ export const WorkAbout: React.FC<WorkAboutProps> = ({ onSwitchToLife }) => {
         <div className="mt-16 about-reveal p-8 sm:p-12 bg-white border border-[#D8DCE2] rounded-2xl flex flex-col md:flex-row items-center justify-between gap-8 shadow-[0_2px_18px_rgba(0,0,0,0.04)]">
           <div>
             <h3 className="text-2xl sm:text-3xl font-bold text-[#0A0B0D]">
-              工作之外，我也在认真体验世界。
+              工作之外，我也在认真体验世界
             </h3>
             <p className="type-body mt-3 max-w-[38rem] text-[#5B6470]">
-              摄影、运动、在陌生城市走很远。如果感兴趣，欢迎看看工作之外的我。
+              摄影、运动、在陌生城市走很远。如果感兴趣，欢迎看看工作之外的我
             </p>
           </div>
 

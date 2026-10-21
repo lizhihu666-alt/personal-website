@@ -16,8 +16,9 @@ import { gsap, ScrollTrigger, isReducedMotion } from './utils/gsapSetup';
 const WorkView = lazy(() =>
   import('./components/work/WorkView').then((module) => ({ default: module.WorkView }))
 );
+// 生活页暂时是「施工中」占位页；原来的完整版本还留在 components/life/LifeView.tsx。
 const LifeView = lazy(() =>
-  import('./components/life/LifeView').then((module) => ({ default: module.LifeView }))
+  import('./components/life/LifeComingSoon').then((module) => ({ default: module.LifeComingSoon }))
 );
 
 // 首页"上班的我/下班的我"卡片跳转的 View Transition 共享元素名——
@@ -340,7 +341,7 @@ export default function App() {
 
             {currentMode === 'life' && (
               <div className="animate-fadeIn">
-                <LifeView />
+                <LifeView onSwitchToWork={() => handleDirectModeSwitch('work')} />
               </div>
             )}
           </Suspense>

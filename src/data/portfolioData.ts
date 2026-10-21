@@ -172,7 +172,7 @@ export const WORK_DATA = {
     },
     {
       id: 'exp-2',
-      company: '小松美国公司 (Komatsu)',
+      company: '小松美国公司',
       location: '美国 · 密尔沃基',
       title: '数据分析实习生',
       period: '2024.01 - 2024.05',
@@ -216,14 +216,14 @@ export const WORK_DATA = {
     {
       institution: "University of Wisconsin–Madison",
       institutionZh: "威斯康星大学麦迪逊分校",
-      location: "美国威斯康星 麦迪逊",
+      location: "美国 · 威斯康辛州",
       degree: "商业分析硕士",
       period: "2023.07 - 2024.05",
     },
     {
       institution: "University of North Texas",
       institutionZh: "北得克萨斯大学",
-      location: "美国得克萨斯 登顿",
+      location: "美国 · 德克萨斯州",
       degree: "金融学学士",
       period: "2019.08 - 2022.05",
     },

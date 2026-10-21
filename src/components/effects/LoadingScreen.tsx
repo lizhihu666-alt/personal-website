@@ -54,7 +54,7 @@ export const LoadingScreen: React.FC<LoadingScreenProps> = ({ onDone }) => {
       role="status"
       aria-label="页面加载中"
     >
-      <svg width={280} height={280} viewBox={FACE_VIEWBOX} fill="#F3F5F8" aria-hidden="true">
+      <svg style={{ overflow: "visible" }} width={280} height={280} viewBox={FACE_VIEWBOX} fill="#F3F5F8" aria-hidden="true">
         <path ref={pathRef} d={FACE_PATH} fillRule="evenodd" />
       </svg>
     </div>

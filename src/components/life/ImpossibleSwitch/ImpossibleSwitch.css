@@ -1,0 +1,181 @@
+/* Impossible Switch — plain CSS, no Tailwind needed. */
+
+.isw-root,
+.isw-root *,
+.isw-root *::before,
+.isw-root *::after {
+  box-sizing: border-box;
+}
+
+.isw-root {
+  display: flex;
+  align-items: flex-end;
+  gap: 8px;
+  user-select: none;
+}
+
+.isw-label {
+  margin: 0;
+  padding-bottom: 6px;
+  font-size: 15px;
+  font-weight: 700;
+  color: #a8b0bc;
+  white-space: nowrap;
+}
+
+/* 96 x 80 box: the switch sits at the bottom, the bear rises from below it */
+.isw-widget {
+  position: relative;
+  width: 96px;
+  height: 80px;
+}
+
+/* Speech bubble — outside the clipped stage so it is never cut off */
+.isw-swear {
+  display: none;
+  position: absolute;
+  left: 64px;
+  top: 6px;
+  width: 190px;
+  z-index: 20;
+}
+
+.isw-bubble {
+  position: relative;
+  padding: 6px 10px;
+  border-radius: 12px;
+  border: 1px solid #2b323c;
+  background: #111418;
+  color: #f3f5f8;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1.375;
+  text-align: center;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);
+}
+
+.isw-bubble-tail {
+  position: absolute;
+  bottom: -4px;
+  left: 12px;
+  width: 12px;
+  height: 12px;
+  border-radius: 2px;
+  border-right: 1px solid #2b323c;
+  border-bottom: 1px solid #2b323c;
+  background: #111418;
+  transform: rotate(45deg);
+}
+
+.isw-stage {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 80px;
+  overflow: hidden;
+}
+
+.isw-bear-wrap {
+  position: absolute;
+  left: 50%;
+  top: 0;
+  transform: translateX(-50%);
+}
+
+.isw-bear {
+  display: block;
+  width: 40px;
+  height: auto;
+}
+
+.isw-track {
+  position: absolute;
+  left: 50%;
+  bottom: 0;
+  width: 64px;
+  height: 32px;
+  transform: translateX(-50%);
+}
+
+.isw-arm-wrap {
+  position: absolute;
+  background: transparent;
+  z-index: 0;
+}
+
+.isw-arm {
+  position: absolute;
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.isw-paw {
+  position: absolute;
+  border-radius: 9999px;
+  z-index: 30;
+}
+
+.isw-switch {
+  position: absolute;
+  inset: 0;
+  z-index: 20;
+}
+
+.isw-input {
+  position: absolute;
+  inset: 0;
+  z-index: 10;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  border-radius: 9999px;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.isw-bg {
+  width: 100%;
+  height: 100%;
+  border-radius: 9999px;
+}
+
+.isw-indicator {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 50%;
+  height: 100%;
+  border-radius: 9999px;
+}
+
+.isw-knob {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 85%;
+  height: 85%;
+  border-radius: 9999px;
+  background: #fff;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.06);
+  transform: translate(-50%, -50%);
+}
+
+/* 键盘聚焦时给开关一圈蓝色轮廓（输入框本身是透明的，轮廓画在底色条上） */
+.isw-input:focus-visible + .isw-bg {
+  outline: 2px solid #4f8cff;
+  outline-offset: 3px;
+}
+
+/* 手机宽度：文字挪到开关上方，不然气泡会超出屏幕右侧 */
+@media (max-width: 639px) {
+  .isw-root {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+  }
+  .isw-label {
+    padding-bottom: 0;
+  }
+}

@@ -10,8 +10,8 @@ const STROKE = 25.5; // 竖笔粗细 / O 左右边框粗细
 const BAR = 26; // L 的底部横脚、E 的三条横杠的粗细
 const E_MID_BAR_LENGTH = 26; // E 中间那道短横的长度
 const O_BORDER_TOP = 32.5; // O 上下边框的粗细
-export const LEO_LETTER_WIDTH = { L: 65, E: 65, O: 78 }; // 每个字母的总宽度（越大越"胖"）
-export const LEO_LETTER_GAP = 30; // 字母之间的间距
+export const LEO_LETTER_WIDTH = { L: 72, E: 72, O: 86 }; // 每个字母的总宽度（越大越"胖"）
+export const LEO_LETTER_GAP = 26; // 字母之间的间距
 // ↑↑↑ 可调参数到此为止 ↑↑↑
 
 const CENTER_Y = (Y_TOP + Y_BOT) / 2;
