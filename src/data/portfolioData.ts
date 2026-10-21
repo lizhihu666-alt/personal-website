@@ -232,9 +232,8 @@ export const WORK_DATA = {
   contact: {
     message: "如果你正在寻找一位能够在业务、产品和执行之间搭桥的人，我们可以聊聊。",
     email: "lizhihu666@gmail.com",
-    wechat: "LeoHu_Connect",
+    wechat: "Hu-Leo-731",
     linkedin: "https://www.linkedin.com/in/lizhihu/",
-    github: "https://github.com/lizhihu666-alt",
     note: "欢迎通过邮件预约线上沟通，或直接添加微信探讨出海业务与产品合作可能。",
   },
 };

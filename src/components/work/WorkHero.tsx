@@ -7,13 +7,15 @@ import { resetPointerMotion, updatePointerMotion } from '../../utils/pointerMoti
 
 interface WorkHeroProps {
   onOpenResume?: () => void;
+  /** 点「发起交流」时弹出名片（背面是微信二维码）。 */
+  onOpenContactCard?: () => void;
   /** 从首页"上班的我"卡片做 View Transition 变形跳转过来时传 true——
       标题的位置/大小已经由那次变形动画负责了，这里的入场滑入动画
       不用再叠一遍，直接以最终状态显示。 */
   skipIntro?: boolean;
 }
 
-export const WorkHero: React.FC<WorkHeroProps> = ({ onOpenResume, skipIntro = false }) => {
+export const WorkHero: React.FC<WorkHeroProps> = ({ onOpenResume, onOpenContactCard, skipIntro = false }) => {
   const sectionRef = useRef<HTMLElement>(null);
 
   useLayoutEffect(() => {
@@ -167,7 +169,7 @@ export const WorkHero: React.FC<WorkHeroProps> = ({ onOpenResume, skipIntro = fa
           <div className="hero-actions flex flex-wrap items-center gap-3">
             <button
               id="hero-primary-contact-btn"
-              onClick={() => scrollToSection('work-contact')}
+              onClick={() => (onOpenContactCard ? onOpenContactCard() : scrollToSection('work-contact'))}
               onPointerMove={updatePointerMotion}
               onPointerLeave={resetPointerMotion}
               className="pointer-reactive pointer-events-auto inline-flex min-h-11 items-center gap-2 rounded-xl bg-[#0E7C3D] hover:bg-[#0A6631] px-5 py-3 text-sm font-medium text-white transition-colors"

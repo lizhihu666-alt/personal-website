@@ -8,24 +8,6 @@ interface WorkContactProps {
   onOpenResume?: () => void;
 }
 
-const ProfileLink: React.FC<{ label: string; href?: string }> = ({ label, href }) => {
-  if (!href) {
-    return <span className="type-body text-[#A8B0BC]">{label} · 整理中</span>;
-  }
-
-  return (
-    <a
-      href={href}
-      target="_blank"
-      rel="noopener noreferrer"
-      className="type-body flex min-h-11 items-center justify-between gap-2 font-medium text-[#F3F5F8] hover:text-[#34D378] transition-colors"
-    >
-      <span>{label}</span>
-      <ExternalLink className="w-4 h-4 text-[#A8B0BC]" />
-    </a>
-  );
-};
-
 export const WorkContact: React.FC<WorkContactProps> = ({ onOpenResume }) => {
   const [copyState, setCopyState] = useState<{
     email: 'idle' | 'success' | 'error';
@@ -179,17 +161,26 @@ export const WorkContact: React.FC<WorkContactProps> = ({ onOpenResume }) => {
 
           <div className="p-6 bg-[#111418] border border-[#232A33] rounded-2xl shadow-[0_2px_14px_rgba(0,0,0,0.06)] flex flex-col justify-between">
             <div>
-              <div className="type-label text-[#A8B0BC]">社交网络</div>
-              <div className="mt-2 divide-y divide-[#232A33]">
-                <ProfileLink label="LinkedIn" href={WORK_DATA.contact.linkedin} />
-                <ProfileLink label="GitHub" href={WORK_DATA.contact.github} />
+              <div className="type-label text-[#A8B0BC]">LinkedIn</div>
+              <div className="type-body mt-3 font-medium text-[#F3F5F8] break-words">
+                胡利致 · Leo Hu
               </div>
             </div>
+            <a
+              id="contact-open-linkedin-link"
+              href={WORK_DATA.contact.linkedin}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="type-meta mt-6 inline-flex min-h-11 items-center justify-between gap-3 border-t border-[#232A33] pt-4 font-semibold text-[#34D378] transition-colors hover:text-[#86EFB3]"
+            >
+              <span>打开主页</span>
+              <ExternalLink className="w-4 h-4" />
+            </a>
           </div>
 
           <div className="p-6 bg-[#111418] border border-[#232A33] rounded-2xl shadow-[0_2px_14px_rgba(0,0,0,0.06)] flex flex-col justify-between">
             <div>
-              <div className="type-label text-[#A8B0BC]">正式简历</div>
+              <div className="type-label text-[#A8B0BC]">简历</div>
               <div className="type-body mt-3 font-semibold text-[#F3F5F8]">PDF 简历</div>
             </div>
             {onOpenResume && (

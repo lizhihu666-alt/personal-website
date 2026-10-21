@@ -1,0 +1,258 @@
+/* ===== Scoped minimal reset =====
+   The card was built on a page using Tailwind's preflight. These zero-specificity
+   rules (:where) give it the same baseline on any site without overriding
+   anything you style yourself. */
+:where(.contact-flip-wrap),
+:where(.contact-flip-wrap) :where(*, *::before, *::after) {
+  box-sizing: border-box;
+}
+:where(.contact-flip-wrap) :where(h1, h2, h3, h4, p) {
+  margin: 0;
+  font-size: inherit;
+  font-weight: inherit;
+}
+:where(.contact-flip-wrap) :where(button) {
+  font: inherit;
+  color: inherit;
+  background: none;
+  border: 0;
+  padding: 0;
+  margin: 0;
+  cursor: pointer;
+}
+:where(.contact-flip-wrap) :where(img) {
+  display: block;
+  max-width: 100%;
+}
+
+/* ===== ContactCard: overrides on top of ProfileCard.css ===== */
+
+/* ProfileCard ships sized for a full hero; inside the compact contact card,
+   derive height from width instead of the viewport. */
+.contact-profile-card .pc-card {
+  height: auto;
+  max-height: none;
+}
+
+/* The logo mark is used as the holo mask (iconUrl): tile it small and let it
+   drift lightly with the pointer. */
+.contact-profile-card .pc-shine {
+  mask-size: var(--watermark-size, 26%);
+  mask-position: top calc(160% - (var(--background-y) * 0.3)) left calc(100% - var(--background-x));
+}
+
+/* Show the portrait in natural color rather than the card's luminosity tint. */
+.contact-profile-card .pc-avatar-content {
+  mix-blend-mode: normal;
+}
+
+/* Wash the scrim with the same indigo as the back face so the flip feels like
+   one card. */
+.contact-profile-card .pc-scrim {
+  background:
+    linear-gradient(to bottom, rgba(4, 6, 16, 0.4) 0%, rgba(4, 6, 16, 0.05) 26%, rgba(4, 6, 16, 0.05) 55%, rgba(4, 6, 16, 0.48) 100%),
+    rgba(11, 42, 29, 0.34);
+}
+
+/* ===== Flip (front: profile card, back: QR) ===== */
+.contact-flip-wrap {
+  perspective: 1600px;
+}
+
+.contact-flip-inner {
+  position: relative;
+  width: 100%;
+  transform-style: preserve-3d;
+  will-change: transform;
+  transition: transform 0.85s cubic-bezier(0.65, 0, 0.35, 1);
+}
+
+.contact-flip-inner.is-flipped {
+  transform: rotateY(180deg);
+}
+
+.contact-flip-face {
+  backface-visibility: hidden;
+}
+
+.contact-flip-front {
+  position: relative;
+}
+
+.contact-flip-back {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  transform: rotateY(180deg);
+}
+
+/* Coplanar rotated faces can leave the hidden one still eating clicks —
+   pointer-events alone wasn't reliable here (a nested element several
+   layers down kept re-claiming the hit-test despite the ancestor being
+   set to none). visibility is a harder guarantee: a hidden subtree drops
+   out of hit-testing entirely, so pair it with pointer-events as backup.
+   But switching visibility instantly on class-toggle cut the rotation
+   short — the face vanished at t=0 instead of fading out naturally via
+   backface-visibility partway through. Delay it to the halfway point (when
+   backface-visibility would already hide it) so the block is invisible to
+   the eye and only the click-blocking timing is felt. */
+.contact-flip-face {
+  transition: visibility 0s linear 0.425s;
+}
+
+.contact-flip-back {
+  pointer-events: none;
+  visibility: hidden;
+}
+
+.contact-flip-inner.is-flipped .contact-flip-front {
+  pointer-events: none;
+  visibility: hidden;
+}
+
+.contact-flip-inner.is-flipped .contact-flip-back {
+  pointer-events: auto;
+  visibility: visible;
+}
+
+.contact-flip-front {
+  cursor: pointer;
+}
+
+/* ===== QR back face ===== */
+.contact-qr-back {
+  border: 0;
+  border-radius: 30px;
+  background: linear-gradient(135deg, #07130e 0%, #0b2a1d 50%, #07130e 100%);
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem 1.5rem;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.contact-qr-title {
+  margin: 0 0 0.125rem;
+  color: #fff;
+  font-size: 1.125rem;
+  font-weight: 900;
+}
+
+.contact-qr-caption {
+  margin: 0 0 1.25rem;
+  color: #94a3b8;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.contact-qr-box {
+  /* 二维码占名片宽度的比例：越小二维码越小，可选 60% / 68% / 75% */
+  width: 68%;
+  aspect-ratio: 1 / 1;
+  padding: 0.75rem;
+  box-sizing: border-box;
+  border-radius: 1rem;
+  background: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.06);
+}
+
+.contact-qr-box img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  transform: scale(1.05);
+}
+
+.contact-qr-hint {
+  margin-top: 1.25rem;
+  color: #94a3b8;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+/* ===== Modal wrapper (optional) ===== */
+.contact-modal-root {
+  position: fixed;
+  inset: 0;
+  z-index: 110;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+}
+
+.contact-modal-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(5, 8, 7, 0.7);
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+}
+
+.contact-modal-panel {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 24rem;
+  outline: none;
+}
+
+.contact-modal-close {
+  position: absolute;
+  top: -0.75rem;
+  right: -0.75rem;
+  z-index: 30;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 9999px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: #0a0b0d;
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 1.25rem;
+  line-height: 1;
+  cursor: pointer;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
+}
+
+.contact-modal-close:hover {
+  color: #fff;
+  background: #14231b;
+}
+
+/* ===== 站点主题：把全息反光从彩虹/紫蓝收成绿色系，跟站内绿色强调色一致 ===== */
+.contact-profile-card {
+  --sunpillar-clr-1: hsl(140, 85%, 62%);
+  --sunpillar-clr-2: hsl(160, 85%, 58%);
+  --sunpillar-clr-3: hsl(118, 70%, 66%);
+  --sunpillar-clr-4: hsl(172, 80%, 64%);
+  --sunpillar-clr-5: hsl(190, 70%, 66%);
+  --sunpillar-clr-6: hsl(145, 75%, 70%);
+}
+
+/* 二维码图片没放进来 / 加载失败时，显示文字（微信号）代替 */
+.contact-qr-fallback {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-height: 160px;
+  padding: 16px;
+  text-align: center;
+  font-weight: 600;
+  color: #0a0b0d;
+  word-break: break-all;
+}
+
+/* 底部信息条里的按钮不允许折行，状态文字过长时让文字自己折，别挤坏按钮 */
+.contact-profile-card .pc-contact-btn {
+  white-space: nowrap;
+  flex-shrink: 0;
+}

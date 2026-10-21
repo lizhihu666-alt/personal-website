@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { WorkHero } from './WorkHero';
 import { WorkImpact } from './WorkImpact';
 import { WorkMethodTrace } from './WorkMethodTrace';
@@ -7,6 +7,8 @@ import { WorkExperience } from './WorkExperience';
 import { WorkAbout } from './WorkAbout';
 import { WorkContact } from './WorkContact';
 import { ScrollTrigger } from '../../utils/gsapSetup';
+import { ContactModal } from '../effects/ContactCard/ContactCard';
+import { CONTACT_CARD_PROPS } from '../../data/contactCard';
 
 interface WorkViewProps {
   onOpenResume?: () => void;
@@ -16,6 +18,7 @@ interface WorkViewProps {
 
 export const WorkView: React.FC<WorkViewProps> = ({ onOpenResume, onSwitchToLife, skipHeroIntro }) => {
   const containerRef = useRef<HTMLDivElement>(null);
+  const [isContactCardOpen, setIsContactCardOpen] = useState(false);
 
   useEffect(() => {
     // Refresh ScrollTrigger after initial mount and font/image settling。
@@ -38,7 +41,11 @@ export const WorkView: React.FC<WorkViewProps> = ({ onOpenResume, onSwitchToLife
       className="w-full bg-[#0A0B0D] text-[#F3F5F8] selection:bg-[#0E7C3D] selection:text-white"
     >
       {/* 00 / HERO */}
-      <WorkHero onOpenResume={onOpenResume} skipIntro={skipHeroIntro} />
+      <WorkHero
+        onOpenResume={onOpenResume}
+        onOpenContactCard={() => setIsContactCardOpen(true)}
+        skipIntro={skipHeroIntro}
+      />
 
       {/* 01 / IMPACT：数字全部显现后，同一屏会紧接着被像素方块盖成
           方法区的深色，转场效果做在 WorkImpact 内部（跟数字揭示用
@@ -59,6 +66,11 @@ export const WorkView: React.FC<WorkViewProps> = ({ onOpenResume, onSwitchToLife
 
       {/* 06 / CONTACT */}
       <WorkContact onOpenResume={onOpenResume} />
+      <ContactModal
+        isOpen={isContactCardOpen}
+        onClose={() => setIsContactCardOpen(false)}
+        {...CONTACT_CARD_PROPS}
+      />
     </div>
   );
 };
