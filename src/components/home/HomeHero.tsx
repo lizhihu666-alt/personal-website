@@ -54,12 +54,45 @@ const AERO_BASE = {
   interactionStrength: 0.5,
   rippleIntensity: 1,
   holdToGather: true,
-  onError: () => {},
 } as const;
 
 // 桌面端把两份 AeroShards 叠成一块共享背景横跨两个分区；移动端两个分区
 // 各自独立堆叠、没有"接缝"可言，所以干脆只挂一份对应模式的实例。用
 // matchMedia 而不是纯 CSS 隐藏，是为了避免同时挂载四份 GPU 画布。
+// AeroShards 依赖 WebGPU。浏览器太旧、关了硬件加速或显卡在黑名单里时 navigator.gpu 不存在，
+// 或者初始化中途报错，这时候背景会整片空白。统一用 gpuFailed 切到 CSS 渐变兜底。
+const useGpuFailed = () => {
+  const [failed, setFailed] = useState(
+    () => typeof navigator !== 'undefined' && !('gpu' in navigator)
+  );
+  const markFailed = useRef((error?: unknown) => {
+    // 留一条日志，方便排查是哪一步失败的（F12 控制台里能看到）。
+    console.error('[home] 背景动画初始化失败，已切换为静态柔光：', error);
+    setFailed(true);
+  }).current;
+
+  // 初始化既不成功也不报错（卡在编译着色器、设备丢失之类）时，8 秒后也算失败，避免一直是黑底。
+  useEffect(() => {
+    if (failed) return;
+    const timer = window.setTimeout(() => {
+      if (!document.querySelector('.aero-shards[data-ready="true"]')) {
+        markFailed(new Error('AeroShards 8 秒内没有渲染出第一帧'));
+      }
+    }, 8000);
+    return () => window.clearTimeout(timer);
+  }, [failed, markFailed]);
+
+  return [failed, markFailed] as const;
+};
+
+// 兜底背景：左绿右蓝的柔光，缓慢呼吸，和碎片背景的分区配色保持一致。
+const FallbackBackdrop: React.FC<{ side?: 'full' | 'work' | 'life' }> = ({ side = 'full' }) => {
+  const work = 'radial-gradient(60% 55% at 28% 62%, rgba(52,211,120,0.22) 0%, transparent 70%)';
+  const life = 'radial-gradient(60% 55% at 72% 62%, rgba(79,140,255,0.22) 0%, transparent 70%)';
+  const background = side === 'work' ? work : side === 'life' ? life : `${work}, ${life}`;
+  return <div className="home-fallback-glow absolute inset-0" style={{ background }} aria-hidden="true" />;
+};
+
 const useIsDesktop = () => {
   const [isDesktop, setIsDesktop] = useState(
     () => typeof window !== 'undefined' && window.matchMedia('(min-width: 768px)').matches
@@ -92,6 +125,7 @@ export const HomeHero: React.FC<HomeHeroProps> = ({
   const workHeadingRef = useRef<HTMLHeadingElement>(null);
   const lifeHeadingRef = useRef<HTMLHeadingElement>(null);
   const isDesktop = useIsDesktop();
+  const [gpuFailed, markGpuFailed] = useGpuFailed();
 
   return (
     <main className="relative min-h-dvh overflow-hidden bg-[#0A0B0D]">
@@ -126,7 +160,11 @@ export const HomeHero: React.FC<HomeHeroProps> = ({
             本身连续不断，只是颜色随位置切换。 */}
         {isDesktop && (
           <div className="absolute inset-0 z-0 pointer-events-none">
-            <AeroShards {...AERO_BASE} shardColor={WORK_COLOR} crossColor={LIFE_COLOR} />
+            {gpuFailed ? (
+              <FallbackBackdrop />
+            ) : (
+              <AeroShards {...AERO_BASE} onError={markGpuFailed} shardColor={WORK_COLOR} crossColor={LIFE_COLOR} />
+            )}
           </div>
         )}
 
@@ -153,7 +191,11 @@ export const HomeHero: React.FC<HomeHeroProps> = ({
           {/* 移动端各分区没有接缝可言，各挂一份单色实例即可。 */}
           {!isDesktop && (
             <div className="absolute inset-0 opacity-80">
-              <AeroShards {...AERO_BASE} shardColor={WORK_COLOR} crossColor={WORK_COLOR} />
+              {gpuFailed ? (
+                <FallbackBackdrop side="work" />
+              ) : (
+                <AeroShards {...AERO_BASE} onError={markGpuFailed} shardColor={WORK_COLOR} crossColor={WORK_COLOR} />
+              )}
             </div>
           )}
           <div className="absolute inset-0 bg-white/0 group-hover:bg-white/[0.04] transition-colors duration-300" />
@@ -188,7 +230,11 @@ export const HomeHero: React.FC<HomeHeroProps> = ({
         >
           {!isDesktop && (
             <div className="absolute inset-0 opacity-80">
-              <AeroShards {...AERO_BASE} shardColor={LIFE_COLOR} crossColor={LIFE_COLOR} />
+              {gpuFailed ? (
+                <FallbackBackdrop side="life" />
+              ) : (
+                <AeroShards {...AERO_BASE} onError={markGpuFailed} shardColor={LIFE_COLOR} crossColor={LIFE_COLOR} />
+              )}
             </div>
           )}
           <div className="absolute inset-0 bg-white/0 group-hover:bg-white/[0.04] transition-colors duration-300" />

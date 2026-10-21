@@ -873,3 +873,24 @@
     animation-duration: 0.5s;
   }
 }
+
+/* 首页背景在没有 WebGPU 时的兜底：柔光缓慢呼吸 */
+.home-fallback-glow {
+  animation: homeFallbackBreathe 7s ease-in-out infinite;
+}
+
+@keyframes homeFallbackBreathe {
+  0%,
+  100% {
+    opacity: 0.75;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .home-fallback-glow {
+    animation: none;
+  }
+}
