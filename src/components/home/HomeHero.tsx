@@ -61,6 +61,38 @@ const AERO_BASE = {
 // matchMedia 而不是纯 CSS 隐藏，是为了避免同时挂载四份 GPU 画布。
 // AeroShards 依赖 WebGPU。浏览器太旧、关了硬件加速或显卡在黑名单里时 navigator.gpu 不存在，
 // 或者初始化中途报错，这时候背景会整片空白。统一用 gpuFailed 切到 CSS 渐变兜底。
+// 有的显卡/驱动上 WebGPU 初始化成功，但之后创建贴图、提交绘制时报校验错误，画面就一直是黑的，
+// 而且动画库不会把它当成失败。这里给页面里创建的 GPUDevice 挂一个 uncapturederror 监听：
+// 第一条错误原文打到控制台（方便定位是哪一步），并通知页面切换到兜底背景。
+type GpuErrorListener = (error: unknown) => void;
+const gpuErrorListeners = new Set<GpuErrorListener>();
+let gpuErrorHookInstalled = false;
+
+const installGpuErrorHook = () => {
+  if (gpuErrorHookInstalled || typeof window === 'undefined') return;
+  const adapterProto = (window as unknown as { GPUAdapter?: { prototype: Record<string, unknown> } }).GPUAdapter
+    ?.prototype;
+  const original = adapterProto?.requestDevice as ((...args: unknown[]) => Promise<EventTarget>) | undefined;
+  if (!adapterProto || !original) return;
+  gpuErrorHookInstalled = true;
+
+  adapterProto.requestDevice = async function (this: unknown, ...args: unknown[]) {
+    const device = await original.apply(this, args);
+    let reported = false;
+    device.addEventListener('uncapturederror', (event) => {
+      if (reported) return;
+      reported = true;
+      const error = (event as unknown as { error?: { message?: string } }).error;
+      console.error('[home] WebGPU 报错（第一条）：', error?.message ?? error);
+      gpuErrorListeners.forEach((listener) => listener(error));
+    });
+    return device;
+  };
+};
+
+// 必须在 AeroShards 创建设备之前装上（子组件的 effect 比父组件先跑），所以放在模块加载时执行。
+installGpuErrorHook();
+
 const useGpuFailed = () => {
   const [failed, setFailed] = useState(
     () => typeof navigator !== 'undefined' && !('gpu' in navigator)
@@ -70,6 +102,15 @@ const useGpuFailed = () => {
     console.error('[home] 背景动画初始化失败，已切换为静态柔光：', error);
     setFailed(true);
   }).current;
+
+  useEffect(() => {
+    installGpuErrorHook();
+    const listener: GpuErrorListener = (error) => markFailed(error);
+    gpuErrorListeners.add(listener);
+    return () => {
+      gpuErrorListeners.delete(listener);
+    };
+  }, [markFailed]);
 
   // 初始化既不成功也不报错（卡在编译着色器、设备丢失之类）时，8 秒后也算失败，避免一直是黑底。
   useEffect(() => {
