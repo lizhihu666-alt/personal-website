@@ -94,7 +94,7 @@ export const WorkExperience: React.FC = () => {
       <div className="mx-auto w-full max-w-6xl">
         <div className="mb-14 max-w-3xl sm:mb-20">
           <h2 ref={headingRef} className="type-section-sm text-[#F3F5F8]">
-            从业务分析到系统交付，这条轨道记录我如何把复杂问题
+            从审计、数据分析到跨境中台，这条轨道记录我如何把复杂问题
             <span className="text-[#34D378]">变成可运行的系统</span>。
           </h2>
         </div>
@@ -194,28 +194,33 @@ export const WorkExperience: React.FC = () => {
                 <span className="career-track-node" />
               </div>
 
-              <article className="career-track-card rounded-2xl border border-[#232A33] bg-[#111418] p-6 sm:p-8">
-                <div className="mb-6 flex items-center gap-3 border-b border-[#232A33] pb-5 text-base font-medium text-[#F3F5F8]">
-                  <GraduationCap className="h-5 w-5 text-[#34D378]" aria-hidden="true" />
-                  <span>教育背景</span>
+              <article className="career-track-card rounded-2xl border border-[#232A33] bg-[#111418] px-6 py-5 sm:px-8 sm:py-6">
+                <div className="mb-3 flex items-center gap-3">
+                  <GraduationCap className="h-6 w-6 text-[#34D378]" aria-hidden="true" />
+                  <h3 className="text-xl font-semibold tracking-tight text-[#F3F5F8] sm:text-2xl">教育背景</h3>
                 </div>
 
-                <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+                <div className="divide-y divide-[#232A33]">
                   {education.map((edu) => (
-                    <div key={edu.institution}>
-                      <div className="type-meta">
+                    <div
+                      key={edu.institution}
+                      className="flex flex-col gap-1 py-4 sm:flex-row sm:items-baseline sm:justify-between sm:gap-6"
+                    >
+                      <div className="min-w-0">
+                        <div className="flex flex-wrap items-baseline gap-x-3 gap-y-0.5">
+                          <h4 className="text-lg font-semibold text-[#F3F5F8] sm:text-xl">
+                            {edu.institutionZh ?? edu.institution}
+                          </h4>
+                          <span className="type-body font-medium text-[#C3CAD5]">{edu.degree}</span>
+                        </div>
+                        {edu.institutionZh && (
+                          <p className="type-meta mt-0.5 text-[#A8B0BC]">{edu.institution}</p>
+                        )}
+                      </div>
+                      <div className="type-meta shrink-0 sm:text-right">
                         <span className="text-work-proof">{edu.period}</span>
                         <span className="text-[#34D378]"> · {edu.location}</span>
                       </div>
-                      <h3 className="mt-3 text-lg font-semibold text-[#F3F5F8]">
-                        {edu.institution}
-                      </h3>
-                      <p className="type-body mt-1 font-medium text-[#C3CAD5]">{edu.degree}</p>
-                      {edu.honors && (
-                        <p className="type-meta mt-4 border-t border-[#232A33] pt-4 text-[#A8B0BC]">
-                          {edu.honors}
-                        </p>
-                      )}
                     </div>
                   ))}
                 </div>

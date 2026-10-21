@@ -56,7 +56,7 @@ export interface EducationItem {
   location: string;
   degree: string;
   period: string;
-  honors?: string;
+  institutionZh?: string;
 }
 
 export interface ValueItem {

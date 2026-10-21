@@ -54,7 +54,7 @@ export const WorkAbout: React.FC<WorkAboutProps> = ({ onSwitchToLife }) => {
                 className="w-20 h-20 rounded-full object-cover object-top"
               />
               <h3 className="mt-6 text-xl font-semibold text-[#0A0B0D]">Leo Hu · 胡利致</h3>
-              <p className="mt-1 text-base text-[#5B6470]">产品经理 · 构建者 · 摄影师</p>
+              <p className="mt-1 text-base text-[#5B6470]">商家入驻 · 项目运营 · AI 提效</p>
             </div>
           </div>
 
@@ -66,13 +66,10 @@ export const WorkAbout: React.FC<WorkAboutProps> = ({ onSwitchToLife }) => {
 
             <div className="type-body space-y-5 max-w-[44rem] text-[#4B5563]">
               <p>
-                我的背景横跨商业数据分析与出海一线业务。我习惯在复杂制约中找到清晰路径，既能在架构层面梳理流程与接口，也能深入仓配现场对齐交付细节。
+                我的背景横跨金融、商业分析与跨境电商一线。我习惯在复杂制约中找到清晰路径，既能在架构层面梳理流程与接口，也能深入供应链细节对齐交付。
               </p>
               <p>
-                当 AI 成为新的原型工具，我更看重把洞察推进到底：先验证方向，再让系统真正进入业务。
-              </p>
-              <p className="pt-2 border-t border-[#D8DCE2]">
-                <span className="text-[#0A0B0D] font-medium">当前关注：</span>跨境履约 · AI 原型 · 高韧性 SOP
+                遇到重复到让人烦的流程，我会先把它看清楚，再用 Claude Code、RAG 做成工具，让团队把精力留给真正需要判断的事。
               </p>
             </div>
           </div>
@@ -84,7 +81,7 @@ export const WorkAbout: React.FC<WorkAboutProps> = ({ onSwitchToLife }) => {
               工作之外，我也在认真体验世界。
             </h3>
             <p className="type-body mt-3 max-w-[38rem] text-[#5B6470]">
-              拍狗、击球、在陌生城市走很远。如果感兴趣，欢迎看看工作之外的我。
+              摄影、运动、在陌生城市走很远。如果感兴趣，欢迎看看工作之外的我。
             </p>
           </div>
 

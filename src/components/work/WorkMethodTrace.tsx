@@ -672,12 +672,12 @@ export const WorkMethodTrace: React.FC = () => {
           <div className="method-trace-outcome-inner">
             <p className="method-trace-outcome-kicker">最终交付</p>
             <h3 className="method-trace-outcome-title">
-              四条能力路径，
+              四条路径，
               <br />
-              <span>汇成一套可运行的系统。</span>
+              <span>汇成一套可运行的中台。</span>
             </h3>
             <p className="method-trace-outcome-copy">
-              从问题定义、流程设计到跨团队推进，最终落到流程、工具与可持续优化的交付闭环。
+              从招商入驻、SaaS 迁站到自研商家中心，再用 AI 工具补上最后一段提效。
             </p>
             <a
               ref={outcomeLinkRef}

@@ -249,23 +249,23 @@ export const WorkImpact: React.FC = () => {
   const metrics = [
     {
       num: '30%',
-      title: '入驻周期缩短',
-      context: '重构资质预审、报关合规与商品主数据映射流程，核心链路提速更明显。',
+      title: '品牌上线周期缩短',
+      context: 'Onboarding SOP + 招商 Pipeline，启动 6 个月后平均缩短',
     },
     {
-      num: '10+',
-      title: '零宕机系统割接',
-      context: '在第三方 API 突然废弃的危机中完成替代过渡与数据对账，客户侧零感知。',
+      num: '20+',
+      title: '品牌平稳过渡',
+      context: '从 SaaS 切换到自研商家中心，逐个把控切流节奏',
     },
     {
-      num: '9',
-      title: '可复用流程框架',
-      context: '把准入、退换货、库存对账与接口异常处理沉淀成可复用 SOP。',
+      num: '9套',
+      title: '可复用运营方案',
+      context: 'SaaS 运营 4 个月沉淀，成功跑通其中 6 套',
     },
     {
-      num: '2M+',
-      title: '季度GMV支撑',
-      context: '高韧性库存履约中台承受大促并发压力，保障海外业务不中断。',
+      num: '$2M',
+      title: '迁站后单季度 GMV',
+      context: '端到端完成 6 个品牌 API 集成，0 起重大事故',
     },
   ];
 
@@ -293,9 +293,9 @@ export const WorkImpact: React.FC = () => {
               顶上开始，所以标题也要加同样的上内边距，两边文字才会在
               同一条线上开始，滚动过程中也是同步移动、一直对齐。 */}
           <div className="lg:col-span-4 mb-10 lg:mb-0 pt-4 sm:pt-5">
-            <h2 ref={headingRef} className="type-section text-[#0A0B0D] max-w-sm">
-              系统交付，<br className="sm:hidden" />
-              最终要被结果验证。
+            <h2 ref={headingRef} className="type-section-sm text-[#0A0B0D]">
+              中台落地，<br />
+              用结果说话。
             </h2>
           </div>
 
@@ -303,7 +303,7 @@ export const WorkImpact: React.FC = () => {
             {metrics.map((item, index) => (
               <div
                 key={index}
-                className="impact-metric-row relative py-6 sm:py-8 grid grid-cols-1 lg:grid-cols-12 gap-3 lg:gap-8 items-center"
+                className="impact-metric-row relative py-6 sm:py-7 grid grid-cols-1 lg:grid-cols-12 gap-2 lg:gap-8 items-center"
               >
                 {index < metrics.length - 1 && (
                   <span
@@ -319,13 +319,13 @@ export const WorkImpact: React.FC = () => {
                     {item.num}
                   </span>
                 </div>
-                <div className="lg:col-span-4">
+                <div className="lg:col-span-9">
                   <h3 className="text-2xl sm:text-3xl lg:text-[2rem] font-semibold text-[#0A0B0D] tracking-[-0.02em]">
                     {item.title}
                   </h3>
-                </div>
-                <div className="impact-context text-base sm:text-lg lg:text-xl leading-relaxed lg:col-span-5 text-[#5B6472]">
-                  {item.context}
+                  <div className="impact-context mt-1.5 text-base sm:text-lg leading-relaxed text-[#5B6472] text-pretty">
+                    {item.context}
+                  </div>
                 </div>
               </div>
             ))}

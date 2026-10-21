@@ -146,22 +146,22 @@ export const WorkHero: React.FC<WorkHeroProps> = ({ onOpenResume, skipIntro = fa
           </div>
           <div className="min-w-0">
             <div className="text-lg font-semibold text-[#F3F5F8] leading-tight">Leo Hu · 胡利致</div>
-            <div className="text-sm text-[#A8B0BC] mt-1">资深出海产品经理 · 深圳</div>
+            <div className="text-sm text-[#A8B0BC] mt-1">项目运营主管 · 深圳</div>
           </div>
         </div>
 
         <h1 id="work-hero-title" className="type-display text-[#F3F5F8]">
           <span className="block overflow-hidden pb-[0.08em] -mb-[0.08em]">
-            <span className="hero-headline-line block">以系统化思维，</span>
+            <span className="hero-headline-line block">0-1 搭建商家入驻体系，</span>
           </span>
           <span className="block overflow-hidden pb-[0.08em] -mb-[0.08em]">
-            <span className="hero-headline-line block">做跨境中台与业务架构</span>
+            <span className="hero-headline-line block">AI 赋能业务落地</span>
           </span>
         </h1>
 
         <div className="mt-10 sm:mt-14 space-y-7 max-w-[34rem]">
           <p className="hero-subtitle type-lead text-[#C3CAD5]">
-            把复杂业务，接到<span className="hero-highlight inline-block text-[#34D378] font-semibold">真正跑得起来的系统</span>上。
+            统筹项目、系统与供应链，<br />已推动<span className="hero-highlight inline-block text-[#34D378] font-semibold">20+ 品牌平稳入驻与迁移</span>。
           </p>
 
           <div className="hero-actions flex flex-wrap items-center gap-3">

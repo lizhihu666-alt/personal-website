@@ -207,10 +207,10 @@ export const WorkResumeModal: React.FC<WorkResumeModalProps> = ({ isOpen, onClos
                 胡利致 / LEO HU
               </h1>
               <p className="text-sm font-semibold text-[#34D378] mt-1 font-mono tracking-wide">
-                跨境项目经理 / 产品运营
+                项目运营主管 / 跨境电商中台
               </p>
               <p className="text-xs text-[#A8B0BC] mt-2 max-w-xl leading-relaxed">
-                擅长连接业务、产品、供应链与外部合作伙伴，在不确定中梳理流程、推动协作并完成交付。具备完整的跨境中台落地与 Vibe Coding 原型验证经验。
+                {WORK_DATA.hero.bio}
               </p>
             </div>
 
@@ -246,7 +246,7 @@ export const WorkResumeModal: React.FC<WorkResumeModalProps> = ({ isOpen, onClos
                 <div key={exp.id} className="text-xs">
                   <div className="flex flex-col sm:flex-row justify-between sm:items-baseline">
                     <span className="font-bold text-sm text-[#F3F5F8]">{exp.company}</span>
-                    <span className="text-[#A8B0BC] font-mono">{exp.period} · {exp.location}</span>
+                    <span className="text-[#A8B0BC] font-mono">{[exp.period, exp.location].filter(Boolean).join(' · ')}</span>
                   </div>
                   <div className="text-[#34D378] font-mono font-medium mt-0.5">{exp.title}</div>
                   <p className="text-[#A8B0BC] mt-1.5 leading-relaxed">{exp.description}</p>
@@ -300,8 +300,8 @@ export const WorkResumeModal: React.FC<WorkResumeModalProps> = ({ isOpen, onClos
               {WORK_DATA.education.map((edu, idx) => (
                 <div key={idx} className="flex flex-col sm:flex-row justify-between sm:items-baseline">
                   <div>
-                    <span className="font-bold text-[#F3F5F8]">{edu.institution}</span>
-                    <div className="text-[#9AA3B0]">{edu.degree} · <span className="italic">{edu.honors}</span></div>
+                    <span className="font-bold text-[#F3F5F8]">{edu.institutionZh ? edu.institutionZh + " " : ""}{edu.institution}</span>
+                    <div className="text-[#9AA3B0]">{edu.degree}</div>
                   </div>
                   <div className="text-[#98A1AF] font-mono text-left sm:text-right mt-1 sm:mt-0">
                     {edu.period} · {edu.location}
