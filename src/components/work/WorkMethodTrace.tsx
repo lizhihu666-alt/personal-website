@@ -98,6 +98,8 @@ const smoothstep = (start: number, end: number, value: number) => {
 const ENTER_END = 0.4082;
 const FUSE_END = 0.6122;
 const TEXT_REVEAL_END = 0.7755;
+// 右侧阅读进度条用它判断「文字已完全显现」的滚动位置。
+export const METHOD_TEXT_REVEAL_END = TEXT_REVEAL_END;
 
 const getScrollState = (progress: number) => {
   const enterProgress = easeOutQuad(clamp(progress / ENTER_END));

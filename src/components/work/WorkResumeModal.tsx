@@ -136,7 +136,7 @@ export const WorkResumeModal: React.FC<WorkResumeModalProps> = ({ isOpen, onClos
 
   return (
     <div
-      className="resume-print-root fixed inset-0 z-50 overflow-y-auto bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 sm:p-6 animate-fadeIn"
+      className="resume-print-root fixed inset-0 z-50 overflow-y-auto bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 sm:p-6 resume-overlay-in"
       onMouseDown={(event) => {
         if (event.target === event.currentTarget) onClose();
       }}
@@ -174,7 +174,7 @@ export const WorkResumeModal: React.FC<WorkResumeModalProps> = ({ isOpen, onClos
                 <Copy className="w-3.5 h-3.5" />
               )}
               <span aria-live="polite">
-                {copyStatus === 'success' ? '已复制' : copyStatus === 'error' ? '复制失败' : '复制邮箱'}
+                {copyStatus === 'success' ? '已复制 · 期待来信' : copyStatus === 'error' ? '复制失败' : '复制邮箱'}
               </span>
             </button>
 
@@ -199,7 +199,7 @@ export const WorkResumeModal: React.FC<WorkResumeModalProps> = ({ isOpen, onClos
         </div>
 
         {/* Printable Resume Sheet */}
-        <div className="resume-print-body overflow-y-auto p-8 sm:p-12 text-[#F3F5F8] bg-[#111418] selection:bg-[#0E7C3D] selection:text-white">
+        <div data-lenis-prevent className="resume-print-body overflow-y-auto overscroll-contain p-8 sm:p-12 text-[#F3F5F8] bg-[#111418] selection:bg-[#0E7C3D] selection:text-white">
           {/* Header */}
           <div className="border-b border-black/10 pb-6 mb-8 flex flex-col sm:flex-row justify-between sm:items-end gap-4">
             <div>

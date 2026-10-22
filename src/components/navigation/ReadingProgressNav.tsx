@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { AppMode } from '../../types';
+import { ScrollTrigger } from '../../utils/gsapSetup';
+import { METHOD_TEXT_REVEAL_END } from '../work/WorkMethodTrace';
 
 interface NavItem {
   id: string;
@@ -25,6 +27,32 @@ const SECTIONS_BY_MODE: Record<AppMode, NavItem[]> = {
   life: LIFE_SECTIONS,
 };
 
+// 每个圆点「填满」的滚动位置（px）。多数章节就是章节顶边；有钉住动画的章节要按动画进度算：
+// - 成果：它从下方升起、完全盖住开场的那一刻（章节顶边到达视口顶）
+// - 方法：「汇成一套可运行的中台」整句显现完（TEXT_REVEAL_END）之后
+// - 项目：项目页钉住、案例刚开始横移的那一刻（钉住的起点）
+const getMilestone = (id: string): number => {
+  const el = document.getElementById(id);
+  const fallback = el?.offsetTop ?? 0;
+  const findTrigger = (target: Element | null) =>
+    target ? ScrollTrigger.getAll().find((st) => st.trigger === target) : undefined;
+
+  if (id === 'work-method-trace') {
+    const st = findTrigger(el?.querySelector('.method-trace-sticky') ?? null);
+    return st ? st.start + (st.end - st.start) * METHOD_TEXT_REVEAL_END : fallback;
+  }
+  if (id === 'work-projects') {
+    const st = findTrigger(el?.querySelector('.project-rail') ?? null);
+    return st ? st.start : fallback;
+  }
+  return fallback;
+};
+
+// 轨道高 192px、上下内边距 4px，每个圆点容器固定 24px：第 i 个圆点中心在轨道的这个比例处。
+const TRACK_PX = 192;
+const dotFraction = (index: number, count: number) =>
+  count <= 1 ? 0 : (16 + (index * 160) / (count - 1)) / TRACK_PX;
+
 interface ReadingProgressNavProps {
   currentMode: AppMode;
 }
@@ -32,6 +60,7 @@ interface ReadingProgressNavProps {
 export const ReadingProgressNav: React.FC<ReadingProgressNavProps> = ({ currentMode }) => {
   const [activeId, setActiveId] = useState<string>('');
   const [progress, setProgress] = useState<number>(0);
+  const [fill, setFill] = useState<number>(0);
   const [hoveredId, setHoveredId] = useState<string | null>(null);
 
   const sections = SECTIONS_BY_MODE[currentMode];
@@ -57,6 +86,29 @@ export const ReadingProgressNav: React.FC<ReadingProgressNavProps> = ({ currentM
         // Active section detection by viewport midpoint：从最后一节往前找，
         // 第一个 offsetTop 落在 midY 之前的就是当前所在的节。
         const midY = scrollY + window.innerHeight * 0.45;
+
+        // 绿线按「圆点」分段推进：到第 i 节的起点时，正好停在第 i 个圆点上，
+        // 两节之间按滚动比例在相邻圆点间插值。
+        // 以视口顶边为基准：页面顶边滚到某一节的起点，这一节的圆点就刚好被填满；
+        // 页面底部的几节可能永远滚不到起点，所以起点按最大滚动距离封顶。
+        let prevTop = 0;
+        const tops = sections.map((sec) => {
+          prevTop = Math.max(prevTop, Math.min(getMilestone(sec.id), Math.max(0, totalScroll)));
+          return prevTop;
+        });
+        let fillFrac = dotFraction(0, sections.length);
+        for (let i = 0; i < sections.length; i += 1) {
+          if (scrollY < tops[i]) break;
+          const from = dotFraction(i, sections.length);
+          if (i === sections.length - 1) {
+            fillFrac = from;
+          } else {
+            const span = Math.max(1, tops[i + 1] - tops[i]);
+            const t = Math.min(1, (scrollY - tops[i]) / span);
+            fillFrac = from + (dotFraction(i + 1, sections.length) - from) * t;
+          }
+        }
+        setFill(fillFrac);
         const active = [...sections].reverse().find((sec) => {
           const top = document.getElementById(sec.id)?.offsetTop;
           return top !== undefined && top <= midY;
@@ -102,13 +154,16 @@ export const ReadingProgressNav: React.FC<ReadingProgressNavProps> = ({ currentM
               忽慢、不跟手。直接让填充高度严格跟 scrollY 同步。 */}
           <div
             className="absolute top-0 left-0 w-full rounded-full"
-            style={{ height: `${progress * 100}%`, backgroundColor: ACTIVE_COLOR }}
+            style={{ height: `${fill * 100}%`, backgroundColor: ACTIVE_COLOR }}
           />
 
           {/* Chapter Tick Nodes：均匀摆开，不按各节实际滚动距离加权 */}
           {sections.map((sec, index) => {
-            const isActive = activeId === sec.id || (!activeId && index === 0);
             const isHovered = hoveredId === sec.id;
+            // 绿线推进到这个圆点时，圆点变绿；已到达的最后一个圆点略大
+            const isReached = fill >= dotFraction(index, sections.length) - 0.002;
+            const isActive =
+              isReached && !(index < sections.length - 1 && fill >= dotFraction(index + 1, sections.length) - 0.002);
 
             return (
               <div
@@ -120,7 +175,7 @@ export const ReadingProgressNav: React.FC<ReadingProgressNavProps> = ({ currentM
                 <button
                   onClick={() => scrollToSection(sec.id)}
                   aria-label={`跳转到${sec.label}`}
-                  className={`p-[9px] focus:outline-none focus-visible:ring-2 rounded-full transition-transform ${
+                  className={`flex h-6 w-6 items-center justify-center focus:outline-none focus-visible:ring-2 rounded-full transition-transform ${
                     currentMode === 'life' ? 'focus-visible:ring-[#4F8CFF]' : 'focus-visible:ring-[#34D378]'
                   }`}
                 >
@@ -128,9 +183,11 @@ export const ReadingProgressNav: React.FC<ReadingProgressNavProps> = ({ currentM
                     className={`block rounded-full transition-all duration-200 ${
                       isActive
                         ? 'w-2.5 h-2.5 shadow-xs'
-                        : 'w-1.5 h-1.5 opacity-40 group-hover:opacity-80 group-hover:scale-125'
+                        : isReached
+                          ? 'w-1.5 h-1.5'
+                          : 'w-1.5 h-1.5 opacity-40 group-hover:opacity-80 group-hover:scale-125'
                     }`}
-                    style={{ backgroundColor: isActive ? ACTIVE_COLOR : '#A1A1AA' }}
+                    style={{ backgroundColor: isReached ? ACTIVE_COLOR : '#A1A1AA' }}
                   />
                 </button>
 

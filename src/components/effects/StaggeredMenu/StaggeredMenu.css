@@ -340,6 +340,12 @@
     font-size: 2.5rem;
   }
 
+  /* 手机上文字只有两三个字宽，编号按 em 算会压在文字上，改成紧贴在文字右侧 */
+  .sm-panel-list[data-numbering] .sm-panel-item::after {
+    right: -1.2rem;
+    font-size: 14px;
+  }
+
   .staggered-menu-wrapper[data-open] .sm-logo-img {
     filter: invert(100%);
   }

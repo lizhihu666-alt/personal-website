@@ -178,4 +178,11 @@
   .isw-label {
     padding-bottom: 0;
   }
+  /* 文字挪到上方后，开关和小熊靠左，跟文字左边缘对齐（桌面端是在 96px 的盒子里居中） */
+  .isw-widget {
+    width: 64px;
+  }
+  .isw-swear {
+    left: 52px;
+  }
 }

@@ -3,7 +3,6 @@ import { ArrowUpRight } from 'lucide-react';
 import { WORK_DATA } from '../../data/portfolioData';
 import { ProjectCaseStudy } from '../../types';
 import { gsap, isReducedMotion, ScrollTrigger } from '../../utils/gsapSetup';
-import { resetPointerMotion, updatePointerMotion } from '../../utils/pointerMotion';
 import { ProjectImmersive } from './ProjectImmersive';
 
 interface ActiveProject {
@@ -153,8 +152,6 @@ export const WorkSelectedProjects: React.FC = () => {
               return (
                 <article
                   key={project.id}
-                  onPointerMove={updatePointerMotion}
-                  onPointerLeave={resetPointerMotion}
                   className="project-card group flex w-[300px] shrink-0 flex-col rounded-2xl border border-[#D8DCE2] bg-white/70 p-7 transition-colors duration-300 hover:bg-white sm:w-[360px] sm:p-8"
                 >
                   {/* #8A94A3 对 bg-white/70 只有 3.0:1 对比度，低于 WCAG AA
