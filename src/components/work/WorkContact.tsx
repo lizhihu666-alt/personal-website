@@ -1,6 +1,6 @@
 import React, { useState, useRef, useLayoutEffect, useEffect } from 'react';
 import { WORK_DATA } from '../../data/portfolioData';
-import { Copy, Check, AlertCircle, ExternalLink, Download, ArrowUp } from 'lucide-react';
+import { Copy, Check, AlertCircle, ExternalLink, Download } from 'lucide-react';
 import { gsap, isReducedMotion } from '../../utils/gsapSetup';
 import { copyText } from '../../utils/clipboard';
 
@@ -74,10 +74,6 @@ export const WorkContact: React.FC<WorkContactProps> = ({ onOpenResume }) => {
     showCopyFeedback('wechat', (await copyText(WORK_DATA.contact.wechat)) ? 'success' : 'error');
   };
 
-  const scrollToTop = () => {
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  };
-
   const copyButtonClass = (status: 'idle' | 'success' | 'error') =>
     `type-meta mt-6 inline-flex min-h-11 items-center justify-between gap-3 border-t border-[#232A33] pt-4 font-semibold transition-colors ${
       status === 'error' ? 'text-[#FFB4AB]' : 'text-[#34D378] hover:text-[#86EFB3]'
@@ -87,7 +83,7 @@ export const WorkContact: React.FC<WorkContactProps> = ({ onOpenResume }) => {
     <section
       id="work-contact"
       ref={containerRef}
-      className="relative py-20 sm:py-28 px-6 sm:px-10 lg:px-16 bg-[#0A0B0D]"
+      className="relative pt-20 pb-10 sm:pt-28 sm:pb-12 px-6 sm:px-10 lg:px-16 bg-[#0A0B0D]"
     >
       <div className="max-w-6xl mx-auto w-full">
         <div className="max-w-3xl mb-16 contact-reveal">
@@ -196,17 +192,6 @@ export const WorkContact: React.FC<WorkContactProps> = ({ onOpenResume }) => {
           </div>
         </div>
 
-        <div className="type-meta pt-10 flex flex-wrap items-center justify-between gap-4 text-[#A8B0BC]">
-          <span>© 2026 LEO HU · 中国深圳</span>
-          <button
-            id="contact-back-to-top-btn"
-            onClick={scrollToTop}
-            className="inline-flex min-h-11 items-center gap-2 text-[#A8B0BC] hover:text-[#F3F5F8] transition-colors"
-          >
-            <span>回到顶部</span>
-            <ArrowUp className="w-4 h-4 text-[#34D378]" />
-          </button>
-        </div>
       </div>
     </section>
   );

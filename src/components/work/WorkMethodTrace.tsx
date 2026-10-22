@@ -22,34 +22,54 @@ interface TracePoint {
 
 const TRACE_DEFINITIONS: TraceDefinition[] = [
   {
-    label: '系统落地',
+    label: '项目管理',
     seed: 650,
     amplitude: 1,
     positionShift: 2,
     highlighted: true,
   },
   {
-    label: '专业能力',
+    label: 'IT 拉通',
     seed: 350,
     amplitude: 2,
     positionShift: -3,
   },
   {
-    label: '策略规划',
+    label: '供应链协同',
     seed: 750,
     amplitude: 1.5,
     positionShift: -2,
   },
   {
-    label: '业务分析',
+    label: 'AI 提效',
     seed: 650,
     amplitude: 1.25,
     positionShift: -4,
   },
 ];
 
-const POINT_COUNT = 100;
+// 曲线的形状由 BASE_COUNT 个采样点决定（每隔 3 个参数取一个，和原来完全一致，
+// 所以外观不变）。但这些点直接用直线连起来，每段 0.75 个单位长，弯处能看出折角。
+// 做法：保留这 100 个采样点，再用 Catmull-Rom 样条在它们之间插值出 POINT_COUNT 个点，
+// 线条就是真正的平滑曲线，而不是改变形状。
+const BASE_COUNT = 100;
+const POINT_COUNT = 400;
 const POINT_COMPONENTS = POINT_COUNT * 3;
+const CURVE_SPAN = 300;
+const curveIndexOf = (baseIndex: number) => baseIndex * 3;
+
+// 标准 Catmull-Rom（张力 0.5）：在 p1→p2 之间按 u∈[0,1] 取值，p0、p3 是两侧邻点。
+const catmullRom = (p0: number, p1: number, p2: number, p3: number, u: number) => {
+  const u2 = u * u;
+  const u3 = u2 * u;
+  return (
+    0.5 *
+    (2 * p1 +
+      (-p0 + p2) * u +
+      (2 * p0 - 5 * p1 + 4 * p2 - p3) * u2 +
+      (-p0 + 3 * p1 - 3 * p2 + p3) * u3)
+  );
+};
 const CAMERA_Z = 5;
 const CAMERA_FOV = 75;
 const FALLBACK_VIEW_WIDTH = 13.8;
@@ -126,12 +146,12 @@ const getTracePoint = (
   const wave = Math.sin((componentIndex - phase) * (1 - 0.002 * currentEnterPosition) * 2);
   const remaining = 1 - fuseProgress;
   const shape = cubic(
-    Math.sin((componentIndex / POINT_COMPONENTS) * 4 * Math.PI) *
+    Math.sin((componentIndex / CURVE_SPAN) * 4 * Math.PI) *
       Math.sin(2 * definition.amplitude) *
       1.5
   );
   const fusedAmplitude = lerp(definition.amplitude, 0, cubic(fuseProgress));
-  const depth = -POINT_COMPONENTS * 0.25 + 0.25 * componentIndex - currentEnterPosition;
+  const depth = -CURVE_SPAN * 0.25 + 0.25 * componentIndex - currentEnterPosition;
   const rollingDepth = depth + drift + definition.positionShift;
   const widthDepth = depth - (1 - 0.06 * viewWidth);
   const curve = shape * fuseProgress;
@@ -147,8 +167,8 @@ const getTracePoint = (
 };
 
 const getFallbackTrace = (definition: TraceDefinition) => {
-  const coordinates = Array.from({ length: POINT_COUNT }, (_, index) => {
-    const point = getTracePoint(definition, index * 3, 1, 0, FALLBACK_VIEW_WIDTH, false);
+  const coordinates = Array.from({ length: BASE_COUNT }, (_, index) => {
+    const point = getTracePoint(definition, curveIndexOf(index), 1, 0, FALLBACK_VIEW_WIDTH, false);
 
     return {
       x: ((point.x + 8) / 16) * 1000,
@@ -305,7 +325,7 @@ export const WorkMethodTrace: React.FC = () => {
         transparent: true,
       });
       const dot = new THREE.Mesh(dotGeometry, dotMaterial);
-      dot.scale.setScalar(definition.highlighted ? 3.5 : 1);
+      dot.scale.setScalar(definition.highlighted ? 2.6 : 1);
 
       group.add(line, dot);
       return {
@@ -321,6 +341,7 @@ export const WorkMethodTrace: React.FC = () => {
       };
     });
 
+    const basePoints = new Float32Array(BASE_COUNT * 3);
     const worldPosition = new THREE.Vector3();
     const textPosition = new THREE.Vector3();
     const projectedPosition = new THREE.Vector3();
@@ -361,25 +382,45 @@ export const WorkMethodTrace: React.FC = () => {
         let finalY = 0;
         let finalZ = 0;
 
-        for (let index = 0; index < POINT_COMPONENTS; index += 3) {
+        for (let baseIndex = 0; baseIndex < BASE_COUNT; baseIndex += 1) {
           const point = getTracePoint(
             definition,
-            index,
+            curveIndexOf(baseIndex),
             progress,
             elapsed,
             visibleWidth,
             isCompact
           );
-          const { x, y, z } = point;
+          basePoints[baseIndex * 3] = point.x;
+          basePoints[baseIndex * 3 + 1] = point.y;
+          basePoints[baseIndex * 3 + 2] = point.z;
+        }
 
-          positions[index] = x;
-          positions[index + 1] = y;
-          positions[index + 2] = z;
+        // 原始采样点之间用样条补点，让线条平滑。
+        for (let pointIndex = 0; pointIndex < POINT_COUNT; pointIndex += 1) {
+          const t = (pointIndex * (BASE_COUNT - 1)) / (POINT_COUNT - 1);
+          const segment = Math.min(BASE_COUNT - 2, Math.floor(t));
+          const u = t - segment;
+          const i0 = Math.max(0, segment - 1) * 3;
+          const i1 = segment * 3;
+          const i2 = (segment + 1) * 3;
+          const i3 = Math.min(BASE_COUNT - 1, segment + 2) * 3;
+          const index = pointIndex * 3;
 
-          if (index === POINT_COMPONENTS - 3) {
-            finalX = x;
-            finalY = y;
-            finalZ = z;
+          for (let axis = 0; axis < 3; axis += 1) {
+            positions[index + axis] = catmullRom(
+              basePoints[i0 + axis],
+              basePoints[i1 + axis],
+              basePoints[i2 + axis],
+              basePoints[i3 + axis],
+              u
+            );
+          }
+
+          if (pointIndex === POINT_COUNT - 1) {
+            finalX = positions[index];
+            finalY = positions[index + 1];
+            finalZ = positions[index + 2];
           }
         }
 
@@ -602,7 +643,7 @@ export const WorkMethodTrace: React.FC = () => {
         <div
           className="absolute inset-0"
           role="img"
-          aria-label="业务分析、策略规划、专业能力与系统落地四条绿色路径在深色背景中交错推进，最终由系统落地路径收束。"
+          aria-label="项目管理、IT 拉通、供应链协同与 AI 提效四条绿色路径在深色背景中交错推进，最终由项目管理路径收束。"
         >
           <div
             className={`method-trace-fallback absolute inset-0 transition-opacity duration-700 ${
@@ -676,10 +717,10 @@ export const WorkMethodTrace: React.FC = () => {
             <h3 className="method-trace-outcome-title">
               四条路径，
               <br />
-              <span>汇成一套可运行的中台。</span>
+              <span>汇成一套可运行的中台</span>
             </h3>
             <p className="method-trace-outcome-copy">
-              从招商入驻、SaaS 迁站到自研商家中心，再用 AI 工具补上最后一段提效。
+              从招商入驻、SaaS 迁站到自研商家中心，再用 AI 工具补上最后一段提效
             </p>
             <a
               ref={outcomeLinkRef}

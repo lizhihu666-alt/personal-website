@@ -6,6 +6,7 @@ import { WorkSelectedProjects } from './WorkSelectedProjects';
 import { WorkExperience } from './WorkExperience';
 import { WorkAbout } from './WorkAbout';
 import { WorkContact } from './WorkContact';
+import { WorkMotto } from './WorkMotto';
 import { ScrollTrigger } from '../../utils/gsapSetup';
 import { ContactModal } from '../effects/ContactCard/ContactCard';
 import { CONTACT_CARD_PROPS } from '../../data/contactCard';
@@ -66,6 +67,9 @@ export const WorkView: React.FC<WorkViewProps> = ({ onOpenResume, onSwitchToLife
 
       {/* 06 / CONTACT */}
       <WorkContact onOpenResume={onOpenResume} />
+
+      {/* 07 / MOTTO：放在最末，作为整页的收尾 */}
+      <WorkMotto />
       <ContactModal
         isOpen={isContactCardOpen}
         onClose={() => setIsContactCardOpen(false)}

@@ -295,7 +295,7 @@ export const WorkImpact: React.FC = () => {
           <div className="lg:col-span-4 mb-10 lg:mb-0 pt-4 sm:pt-5">
             <h2 ref={headingRef} className="type-section-sm text-[#0A0B0D]">
               中台落地，<br />
-              用结果说话。
+              <span className="text-[#0E7C3D]">用结果说话</span>
             </h2>
           </div>
 

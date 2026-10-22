@@ -120,9 +120,20 @@ export const ReadingProgressNav: React.FC<ReadingProgressNavProps> = ({ currentM
     };
 
     window.addEventListener('scroll', handleScroll, { passive: true });
+    window.addEventListener('resize', handleScroll);
+    // 页面首次挂载时各个钉住区块的高度还没撑开，量到的滚动总长是错的，
+    // 又没有滚动事件来重算，进度线会一直停在「全满」。等 ScrollTrigger
+    // 把布局都算定（refresh）之后，以及稍后兜底，再重算一次。
+    ScrollTrigger.addEventListener('refresh', handleScroll);
+    const timers = [300, 1000, 2500].map((ms) => window.setTimeout(handleScroll, ms));
     handleScroll();
 
-    return () => window.removeEventListener('scroll', handleScroll);
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+      window.removeEventListener('resize', handleScroll);
+      ScrollTrigger.removeEventListener('refresh', handleScroll);
+      timers.forEach((id) => window.clearTimeout(id));
+    };
   }, [sections]);
 
   if (sections.length === 0) return null;

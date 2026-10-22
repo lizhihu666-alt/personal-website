@@ -275,8 +275,8 @@
   right: 0;
   height: 1px;
   background: #2eb468;
-  transform: scaleX(0);
-  transform-origin: left;
+  transform: scale(0, 0.75);
+  transform-origin: left center;
   /* 离开时瞬间消失，只有悬停进入时才有延伸动画（见下面 :hover 规则） */
   transition: none;
   pointer-events: none;
@@ -322,24 +322,13 @@
 
 @media (hover: hover) {
   /* 默认是灰的，悬停（或已展开）的那一行才恢复原本的亮度 */
-  .career-track-row > button {
-    opacity: 0.45;
-    transition: opacity 320ms cubic-bezier(0.16, 1, 0.3, 1);
-  }
-
-  .career-track-row:hover > button,
-  .career-track-row:has(button[aria-expanded='true']) > button,
-  .career-track-row:has(button:focus-visible) > button {
-    opacity: 1;
-  }
-
   .career-track-row:hover {
     background-color: transparent;
   }
 
   .career-track-row:hover::before,
   .career-track-row:hover::after {
-    transform: scaleX(1);
+    transform: scale(1, 0.75);
     transition: transform 800ms cubic-bezier(0.22, 1, 0.36, 1);
   }
 
@@ -374,6 +363,39 @@
     .career-track-row:hover .career-track-period,
     .career-track-row:has(button[aria-expanded='true']) .career-track-period,
     .career-track-row:has(button:focus-visible) .career-track-period {
+      transform: translateY(-0.75rem);
+      transition: transform 800ms cubic-bezier(0.22, 1, 0.36, 1);
+    }
+  }
+
+  /* 教育行的学校英文名：规则同地点——平时隐藏，悬停时 800ms 淡入，画在学校名下方，
+     学校名同时上挪一点让位（离开时瞬间复位）。 */
+  @media (min-width: 1024px) {
+    .career-track-sub {
+      position: absolute;
+      top: 100%;
+      left: 0;
+      margin-top: -10px;
+      white-space: nowrap;
+      opacity: 0;
+      transition: none;
+    }
+
+    .career-track-head {
+      transform: translateY(0);
+      transition: none;
+    }
+
+    .career-track-row:hover .career-track-sub,
+    .career-track-row:has(button[aria-expanded='true']) .career-track-sub,
+    .career-track-row:has(button:focus-visible) .career-track-sub {
+      opacity: 1;
+      transition: opacity 800ms cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    .career-track-row:hover .career-track-head,
+    .career-track-row:has(button[aria-expanded='true']) .career-track-head,
+    .career-track-row:has(button:focus-visible) .career-track-head {
       transform: translateY(-0.75rem);
       transition: transform 800ms cubic-bezier(0.22, 1, 0.36, 1);
     }
@@ -448,7 +470,7 @@
   box-shadow: 0 0 12px rgba(52, 211, 120, 0.42);
 }
 
-/* 方法论动画：四条路径在滚动的后段逐渐收束，最终留下"系统落地"这条主线。
+/* 方法论动画：四条路径在滚动的后段逐渐收束，最终留下"项目管理"这条主线。
    钉住这一屏靠 WorkMethodTrace.tsx 里的 GSAP ScrollTrigger pin 实现，
    会自己在 .method-trace-section 内插入等高的 pin-spacer 撑开滚动
    距离，这里不需要再手动给 section 定高度。 */

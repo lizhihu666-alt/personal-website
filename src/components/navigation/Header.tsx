@@ -128,7 +128,7 @@ export const Header: React.FC<HeaderProps> = ({
               aria-label="回到首页"
             >
               <span
-                className={`font-bold text-lg sm:text-xl tracking-tight text-[#F3F5F8] transition-colors whitespace-nowrap ${
+                className={`font-bold text-lg sm:text-[19px] tracking-tight text-[#F3F5F8] transition-colors whitespace-nowrap ${
                   currentMode === 'life' ? 'group-hover:text-[#4F8CFF]' : 'group-hover:text-[#34D378]'
                 }`}
               >

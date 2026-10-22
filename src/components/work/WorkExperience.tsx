@@ -1,7 +1,7 @@
 import React, { useLayoutEffect, useRef, useState } from 'react';
-import { GraduationCap } from 'lucide-react';
+import { Briefcase, GraduationCap } from 'lucide-react';
 import { WORK_DATA } from '../../data/portfolioData';
-import { gsap, isReducedMotion, ScrollTrigger } from '../../utils/gsapSetup';
+import { gsap, isReducedMotion } from '../../utils/gsapSetup';
 import { revealLines } from '../../utils/textReveal';
 
 export const WorkExperience: React.FC = () => {
@@ -11,20 +11,14 @@ export const WorkExperience: React.FC = () => {
   const sectionRef = useRef<HTMLElement>(null);
   const headingRef = useRef<HTMLHeadingElement>(null);
   const trackRef = useRef<HTMLDivElement>(null);
-  const progressRef = useRef<HTMLDivElement>(null);
 
   useLayoutEffect(() => {
     const track = trackRef.current;
-    const progress = progressRef.current;
-    if (!track || !progress) return;
+    if (!track) return;
 
     const items = gsap.utils.toArray<HTMLElement>('.career-track-item', track);
 
-    if (isReducedMotion()) {
-      progress.style.transform = 'scaleY(1)';
-      items.forEach((item) => item.classList.add('is-reached'));
-      return;
-    }
+    if (isReducedMotion()) return;
 
     let revertHeading = () => {};
 
@@ -55,23 +49,6 @@ export const WorkExperience: React.FC = () => {
             }
           );
         }
-
-        ScrollTrigger.create({
-          trigger: item,
-          start: 'top 72%',
-          once: true,
-          onEnter: () => item.classList.add('is-reached'),
-        });
-      });
-
-      ScrollTrigger.create({
-        trigger: track,
-        start: 'top 72%',
-        end: 'bottom 68%',
-        scrub: 0.35,
-        onUpdate: (self) => {
-          progress.style.transform = `scaleY(${self.progress})`;
-        },
       });
     }, sectionRef);
 
@@ -100,8 +77,10 @@ export const WorkExperience: React.FC = () => {
         </div>
 
         <div ref={trackRef} className="relative">
-          <div className="career-track-rail" aria-hidden="true" />
-          <div ref={progressRef} className="career-track-progress" aria-hidden="true" />
+          <div className="mb-5 flex items-center gap-3">
+            <Briefcase className="h-6 w-6 text-[#34D378]" aria-hidden="true" />
+            <h3 className="text-xl font-semibold tracking-tight text-[#F3F5F8] sm:text-2xl">工作经历</h3>
+          </div>
 
           <div className="career-track-list">
             {experiences.map((exp, index) => {
@@ -109,14 +88,7 @@ export const WorkExperience: React.FC = () => {
               const isExpanded = exp.id === expandedExpId;
 
               return (
-                <div
-                  key={exp.id}
-                  className="career-track-item grid grid-cols-[28px_minmax(0,1fr)] gap-4 sm:gap-8"
-                >
-                  <div className="relative flex justify-center pt-[2.78rem]" aria-hidden="true">
-                    <span className="career-track-node" />
-                  </div>
-
+                <div key={exp.id} className="career-track-item">
                   <article
                     className={`career-track-card career-track-row overflow-hidden ${
                       index === experiences.length - 1 ? 'is-last' : ''
@@ -127,18 +99,21 @@ export const WorkExperience: React.FC = () => {
                       onClick={() => toggleExp(exp.id)}
                       aria-expanded={isExpanded}
                       aria-controls={`work-experience-panel-${exp.id}`}
-                      className="group min-h-[100px] w-full px-6 py-4 text-left sm:px-8 sm:py-5"
+                      className="group min-h-[90px] w-full px-0 py-4 text-left sm:py-5"
                     >
                       <div className="grid gap-2 lg:grid-cols-12 lg:items-center lg:gap-8">
-                        <div className="lg:col-span-8">
-                          <div className="flex flex-wrap items-baseline gap-x-4 gap-y-1">
-                            <h3 className="text-xl font-semibold tracking-tight text-[#F3F5F8] sm:text-2xl">
-                              {exp.title}
+                        <div className="relative lg:col-span-8">
+                          <div className="career-track-head flex flex-wrap items-baseline gap-x-4 gap-y-1">
+                            <h3 className="text-lg font-semibold tracking-tight text-[#F3F5F8] sm:text-xl">
+                              {exp.company}
                             </h3>
                             <span className="type-body font-medium text-[#34D378]">
-                              {exp.company}
+                              {exp.title}
                             </span>
                           </div>
+                          {exp.companyEn && (
+                            <p className="career-track-sub type-meta mt-1 text-[#A8B0BC]">{exp.companyEn}</p>
+                          )}
                         </div>
 
                         <div className="flex items-center justify-between gap-5 lg:col-span-4 lg:justify-end">
@@ -176,7 +151,7 @@ export const WorkExperience: React.FC = () => {
                       }`}
                     >
                       <div className="min-h-0">
-                        <div className="grid gap-5 border-t border-dashed border-[#232A33] p-6 sm:p-8 lg:grid-cols-12">
+                        <div className="grid gap-5 border-t border-dashed border-[#232A33] py-6 sm:py-8 lg:grid-cols-12">
                           <div className="type-label text-[#F3F5F8] lg:col-span-3">关键交付</div>
                           <div className="lg:col-span-9">
                             <p className="text-sm leading-relaxed mb-4 text-[#C3CAD5]">{exp.description}</p>
@@ -200,46 +175,92 @@ export const WorkExperience: React.FC = () => {
               );
             })}
 
-            <div className="career-track-item mt-8 grid grid-cols-[28px_minmax(0,1fr)] gap-4 sm:mt-10 sm:gap-8">
-              <div className="relative flex justify-center pt-7 sm:pt-8" aria-hidden="true">
-                <span className="career-track-node" />
-              </div>
+            <div className="mb-5 mt-10 flex items-center gap-3 sm:mt-12">
+              <GraduationCap className="h-6 w-6 text-[#34D378]" aria-hidden="true" />
+              <h3 className="text-xl font-semibold tracking-tight text-[#F3F5F8] sm:text-2xl">教育背景</h3>
+            </div>
 
-              <article className="career-track-card rounded-2xl border border-[#232A33] bg-[#111418] px-6 py-5 sm:px-8 sm:py-6">
-                <div className="mb-3 flex items-center gap-3">
-                  <GraduationCap className="h-6 w-6 text-[#34D378]" aria-hidden="true" />
-                  <h3 className="text-xl font-semibold tracking-tight text-[#F3F5F8] sm:text-2xl">教育背景</h3>
-                </div>
-
-                <div className="divide-y divide-[#232A33]">
-                  {education.map((edu) => (
-                    <div
-                      key={edu.institution}
-                      className="flex flex-col gap-2 py-4 sm:flex-row sm:items-start sm:justify-between sm:gap-6"
-                    >
-                      <div className="min-w-0">
-                        <div className="flex flex-wrap items-baseline gap-x-3 gap-y-0.5">
-                          <h4 className="text-lg font-semibold text-[#F3F5F8] sm:text-xl">
-                            {edu.institutionZh ?? edu.institution}
-                          </h4>
-                          <span className="type-body font-medium text-[#34D378]">{edu.degree}</span>
-                        </div>
-                        {edu.institutionZh && (
-                          <p className="type-meta mt-0.5 text-[#A8B0BC]">{edu.institution}</p>
-                        )}
+            {education.map((edu, index) => (
+              <div key={edu.institution} className="career-track-item">
+                <article
+                  className={`career-track-card career-track-row overflow-hidden ${
+                    index === education.length - 1 ? 'is-last' : ''
+                  }`}
+                >
+                  <button
+                    type="button"
+                    onClick={() => toggleExp(edu.institution)}
+                    aria-expanded={edu.institution === expandedExpId}
+                    aria-controls={`work-education-panel-${index}`}
+                    className="flex min-h-[90px] w-full flex-col justify-center gap-2 py-4 text-left sm:flex-row sm:items-center sm:justify-between sm:gap-6 sm:py-5"
+                  >
+                    <div className="relative min-w-0">
+                      <div className="career-track-head flex flex-wrap items-baseline gap-x-4 gap-y-1">
+                        <h4 className="text-lg font-semibold tracking-tight text-[#F3F5F8] sm:text-xl">
+                          {edu.institutionZh ?? edu.institution}
+                        </h4>
+                        <span className="type-body font-medium text-[#34D378]">{edu.degree}</span>
                       </div>
-                      {/* 跟上面工作经历卡片一致：时间在上，地点在下（灰白色），右对齐 */}
-                      <div className="shrink-0 sm:text-right">
-                        <div className="text-xl font-light tracking-tight text-work-proof sm:text-2xl">
+                      {edu.institutionZh && (
+                        <p className="career-track-sub type-meta mt-1 text-[#A8B0BC]">{edu.institution}</p>
+                      )}
+                    </div>
+                    <div className="flex shrink-0 items-center justify-between gap-5 sm:justify-end">
+                      <div className="career-track-meta relative sm:text-right">
+                        <div className="career-track-period text-lg font-light tracking-tight text-work-proof sm:text-xl">
                           {edu.period}
                         </div>
-                        <div className="type-meta mt-1 text-[#A8B0BC]">{edu.location}</div>
+                        <div className="career-track-loc type-meta mt-1 text-[#A8B0BC]">{edu.location}</div>
+                      </div>
+                      <span className="inline-flex h-10 w-10 shrink-0 items-center justify-center text-[#34D378]">
+                        <svg
+                          className={`career-track-arrow h-6 w-6 ${edu.institution === expandedExpId ? 'rotate-180' : ''}`}
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="1.75"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          aria-hidden="true"
+                        >
+                          <path d="M12 2.5 V21" pathLength="1" />
+                          <path d="M12 21 L6.5 15.5" pathLength="1" />
+                          <path d="M12 21 L17.5 15.5" pathLength="1" />
+                        </svg>
+                      </span>
+                    </div>
+                  </button>
+
+                  <div
+                    id={`work-education-panel-${index}`}
+                    aria-hidden={edu.institution !== expandedExpId}
+                    className={`motion-disclosure grid overflow-hidden transition-[grid-template-rows,opacity] duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] ${
+                      edu.institution === expandedExpId ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0'
+                    }`}
+                  >
+                    <div className="min-h-0">
+                      <div className="grid gap-5 border-t border-dashed border-[#232A33] py-6 sm:py-8 lg:grid-cols-12">
+                        <div className="type-label text-[#F3F5F8] lg:col-span-3">绩点与荣誉</div>
+                        <div className="space-y-2.5 text-sm leading-relaxed text-[#C3CAD5] lg:col-span-9">
+                          {edu.gpa && <p>GPA：{edu.gpa}</p>}
+                          {edu.honors && edu.honors.length > 0 && (
+                            <ul className="space-y-2.5">
+                              {edu.honors.map((honor) => (
+                                <li key={honor} className="relative pl-4">
+                                  <span className="absolute left-0 top-[0.72em] h-1.5 w-1.5 rounded-full bg-[#34D378]" />
+                                  <span>{honor}</span>
+                                </li>
+                              ))}
+                            </ul>
+                          )}
+                          {!edu.gpa && !edu.honors?.length && <p className="text-[#A8B0BC]">绩点与荣誉待补充</p>}
+                        </div>
                       </div>
                     </div>
-                  ))}
-                </div>
-              </article>
-            </div>
+                  </div>
+                </article>
+              </div>
+            ))}
           </div>
         </div>
       </div>

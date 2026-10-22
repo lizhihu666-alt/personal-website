@@ -157,6 +157,7 @@ export const WORK_DATA = {
     {
       id: "exp-1",
       company: "美迈科技有限公司",
+      companyEn: "Miracle Miles Group Inc.",
       location: "中国 · 深圳",
       title: "项目运营主管",
       period: "2024.06 - 至今",
@@ -173,6 +174,7 @@ export const WORK_DATA = {
     {
       id: 'exp-2',
       company: '小松美国公司',
+      companyEn: 'Komatsu North America',
       location: '美国 · 密尔沃基',
       title: '数据分析实习生',
       period: '2024.01 - 2024.05',
@@ -183,6 +185,7 @@ export const WORK_DATA = {
     {
       id: 'exp-3',
       company: '锐明科技有限公司',
+      companyEn: 'Streamax Technology Co.,Ltd',
       location: '中国 · 深圳',
       title: '产品市场实习生',
       period: '2023.03 - 2023.05',
@@ -193,6 +196,7 @@ export const WORK_DATA = {
     {
       id: 'exp-4',
       company: '招商银行厦门分行',
+      companyEn: 'China Merchants Bank',
       location: '中国 · 厦门',
       title: '业务助理实习生',
       period: '2022.09 - 2022.11',
@@ -203,6 +207,7 @@ export const WORK_DATA = {
     {
       id: 'exp-5',
       company: '容诚会计师事务所',
+      companyEn: 'RSM China',
       location: '中国 · 厦门',
       title: '审计实习生',
       period: '2020.12 - 2021.02',
@@ -219,6 +224,7 @@ export const WORK_DATA = {
       location: "美国 · 威斯康辛州",
       degree: "商业分析硕士",
       period: "2023.07 - 2024.05",
+      gpa: "3.9 / 4.0（Top 5%）",
     },
     {
       institution: "University of North Texas",
@@ -226,6 +232,7 @@ export const WORK_DATA = {
       location: "美国 · 德克萨斯州",
       degree: "金融学学士",
       period: "2019.08 - 2022.05",
+      gpa: "3.9 / 4.0（最高荣誉毕业生）",
     },
   ] as EducationItem[],
 

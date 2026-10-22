@@ -163,7 +163,7 @@ export const WorkHero: React.FC<WorkHeroProps> = ({ onOpenResume, onOpenContactC
 
         <div className="mt-10 sm:mt-14 space-y-7 max-w-[34rem]">
           <p className="hero-subtitle type-lead text-[#C3CAD5]">
-            统筹项目、系统与供应链，<br />已推动<span className="hero-highlight inline-block text-[#34D378] font-semibold">20+ 品牌平稳入驻与迁移</span>。
+            统筹项目、系统与供应链，<br />已推动<span className="hero-highlight inline-block text-[#34D378] font-semibold">20+ 品牌平稳入驻与迁移</span>
           </p>
 
           <div className="hero-actions flex flex-wrap items-center gap-3">

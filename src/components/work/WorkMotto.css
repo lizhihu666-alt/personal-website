@@ -1,0 +1,15 @@
+/* 覆盖 ScrollFloat 自带的版式：字号、字重、行高交给座右铭自己，去掉默认上下 20px 外边距。 */
+.motto-float.scroll-float {
+  margin: 0;
+  padding-bottom: 0.06em;
+}
+
+.motto-float .scroll-float-text {
+  display: block;
+  font-size: inherit;
+  font-weight: inherit;
+  line-height: inherit;
+  letter-spacing: inherit;
+  text-align: left;
+  white-space: nowrap;
+}

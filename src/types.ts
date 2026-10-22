@@ -43,6 +43,7 @@ export interface CapabilityItem {
 export interface ExperienceItem {
   id: string;
   company: string;
+  companyEn?: string;
   location: string;
   title: string;
   period: string;
@@ -57,6 +58,8 @@ export interface EducationItem {
   degree: string;
   period: string;
   institutionZh?: string;
+  gpa?: string;
+  honors?: string[];
 }
 
 export interface ValueItem {
