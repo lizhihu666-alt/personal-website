@@ -55,7 +55,8 @@ export interface ExperienceItem {
 export interface EducationItem {
   institution: string;
   location: string;
-  degree: string;
+  /** 学位/专业，暂时没有就留空，页面上不显示这一项。 */
+  degree?: string;
   period: string;
   institutionZh?: string;
   gpa?: string;

@@ -301,7 +301,7 @@ export const WorkResumeModal: React.FC<WorkResumeModalProps> = ({ isOpen, onClos
                 <div key={idx} className="flex flex-col sm:flex-row justify-between sm:items-baseline">
                   <div>
                     <span className="font-bold text-[#F3F5F8]">{edu.institutionZh ? edu.institutionZh + " " : ""}{edu.institution}</span>
-                    <div className="text-[#9AA3B0]">{edu.degree}</div>
+                    {edu.degree && <div className="text-[#9AA3B0]">{edu.degree}</div>}
                   </div>
                   <div className="text-[#98A1AF] font-mono text-left sm:text-right mt-1 sm:mt-0">
                     {edu.period} · {edu.location}

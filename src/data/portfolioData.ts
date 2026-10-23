@@ -234,6 +234,14 @@ export const WORK_DATA = {
       period: "2019.08 - 2022.05",
       gpa: "3.9 / 4.0（最高荣誉毕业生）",
     },
+    {
+      institution: "Huaqiao University",
+      institutionZh: "华侨大学",
+      location: "中国 · 厦门",
+      degree: "金融学学士",
+      period: "2018.09 - 2019.06",
+      gpa: "4.2 / 5.0",
+    },
   ] as EducationItem[],
 
   contact: {

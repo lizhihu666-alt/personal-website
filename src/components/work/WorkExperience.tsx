@@ -259,7 +259,7 @@ export const WorkExperience: React.FC = () => {
                         <h4 className="text-lg font-semibold tracking-tight text-[#0A0B0D] sm:text-xl">
                           {edu.institutionZh ?? edu.institution}
                         </h4>
-                        <span className="type-body font-semibold text-[#0E7C3D]">{edu.degree}</span>
+                        {edu.degree && <span className="type-body font-semibold text-[#0E7C3D]">{edu.degree}</span>}
                       </div>
                       {edu.institutionZh && (
                         <p className="career-track-sub type-meta mt-1 text-[#4B5563]">
