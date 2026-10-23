@@ -3,9 +3,9 @@
 // 会把整个 three.js 一起拖进首页的首包。
 
 // 转场前的停留：内容完整露出之后，要再往下滚这么多，才开始变色（留给观众看完内容）。
-export const PIXEL_HOLD_VH = 0.6;
+export const PIXEL_HOLD_VH = 0.7;
 // 方块铺开把画面盖成下一个板块颜色所用的滚动距离（决定转场的快慢）。
-export const PIXEL_COVER_VH = 0.5;
+export const PIXEL_COVER_VH = 0.6;
 
 // 方法板块自己的节奏：线条进入、汇合、文字显现各占的屏数，之后接上面统一的停留和铺方块。
 export const METHOD_ENTER_VH = 0.49;
