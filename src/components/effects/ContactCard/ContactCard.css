@@ -37,8 +37,19 @@
 /* The logo mark is used as the holo mask (iconUrl): tile it small and let it
    drift lightly with the pointer. */
 .contact-profile-card .pc-shine {
-  mask-size: var(--watermark-size, 26%);
-  mask-position: top calc(160% - (var(--background-y) * 0.3)) left calc(100% - var(--background-x));
+  /* LEO 水印叠在整张照片上，会盖住脸和肩膀。照片是不透明的灰底人像，没法真的垫到人物下面，
+     所以在水印的遮罩上再挖掉「头部」和「肩膀躯干」两块椭圆区域（带羽化），水印只留在人物周围的背景里。 */
+  mask-image:
+    var(--icon),
+    radial-gradient(ellipse 27% 22% at 52% 46%, transparent 60%, #fff 100%),
+    radial-gradient(ellipse 62% 42% at 50% 100%, transparent 62%, #fff 100%);
+  mask-composite: intersect;
+  mask-size: var(--watermark-size, 26%), 100% 100%, 100% 100%;
+  mask-repeat: repeat, no-repeat, no-repeat;
+  mask-position:
+    top calc(160% - (var(--background-y) * 0.3)) left calc(100% - var(--background-x)),
+    center,
+    center;
 }
 
 /* Show the portrait in natural color rather than the card's luminosity tint. */
