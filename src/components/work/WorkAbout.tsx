@@ -3,6 +3,7 @@ import { ArrowRight } from 'lucide-react';
 import { gsap, isReducedMotion } from '../../utils/gsapSetup';
 import { resetPointerMotion, updatePointerMotion } from '../../utils/pointerMotion';
 import leoHeadshot from '../../assets/photos/leo-headshot.jpg';
+import { PixelCoverCanvas, usePixelCover } from './PixelCover';
 
 interface WorkAboutProps {
   onSwitchToLife?: () => void;
@@ -10,6 +11,10 @@ interface WorkAboutProps {
 
 export const WorkAbout: React.FC<WorkAboutProps> = ({ onSwitchToLife }) => {
   const containerRef = useRef<HTMLElement>(null);
+  const pinRef = useRef<HTMLDivElement>(null);
+  const coverRef = useRef<HTMLCanvasElement>(null);
+  // 滚到底后被方块盖成下一个板块（联系，深色）的颜色。
+  usePixelCover(pinRef, coverRef, '#0A0B0D');
 
   useLayoutEffect(() => {
     if (isReducedMotion()) return;
@@ -42,8 +47,9 @@ export const WorkAbout: React.FC<WorkAboutProps> = ({ onSwitchToLife }) => {
     <section
       id="work-about"
       ref={containerRef}
-      className="relative flex min-h-dvh flex-col justify-center py-12 sm:py-14 px-6 sm:px-10 lg:px-16 bg-[#F3F5F8]"
+      className="relative px-6 sm:px-10 lg:px-16 bg-[#F3F5F8]"
     >
+      <div ref={pinRef} className="relative flex min-h-dvh flex-col justify-center py-12 sm:py-14">
       <div className="max-w-6xl mx-auto w-full">
         <div className="grid grid-cols-1 md:grid-cols-12 gap-8 md:gap-10 lg:gap-16 items-start">
           <div className="md:col-span-5 lg:col-span-4 xl:col-span-3 about-reveal">
@@ -96,6 +102,8 @@ export const WorkAbout: React.FC<WorkAboutProps> = ({ onSwitchToLife }) => {
             <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
           </button>
         </div>
+      </div>
+        <PixelCoverCanvas ref={coverRef} />
       </div>
     </section>
   );

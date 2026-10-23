@@ -1,6 +1,7 @@
 import React, { useRef, useLayoutEffect } from 'react';
 import { gsap, SplitText, isReducedMotion } from '../../utils/gsapSetup';
 import { revealLines } from '../../utils/textReveal';
+import { PixelCoverCanvas, usePixelCover } from './PixelCover';
 
 // 四个成果数字不再钉住屏幕、逐行靠滚动来揭示（原来要滚约 2,100px 才看全）。
 // 现在板块进入视野时一次性播放：四行依次浮现，数字同时从 0 数到目标值，
@@ -11,6 +12,9 @@ export const WorkImpact: React.FC = () => {
   const containerRef = useRef<HTMLElement>(null);
   const headingRef = useRef<HTMLHeadingElement>(null);
   const gridRef = useRef<HTMLDivElement>(null);
+  const coverRef = useRef<HTMLCanvasElement>(null);
+  // 滚到底后被方块盖成下一个板块（项目，深色）的颜色。
+  usePixelCover(gridRef, coverRef, '#0A0B0D');
 
   useLayoutEffect(() => {
     if (isReducedMotion()) return;
@@ -187,6 +191,7 @@ export const WorkImpact: React.FC = () => {
             ))}
           </div>
         </div>
+        <PixelCoverCanvas ref={coverRef} />
       </div>
     </section>
   );

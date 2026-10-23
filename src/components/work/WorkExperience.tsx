@@ -3,6 +3,7 @@ import { Briefcase, GraduationCap } from 'lucide-react';
 import { WORK_DATA } from '../../data/portfolioData';
 import { gsap, isReducedMotion } from '../../utils/gsapSetup';
 import { revealLines } from '../../utils/textReveal';
+import { PixelCoverCanvas, usePixelCover } from './PixelCover';
 
 export const WorkExperience: React.FC = () => {
   const experiences = WORK_DATA.experiences;
@@ -12,6 +13,10 @@ export const WorkExperience: React.FC = () => {
   const sectionRef = useRef<HTMLElement>(null);
   const headingRef = useRef<HTMLHeadingElement>(null);
   const trackRef = useRef<HTMLDivElement>(null);
+  const pinRef = useRef<HTMLDivElement>(null);
+  const coverRef = useRef<HTMLCanvasElement>(null);
+  // 滚到底后被方块盖成下一个板块（方法，深色）的颜色。
+  usePixelCover(pinRef, coverRef, '#0A0B0D');
   const TABS = [
     { id: 'work' as const, label: '工作经历', Icon: Briefcase },
     { id: 'education' as const, label: '教育背景', Icon: GraduationCap },
@@ -95,8 +100,9 @@ export const WorkExperience: React.FC = () => {
     <section
       id="work-experience"
       ref={sectionRef}
-      className="relative flex min-h-dvh flex-col justify-center px-6 py-8 sm:px-10 sm:py-8 lg:px-16 bg-[#F3F5F8]"
+      className="relative px-6 sm:px-10 lg:px-16 bg-[#F3F5F8]"
     >
+      <div ref={pinRef} className="relative flex min-h-dvh flex-col justify-center py-8">
       <div className="mx-auto w-full max-w-6xl">
         <div className="mb-8 max-w-5xl sm:mb-8">
           <h2 ref={headingRef} className="type-section-sm text-[#0A0B0D]">
@@ -318,6 +324,8 @@ export const WorkExperience: React.FC = () => {
             ))}
           </div>
         </div>
+      </div>
+        <PixelCoverCanvas ref={coverRef} />
       </div>
     </section>
   );

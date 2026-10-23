@@ -2,6 +2,7 @@ import React, { useRef, useState } from 'react';
 import { WORK_DATA } from '../../data/portfolioData';
 import { ProjectCaseStudy } from '../../types';
 import { ProjectImmersive } from './ProjectImmersive';
+import { PixelCoverCanvas, usePixelCover } from './PixelCover';
 
 interface ActiveProject {
   project: ProjectCaseStudy;
@@ -19,6 +20,10 @@ export const WorkSelectedProjects: React.FC = () => {
   const projects = WORK_DATA.projects;
   const [activeProject, setActiveProject] = useState<ActiveProject | null>(null);
   const containerRef = useRef<HTMLElement>(null);
+  const pinRef = useRef<HTMLDivElement>(null);
+  const coverRef = useRef<HTMLCanvasElement>(null);
+  // 滚到底后被方块盖成下一个板块（经历，浅色）的颜色。
+  usePixelCover(pinRef, coverRef, '#F3F5F8');
 
   const openProject = (project: ProjectCaseStudy, trigger: HTMLButtonElement) => {
     const rect = trigger.getBoundingClientRect();
@@ -46,8 +51,9 @@ export const WorkSelectedProjects: React.FC = () => {
     <section
       id="work-projects"
       ref={containerRef}
-      className="relative flex min-h-dvh flex-col justify-center bg-[#0A0B0D] px-6 text-[#F3F5F8] sm:px-10 lg:px-16"
+      className="relative bg-[#0A0B0D] px-6 text-[#F3F5F8] sm:px-10 lg:px-16"
     >
+      <div ref={pinRef} className="relative flex min-h-dvh flex-col justify-center">
       <div className="project-rail relative py-10 sm:py-14">
         <div className="mx-auto w-full max-w-6xl">
           <h2 className="type-section text-[#F3F5F8] max-w-4xl">
@@ -120,6 +126,9 @@ export const WorkSelectedProjects: React.FC = () => {
             })}
           </div>
         </div>
+      </div>
+
+        <PixelCoverCanvas ref={coverRef} />
       </div>
 
       {activeProject && (
