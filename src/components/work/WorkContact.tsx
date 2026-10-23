@@ -3,6 +3,7 @@ import { WORK_DATA } from '../../data/portfolioData';
 import { Copy, Check, AlertCircle, ExternalLink, Download } from 'lucide-react';
 import { gsap, isReducedMotion } from '../../utils/gsapSetup';
 import { copyText } from '../../utils/clipboard';
+import { useHoldPin } from './PixelCover';
 
 interface WorkContactProps {
   onOpenResume?: () => void;
@@ -19,6 +20,9 @@ export const WorkContact: React.FC<WorkContactProps> = ({ onOpenResume }) => {
   });
 
   const containerRef = useRef<HTMLElement>(null);
+  const pinRef = useRef<HTMLDivElement>(null);
+  // 联系和座右铭都是深色，不需要换色转场：只钉住一段停留，给滚轮惯性一个缓冲，之后正常滚走。
+  useHoldPin(pinRef, undefined, 1);
 
   useLayoutEffect(() => {
     if (isReducedMotion()) return;
@@ -83,8 +87,9 @@ export const WorkContact: React.FC<WorkContactProps> = ({ onOpenResume }) => {
     <section
       id="work-contact"
       ref={containerRef}
-      className="relative -mt-[100dvh] flex min-h-dvh flex-col justify-center pt-20 pb-10 sm:pt-28 sm:pb-12 px-6 sm:px-10 lg:px-16 bg-[#0A0B0D]"
+      className="relative px-6 sm:px-10 lg:px-16 bg-[#0A0B0D]"
     >
+      <div ref={pinRef} className="relative flex min-h-dvh flex-col justify-center pt-20 pb-10 sm:pt-28 sm:pb-12">
       <div className="max-w-6xl mx-auto w-full">
         <div className="max-w-3xl mb-16 contact-reveal">
           <h2 className="type-section-sm text-[#F3F5F8]">
@@ -192,6 +197,7 @@ export const WorkContact: React.FC<WorkContactProps> = ({ onOpenResume }) => {
           </div>
         </div>
 
+      </div>
       </div>
     </section>
   );

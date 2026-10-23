@@ -177,3 +177,27 @@ export const PixelCoverCanvas = forwardRef<HTMLCanvasElement, PixelCoverCanvasPr
   </>
 ));
 PixelCoverCanvas.displayName = 'PixelCoverCanvas';
+
+/**
+ * 只停留、不转场：板块滚到底后钉住一段（默认同转场的「停留」长度），之后正常滚走。
+ * 用在不需要换色的交界处（联系 → 座右铭，都是深色），给滚轮惯性一个缓冲。
+ */
+export function useHoldPin(
+  pinRef: React.RefObject<HTMLElement | null>,
+  lengthVh = PIXEL_HOLD_VH,
+  refreshPriority = 0
+) {
+  useLayoutEffect(() => {
+    const pinEl = pinRef.current;
+    if (!pinEl || isReducedMotion()) return;
+    const trigger = ScrollTrigger.create({
+      trigger: pinEl,
+      start: 'bottom bottom',
+      end: () => `+=${window.innerHeight * lengthVh}`,
+      pin: true,
+      anticipatePin: 1,
+      refreshPriority,
+    });
+    return () => trigger.kill();
+  }, [pinRef, lengthVh, refreshPriority]);
+}
