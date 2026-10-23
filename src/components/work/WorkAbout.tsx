@@ -14,7 +14,7 @@ export const WorkAbout: React.FC<WorkAboutProps> = ({ onSwitchToLife }) => {
   const pinRef = useRef<HTMLDivElement>(null);
   const coverRef = useRef<HTMLCanvasElement>(null);
   // 滚到底后被方块盖成下一个板块（联系，深色）的颜色。
-  usePixelCover(pinRef, coverRef, '#0A0B0D', 1, 2);
+  usePixelCover(pinRef, coverRef, '#0A0B0D', undefined, 2);
 
   useLayoutEffect(() => {
     if (isReducedMotion()) return;

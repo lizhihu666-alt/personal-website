@@ -1,16 +1,14 @@
 import React, { forwardRef, useLayoutEffect } from 'react';
 import { gsap, ScrollTrigger, isReducedMotion } from '../../utils/gsapSetup';
+import { PIXEL_COVER_VH, PIXEL_HOLD_VH } from './methodTraceTiming';
 
 // 板块之间的「方格子转场」：当前板块滚到底（底边对齐视口底）时被钉住，
 // 一层随机顺序铺开的方块把它盖成下一个板块的颜色，盖满后钉住松开，下一个板块（同色）
 // 无缝接上。跟方法板块收尾的那一套（WorkMethodTrace）是同一个手法，抽成可复用的
 // hook，每个交界处只需要说明「盖成什么颜色」。
 const CELL_SIZE = 80;
-// 钉住的前 40% 是「停留」：内容刚好完整露出来之后，要再往下滚一小段才开始变色，
-// 给观众留出看完内容的缓冲，不会一到位就立刻开始转场。
-const HOLD_FRACTION = 0.4;
 // 方块盖满之后，这一层不是立刻消失，而是用这么长时间（秒）淡出，下一个板块的内容跟着渐显。
-const REVEAL_DURATION = 0.6;
+const REVEAL_DURATION = 0.9;
 
 const clamp01 = (value: number) => Math.min(1, Math.max(0, value));
 const smoothstep = (edge0: number, edge1: number, value: number) => {
@@ -23,6 +21,7 @@ const smoothstep = (edge0: number, edge1: number, value: number) => {
  * @param canvasRef 画布。
  * @param color 方块的颜色，也就是下一个板块的背景色。
  * @param lengthVh 转场占用的滚动距离，单位是屏高的倍数（默认约 1 屏）。
+ * @param holdFraction 钉住的前多少比例是「停留」（还不开始变色），默认 0.5。
  * @param refreshPriority 多个 pin 前后相接时，位置必须按页面从上到下的顺序依次算定：
  *   数字越大越先算。每个板块按它在页面里的次序递减传入，否则下面的板块会在上面的 pin 撑开
  *   之前就算好起点，位置错乱，整块内容被推到看不见的地方。
@@ -31,8 +30,9 @@ export function usePixelCover(
   pinRef: React.RefObject<HTMLElement | null>,
   canvasRef: React.RefObject<HTMLCanvasElement | null>,
   color: string,
-  lengthVh = 1,
-  refreshPriority = 0
+  lengthVh = PIXEL_HOLD_VH + PIXEL_COVER_VH,
+  refreshPriority = 0,
+  holdFraction = PIXEL_HOLD_VH / (PIXEL_HOLD_VH + PIXEL_COVER_VH)
 ) {
   useLayoutEffect(() => {
     const pinEl = pinRef.current;
@@ -55,7 +55,7 @@ export function usePixelCover(
 
     const draw = () => {
       ctx.clearRect(0, 0, width, height);
-      const local = clamp01((progress - HOLD_FRACTION) / (1 - HOLD_FRACTION));
+      const local = clamp01((progress - holdFraction) / (1 - holdFraction));
       if (local <= 0) return;
       ctx.fillStyle = color;
       cells.forEach(({ col, row, threshold }) => {
@@ -132,6 +132,12 @@ export function usePixelCover(
       },
     });
 
+    // GSAP 给钉住的元素套了一层占位（pin-spacer），它继承了很大的 z-index，又和下一个板块（叠上来的）
+    // 重叠，会拦截下面的鼠标事件，导致悬停失效。占位本身不接收指针事件，钉住的这一层照常接收。
+    const spacer = pinEl.parentElement;
+    if (spacer && spacer.classList.contains('pin-spacer')) spacer.style.pointerEvents = 'none';
+    pinEl.style.pointerEvents = 'auto';
+
     return () => {
       ScrollTrigger.removeEventListener('refresh', build);
       trigger.kill();
@@ -140,7 +146,7 @@ export function usePixelCover(
       pinEl.style.visibility = '';
       pinEl.style.zIndex = '';
     };
-  }, [pinRef, canvasRef, color, lengthVh, refreshPriority]);
+  }, [pinRef, canvasRef, color, lengthVh, refreshPriority, holdFraction]);
 }
 
 /** 盖在被钉住那一层上的画布：左右「出血」到整个视口宽度，盖住父元素的左右内边距。 */

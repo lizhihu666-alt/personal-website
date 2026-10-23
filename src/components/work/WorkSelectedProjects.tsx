@@ -23,7 +23,7 @@ export const WorkSelectedProjects: React.FC = () => {
   const pinRef = useRef<HTMLDivElement>(null);
   const coverRef = useRef<HTMLCanvasElement>(null);
   // 滚到底后被方块盖成下一个板块（经历，浅色）的颜色。
-  usePixelCover(pinRef, coverRef, '#F3F5F8', 1, 5);
+  usePixelCover(pinRef, coverRef, '#F3F5F8', undefined, 5);
 
   const openProject = (project: ProjectCaseStudy, trigger: HTMLButtonElement) => {
     const rect = trigger.getBoundingClientRect();

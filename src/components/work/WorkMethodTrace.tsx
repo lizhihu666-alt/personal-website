@@ -5,7 +5,13 @@ import { Line2 } from 'three/examples/jsm/lines/Line2.js';
 import { LineGeometry } from 'three/examples/jsm/lines/LineGeometry.js';
 import { LineMaterial } from 'three/examples/jsm/lines/LineMaterial.js';
 import { isReducedMotion, ScrollTrigger } from '../../utils/gsapSetup';
-import { METHOD_TEXT_REVEAL_END } from './methodTraceTiming';
+import {
+  METHOD_ENTER_END,
+  METHOD_FUSE_END,
+  METHOD_HOLD_END,
+  METHOD_TEXT_REVEAL_END,
+  METHOD_TOTAL_VH,
+} from './methodTraceTiming';
 
 interface TraceDefinition {
   label: string;
@@ -88,7 +94,7 @@ const PIXEL_CELL_SIZE = 80;
 // 才开始），读者滑到怀疑人生才能翻到下一个板块。现在把总跨度收到
 // window.innerHeight * 4.9（约 490vh），停顿只留 50vh，线条汇合/文字
 // 揭示的相对节奏不变，只是整体更紧凑。
-const HOLD_END = 0.8776;
+const HOLD_END = METHOD_HOLD_END;
 const PIXEL_TRANSITION_START = HOLD_END;
 
 const clamp = (value: number, min = 0, max = 1) => Math.min(max, Math.max(min, value));
@@ -116,8 +122,8 @@ const smoothstep = (start: number, end: number, value: number) => {
 // 200vh、汇合 100vh、文字揭示 80vh、停顿 50vh、转场 60vh，共 490vh），
 // 换算成 ScrollTrigger 总滚动范围下的百分比就是这几个数——同一批常量
 // 要跟着 HOLD_END 一起改，不能只改其中一个。
-const ENTER_END = 0.4082;
-const FUSE_END = 0.6122;
+const ENTER_END = METHOD_ENTER_END;
+const FUSE_END = METHOD_FUSE_END;
 // 右侧阅读进度条也用它判断「文字已完全显现」的滚动位置，所以定义在单独的文件里。
 const TEXT_REVEAL_END = METHOD_TEXT_REVEAL_END;
 
@@ -575,8 +581,8 @@ export const WorkMethodTrace: React.FC = () => {
     const trigger = ScrollTrigger.create({
       trigger: sticky,
       start: 'top top',
-      // 总跨度约 1.2 屏（最早 4.9 屏、后来 2 屏）：各阶段在总跨度里的占比不变，整体按比例压缩。
-      end: () => `+=${window.innerHeight * 1.2}`,
+      // 总跨度见 methodTraceTiming：文字显现之后接统一的停留和铺方块，跟其他板块的转场节奏一致。
+      end: () => `+=${window.innerHeight * METHOD_TOTAL_VH}`,
       pin: true,
       scrub: true,
       anticipatePin: 1,
