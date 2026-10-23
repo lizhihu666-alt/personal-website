@@ -105,7 +105,9 @@ export const LifeComingSoon: React.FC<LifeComingSoonProps> = ({ onSwitchToWork }
                 <div
                   className="life-soon-bar-fill h-full rounded-full bg-gradient-to-r from-[#2F6FED] to-[#4F8CFF]"
                   style={{
-                    width: `${boosted ? BOOST_PERCENT : percent}%`,
+                    width: '100%',
+                    transform: `scaleX(${(boosted ? BOOST_PERCENT : percent) / 100})`,
+                    transformOrigin: 'left center',
                     transitionDuration: boosted ? '0.45s' : '1.2s',
                   }}
                 />

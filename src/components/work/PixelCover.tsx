@@ -2,6 +2,12 @@ import React, { forwardRef, useLayoutEffect } from 'react';
 import { gsap, ScrollTrigger, isReducedMotion } from '../../utils/gsapSetup';
 import { PIXEL_COVER_VH, PIXEL_HOLD_VH } from './methodTraceTiming';
 
+// 手机上整页本来就长（板块内容比一屏高），转场的停留和铺方块各缩到 0.35 屏，避免一整页要滑很久。
+const pixelTiming = () =>
+  window.innerWidth < 768
+    ? { hold: 0.35, cover: 0.35 }
+    : { hold: PIXEL_HOLD_VH, cover: PIXEL_COVER_VH };
+
 // 板块之间的「方格子转场」：当前板块滚到底（底边对齐视口底）时被钉住，
 // 一层随机顺序铺开的方块把它盖成下一个板块的颜色，盖满后钉住松开，下一个板块（同色）
 // 无缝接上。跟方法板块收尾的那一套（WorkMethodTrace）是同一个手法，抽成可复用的
@@ -30,9 +36,9 @@ export function usePixelCover(
   pinRef: React.RefObject<HTMLElement | null>,
   canvasRef: React.RefObject<HTMLCanvasElement | null>,
   color: string,
-  lengthVh = PIXEL_HOLD_VH + PIXEL_COVER_VH,
+  lengthVh?: number,
   refreshPriority = 0,
-  holdFraction = PIXEL_HOLD_VH / (PIXEL_HOLD_VH + PIXEL_COVER_VH)
+  holdFraction?: number
 ) {
   useLayoutEffect(() => {
     const pinEl = pinRef.current;
@@ -55,7 +61,9 @@ export function usePixelCover(
 
     const draw = () => {
       ctx.clearRect(0, 0, width, height);
-      const local = clamp01((progress - holdFraction) / (1 - holdFraction));
+      const timing = pixelTiming();
+      const hold = holdFraction ?? timing.hold / (timing.hold + timing.cover);
+      const local = clamp01((progress - hold) / (1 - hold));
       if (local <= 0) return;
       ctx.fillStyle = color;
       cells.forEach(({ col, row, threshold }) => {
@@ -102,7 +110,10 @@ export function usePixelCover(
     const trigger = ScrollTrigger.create({
       trigger: pinEl,
       start: 'bottom bottom',
-      end: () => `+=${window.innerHeight * lengthVh}`,
+      end: () => {
+        const timing = pixelTiming();
+        return `+=${window.innerHeight * (lengthVh ?? timing.hold + timing.cover)}`;
+      },
       pin: true,
       scrub: true,
       anticipatePin: 1,
@@ -184,7 +195,7 @@ PixelCoverCanvas.displayName = 'PixelCoverCanvas';
  */
 export function useHoldPin(
   pinRef: React.RefObject<HTMLElement | null>,
-  lengthVh = PIXEL_HOLD_VH,
+  lengthVh?: number,
   refreshPriority = 0
 ) {
   useLayoutEffect(() => {
@@ -193,7 +204,7 @@ export function useHoldPin(
     const trigger = ScrollTrigger.create({
       trigger: pinEl,
       start: 'bottom bottom',
-      end: () => `+=${window.innerHeight * lengthVh}`,
+      end: () => `+=${window.innerHeight * (lengthVh ?? pixelTiming().hold)}`,
       pin: true,
       anticipatePin: 1,
       refreshPriority,

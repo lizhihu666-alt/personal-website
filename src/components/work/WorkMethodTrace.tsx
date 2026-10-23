@@ -5,6 +5,7 @@ import { Line2 } from 'three/examples/jsm/lines/Line2.js';
 import { LineGeometry } from 'three/examples/jsm/lines/LineGeometry.js';
 import { LineMaterial } from 'three/examples/jsm/lines/LineMaterial.js';
 import { isReducedMotion, ScrollTrigger } from '../../utils/gsapSetup';
+import { PixelCoverCanvas, usePixelCover } from './PixelCover';
 import {
   METHOD_ENTER_END,
   METHOD_FUSE_END,
@@ -203,6 +204,12 @@ export const WorkMethodTrace: React.FC = () => {
   const pixelGridRef = useRef<HTMLCanvasElement>(null);
   const [isCanvasReady, setIsCanvasReady] = useState(false);
   const headingId = useId();
+  // 手机上不跑三维线条动画：钉住滚动在触屏上又长又卡，线条在竖屏上也只剩几根细线。
+  // 换成一张静态示意图加同样的文案，节省三维库的运行开销，也不占额外的滚动距离。
+  const [isCompact] = useState(() => typeof window !== 'undefined' && window.innerWidth < 768);
+  const pinRef = useRef<HTMLDivElement>(null);
+  const coverRef = useRef<HTMLCanvasElement>(null);
+  usePixelCover(pinRef, coverRef, '#F3F5F8', undefined, 3);
 
   useEffect(() => {
     const section = sectionRef.current;
@@ -633,6 +640,65 @@ export const WorkMethodTrace: React.FC = () => {
       renderer.domElement.remove();
     };
   }, []);
+
+  if (isCompact) {
+    return (
+      <section
+        id="work-method-trace"
+        ref={sectionRef}
+        aria-labelledby={headingId}
+        className="method-trace-section relative -mt-[100dvh] bg-[#0A0B0D] px-6"
+      >
+        <div ref={pinRef} className="relative flex min-h-dvh flex-col justify-center py-16">
+          <div className="mx-auto w-full max-w-md">
+            <svg
+              viewBox="0 0 1000 560"
+              preserveAspectRatio="none"
+              className="h-36 w-full"
+              role="img"
+              aria-label="项目管理、IT 拉通、供应链协同与 AI 提效四条绿色路径汇成一条"
+            >
+              {FALLBACK_TRACES.map(({ path }, index) => (
+                <path
+                  key={TRACE_DEFINITIONS[index].label}
+                  d={path}
+                  fill="none"
+                  stroke={TRACE_COLOR}
+                  strokeWidth={index === 0 ? 1.6 : 1.25}
+                  vectorEffect="non-scaling-stroke"
+                />
+              ))}
+              <circle cx={FALLBACK_TRACES[0].dot.x} cy={FALLBACK_TRACES[0].dot.y} r={12} fill={HIGHLIGHT_DOT_COLOR} />
+            </svg>
+            <ul className="mt-4 flex flex-wrap gap-x-5 gap-y-2 text-sm text-[#A8B0BC]" role="list">
+              {TRACE_DEFINITIONS.map((definition) => (
+                <li key={definition.label} className="flex items-center gap-2">
+                  <span aria-hidden="true" className="h-1.5 w-1.5 rounded-full bg-[#34D378]" />
+                  {definition.label}
+                </li>
+              ))}
+            </ul>
+            <h2 id={headingId} className="type-section-sm mt-10 text-[#F3F5F8]">
+              四条路径，
+              <br />
+              <span className="text-[#34D378]">汇成一套可运行的中台</span>
+            </h2>
+            <p className="type-body mt-4 text-[#A8B0BC]">
+              从招商入驻、SaaS 迁站到自研商家中心，再用 AI 工具补上最后一段提效
+            </p>
+            <a
+              href="#work-about"
+              className="mt-6 inline-flex min-h-11 items-center gap-2 border-b border-[#34D378] pb-1 text-sm font-semibold text-[#F3F5F8]"
+            >
+              <span>了解更多关于我</span>
+              <ArrowUpRight size={17} strokeWidth={1.8} aria-hidden="true" />
+            </a>
+          </div>
+          <PixelCoverCanvas ref={coverRef} background="#0A0B0D" />
+        </div>
+      </section>
+    );
+  }
 
   return (
     <section

@@ -106,7 +106,8 @@ export const WorkExperience: React.FC = () => {
       <div className="mx-auto w-full max-w-6xl">
         <div className="mb-8 max-w-5xl sm:mb-8">
           <h2 ref={headingRef} className="type-section-sm text-[#0A0B0D]">
-            从审计、业务、产品、数据到跨境电商，
+            从审计、业务、<span className="whitespace-nowrap">产品</span>、数据到
+            <span className="whitespace-nowrap">跨境电商</span>，
             <span className="text-[#0E7C3D]">每一站都在把复杂的事理顺</span>
           </h2>
         </div>

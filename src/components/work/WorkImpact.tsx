@@ -38,41 +38,49 @@ export const WorkImpact: React.FC = () => {
         },
       });
 
+      // 手机上不拆行遮罩：SplitText 会把没有空格的中文整句当成一个词，窄屏上整句被推到下一行，
+      // 留下「从 SaaS」这样的孤行。手机直接整块淡入上移。
+      const compact = window.innerWidth < 768;
+
       rows.forEach((row, index) => {
         const number = row.querySelector<HTMLElement>('.impact-metric-number');
         const title = row.querySelector<HTMLElement>('h3');
         const context = row.querySelector<HTMLElement>('.impact-context');
         if (!number || !title || !context) return;
 
-        const titleSplit = SplitText.create(title, {
-          type: 'lines',
-          mask: 'lines',
-          linesClass: 'reveal-line',
-        });
-        const contextSplit = SplitText.create(context, {
-          type: 'lines',
-          mask: 'lines',
-          linesClass: 'reveal-line',
-        });
-        splits.push(titleSplit, contextSplit);
-
-        gsap.set(number, { opacity: 0 });
-        gsap.set(titleSplit.lines, { yPercent: 120 });
-        gsap.set(contextSplit.lines, { yPercent: 120 });
-
         const at = index * REVEAL_ROW_STAGGER;
-
+        gsap.set(number, { opacity: 0 });
         tl.to(number, { opacity: 1, duration: 0.3, ease: 'none' }, at);
-        tl.to(
-          titleSplit.lines,
-          { yPercent: 0, duration: 0.7, stagger: 0.04, ease: 'power3.out' },
-          at
-        );
-        tl.to(
-          contextSplit.lines,
-          { yPercent: 0, duration: 0.7, stagger: 0.03, ease: 'power3.out' },
-          at + 0.06
-        );
+
+        if (compact) {
+          gsap.set([title, context], { opacity: 0, y: 14 });
+          tl.to(title, { opacity: 1, y: 0, duration: 0.6, ease: 'power3.out' }, at);
+          tl.to(context, { opacity: 1, y: 0, duration: 0.6, ease: 'power3.out' }, at + 0.06);
+        } else {
+          const titleSplit = SplitText.create(title, {
+            type: 'lines',
+            mask: 'lines',
+            linesClass: 'reveal-line',
+          });
+          const contextSplit = SplitText.create(context, {
+            type: 'lines',
+            mask: 'lines',
+            linesClass: 'reveal-line',
+          });
+          splits.push(titleSplit, contextSplit);
+          gsap.set(titleSplit.lines, { yPercent: 120 });
+          gsap.set(contextSplit.lines, { yPercent: 120 });
+          tl.to(
+            titleSplit.lines,
+            { yPercent: 0, duration: 0.7, stagger: 0.04, ease: 'power3.out' },
+            at
+          );
+          tl.to(
+            contextSplit.lines,
+            { yPercent: 0, duration: 0.7, stagger: 0.03, ease: 'power3.out' },
+            at + 0.06
+          );
+        }
 
         // 分割线跟这一行同一个节奏淡入。初始隐藏放在这里用 gsap.set，
         // 而不是写死在 JSX 的行内 style 上——reduced motion 时这段 effect

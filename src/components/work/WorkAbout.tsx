@@ -1,4 +1,4 @@
-import React, { useRef, useLayoutEffect } from 'react';
+import React, { useRef, useLayoutEffect, useState } from 'react';
 import { ArrowRight } from 'lucide-react';
 import { gsap, isReducedMotion } from '../../utils/gsapSetup';
 import { resetPointerMotion, updatePointerMotion } from '../../utils/pointerMotion';
@@ -12,6 +12,8 @@ interface WorkAboutProps {
 export const WorkAbout: React.FC<WorkAboutProps> = ({ onSwitchToLife }) => {
   const containerRef = useRef<HTMLElement>(null);
   const pinRef = useRef<HTMLDivElement>(null);
+  // 手机上方法板块是静态的、用方块转场收尾，关于要像其他板块一样叠到它后面；电脑上方法自己带钉住动画，不叠。
+  const [isCompact] = useState(() => typeof window !== 'undefined' && window.innerWidth < 768);
   const coverRef = useRef<HTMLCanvasElement>(null);
   // 滚到底后被方块盖成下一个板块（联系，深色）的颜色。
   usePixelCover(pinRef, coverRef, '#0A0B0D', undefined, 2);
@@ -47,7 +49,7 @@ export const WorkAbout: React.FC<WorkAboutProps> = ({ onSwitchToLife }) => {
     <section
       id="work-about"
       ref={containerRef}
-      className="relative px-6 sm:px-10 lg:px-16 bg-[#F3F5F8]"
+      className={`relative px-6 sm:px-10 lg:px-16 bg-[#F3F5F8] ${isCompact ? '-mt-[100dvh]' : ''}`}
     >
       <div ref={pinRef} className="relative flex min-h-dvh flex-col justify-center py-12 sm:py-14">
       <div className="max-w-6xl mx-auto w-full">

@@ -255,7 +255,7 @@ export const HomeHero: React.FC<HomeHeroProps> = ({
       >
         <div className="text-center max-w-xl">
           <h1 className="text-3xl sm:text-5xl font-bold tracking-tight text-[#F3F5F8] leading-tight mb-4 [text-shadow:0_2px_24px_rgba(0,0,0,0.65)]">
-            今天，你想认识哪一个我？
+            今天，你想认识<span className="whitespace-nowrap">哪一个我？</span>
           </h1>
           <p className="text-sm sm:text-base text-[#D5DAE1] leading-relaxed max-w-xl mx-auto font-light [text-shadow:0_2px_16px_rgba(0,0,0,0.65)]">
             一个把复杂项目理顺的人，也是一个认真生活、喜欢不断折腾新东西的人。
