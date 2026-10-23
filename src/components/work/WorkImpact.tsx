@@ -14,7 +14,7 @@ export const WorkImpact: React.FC = () => {
   const gridRef = useRef<HTMLDivElement>(null);
   const coverRef = useRef<HTMLCanvasElement>(null);
   // 滚到底后被方块盖成下一个板块（项目，深色）的颜色。
-  usePixelCover(gridRef, coverRef, '#0A0B0D');
+  usePixelCover(gridRef, coverRef, '#0A0B0D', 1, 6);
 
   useLayoutEffect(() => {
     if (isReducedMotion()) return;

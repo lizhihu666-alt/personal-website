@@ -580,6 +580,8 @@ export const WorkMethodTrace: React.FC = () => {
       pin: true,
       scrub: true,
       anticipatePin: 1,
+      // 页面里排在经历之后、关于之前：按从上到下的顺序算位置（见 PixelCover 的说明）。
+      refreshPriority: 3,
       onUpdate: (self) => {
         progress = self.progress;
         // 一定要在这里强制画一帧，不能靠 isVisible 门槛——快速滚轮

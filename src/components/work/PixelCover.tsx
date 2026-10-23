@@ -6,6 +6,9 @@ import { ScrollTrigger, isReducedMotion } from '../../utils/gsapSetup';
 // 无缝接上。跟方法板块收尾的那一套（WorkMethodTrace）是同一个手法，抽成可复用的
 // hook，每个交界处只需要说明「盖成什么颜色」。
 const CELL_SIZE = 80;
+// 钉住的前 40% 是「停留」：内容刚好完整露出来之后，要再往下滚一小段才开始变色，
+// 给观众留出看完内容的缓冲，不会一到位就立刻开始转场。
+const HOLD_FRACTION = 0.4;
 
 const clamp01 = (value: number) => Math.min(1, Math.max(0, value));
 const smoothstep = (edge0: number, edge1: number, value: number) => {
@@ -17,13 +20,17 @@ const smoothstep = (edge0: number, edge1: number, value: number) => {
  * @param pinRef 被钉住的那一层（必须是 relative，高度至少一屏）；画布放在它里面。
  * @param canvasRef 画布。
  * @param color 方块的颜色，也就是下一个板块的背景色。
- * @param lengthVh 转场占用的滚动距离，单位是屏高的倍数。
+ * @param lengthVh 转场占用的滚动距离，单位是屏高的倍数（默认约 1 屏）。
+ * @param refreshPriority 多个 pin 前后相接时，位置必须按页面从上到下的顺序依次算定：
+ *   数字越大越先算。每个板块按它在页面里的次序递减传入，否则下面的板块会在上面的 pin 撑开
+ *   之前就算好起点，位置错乱，整块内容被推到看不见的地方。
  */
 export function usePixelCover(
   pinRef: React.RefObject<HTMLElement | null>,
   canvasRef: React.RefObject<HTMLCanvasElement | null>,
   color: string,
-  lengthVh = 0.45
+  lengthVh = 1,
+  refreshPriority = 0
 ) {
   useLayoutEffect(() => {
     const pinEl = pinRef.current;
@@ -41,11 +48,12 @@ export function usePixelCover(
 
     const draw = () => {
       ctx.clearRect(0, 0, width, height);
-      if (progress <= 0) return;
+      const local = clamp01((progress - HOLD_FRACTION) / (1 - HOLD_FRACTION));
+      if (local <= 0) return;
       ctx.fillStyle = color;
       cells.forEach(({ col, row, threshold }) => {
         const start = threshold * 0.85;
-        const opacity = smoothstep(start, start + 0.15, progress);
+        const opacity = smoothstep(start, start + 0.15, local);
         if (opacity <= 0) return;
         ctx.globalAlpha = opacity;
         ctx.fillRect(col * cellW, row * cellH, cellW + 1, cellH + 1);
@@ -91,6 +99,7 @@ export function usePixelCover(
       pin: true,
       scrub: true,
       anticipatePin: 1,
+      refreshPriority,
       onUpdate: (self) => {
         progress = self.progress;
         draw();
@@ -101,7 +110,7 @@ export function usePixelCover(
       ScrollTrigger.removeEventListener('refresh', build);
       trigger.kill();
     };
-  }, [pinRef, canvasRef, color, lengthVh]);
+  }, [pinRef, canvasRef, color, lengthVh, refreshPriority]);
 }
 
 /** 盖在被钉住那一层上的画布：左右「出血」到整个视口宽度，盖住父元素的左右内边距。 */

@@ -16,7 +16,7 @@ export const WorkExperience: React.FC = () => {
   const pinRef = useRef<HTMLDivElement>(null);
   const coverRef = useRef<HTMLCanvasElement>(null);
   // 滚到底后被方块盖成下一个板块（方法，深色）的颜色。
-  usePixelCover(pinRef, coverRef, '#0A0B0D');
+  usePixelCover(pinRef, coverRef, '#0A0B0D', 1, 4);
   const TABS = [
     { id: 'work' as const, label: '工作经历', Icon: Briefcase },
     { id: 'education' as const, label: '教育背景', Icon: GraduationCap },
