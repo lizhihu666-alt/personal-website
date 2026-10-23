@@ -87,7 +87,7 @@ export const WorkContact: React.FC<WorkContactProps> = ({ onOpenResume }) => {
     <section
       id="work-contact"
       ref={containerRef}
-      className="relative px-6 sm:px-10 lg:px-16 bg-[#0A0B0D]"
+      className="relative -mt-[100dvh] px-6 sm:px-10 lg:px-16 bg-[#0A0B0D]"
     >
       <div ref={pinRef} className="relative flex min-h-dvh flex-col justify-center pt-20 pb-10 sm:pt-28 sm:pb-12">
       <div className="max-w-6xl mx-auto w-full">

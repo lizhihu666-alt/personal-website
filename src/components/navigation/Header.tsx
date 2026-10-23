@@ -119,7 +119,7 @@ export const Header: React.FC<HeaderProps> = ({
     <>
       <header
         ref={headerRef}
-        className={`sticky top-0 z-40 w-full transition-colors duration-200 ${
+        className={`sticky top-0 z-[100] w-full transition-colors duration-200 ${
           isScrolled
             ? 'bg-[#0A0B0D]/95 shadow-xs'
             : 'bg-[#0A0B0D]/90'
