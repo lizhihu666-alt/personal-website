@@ -102,9 +102,9 @@ export const WorkExperience: React.FC = () => {
       ref={sectionRef}
       className="relative -mt-[100dvh] px-6 sm:px-10 lg:px-16 bg-[#F3F5F8]"
     >
-      <div ref={pinRef} className="relative flex min-h-dvh flex-col justify-center py-8">
+      <div ref={pinRef} className="relative flex min-h-dvh flex-col justify-center pb-14 pt-6">
       <div className="mx-auto w-full max-w-6xl">
-        <div className="mb-8 max-w-5xl sm:mb-8">
+        <div className="mb-6 max-w-5xl sm:mb-6">
           <h2 ref={headingRef} className="type-section-sm text-[#0A0B0D]">
             从审计、业务、<span className="whitespace-nowrap">产品</span>、数据到
             <span className="whitespace-nowrap">跨境电商</span>，
@@ -326,7 +326,7 @@ export const WorkExperience: React.FC = () => {
           </div>
         </div>
       </div>
-        <PixelCoverCanvas ref={coverRef} background="#F3F5F8" />
+        <PixelCoverCanvas ref={coverRef} background="#F3F5F8" cue={{ label: '下滑查看方法', tone: 'light' }} />
       </div>
     </section>
   );

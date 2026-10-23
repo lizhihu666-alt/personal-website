@@ -199,7 +199,7 @@ export const WorkImpact: React.FC = () => {
             ))}
           </div>
         </div>
-        <PixelCoverCanvas ref={coverRef} background="#F3F5F8" />
+        <PixelCoverCanvas ref={coverRef} background="#F3F5F8" cue={{ label: '下滑查看项目', tone: 'light' }} />
       </div>
     </section>
   );

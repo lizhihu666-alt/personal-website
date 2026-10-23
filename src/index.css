@@ -903,3 +903,12 @@
     transition-delay: 400ms;
   }
 }
+
+/* 底部的「下滑」提示：方块转场开始铺开之后淡出，免得盖在转场画面上。 */
+.scroll-cue {
+  transition: opacity 0.3s ease;
+}
+
+.px-covering .scroll-cue {
+  opacity: 0;
+}

@@ -11,7 +11,10 @@ export const PIXEL_COVER_VH = 0.6;
 export const METHOD_ENTER_VH = 0.49;
 export const METHOD_FUSE_VH = 0.735;
 export const METHOD_TEXT_VH = 0.93;
-export const METHOD_TOTAL_VH = METHOD_TEXT_VH + PIXEL_HOLD_VH + PIXEL_COVER_VH;
+// 收尾不再铺方块：文字显现、停留之后，方法钉住不动，「关于」从下方整块滑上来盖住它
+// （和开场 → 成果同一种做法），这一段占 1 屏。
+export const METHOD_SLIDE_VH = 1;
+export const METHOD_TOTAL_VH = METHOD_TEXT_VH + PIXEL_HOLD_VH + METHOD_SLIDE_VH;
 
 // 方法板块钉住区间内，各阶段结束的位置（0~1）。右侧阅读进度条用 TEXT_REVEAL_END 判断
 // 「文字已完全显现」的滚动位置。

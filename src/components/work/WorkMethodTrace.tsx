@@ -5,11 +5,12 @@ import { Line2 } from 'three/examples/jsm/lines/Line2.js';
 import { LineGeometry } from 'three/examples/jsm/lines/LineGeometry.js';
 import { LineMaterial } from 'three/examples/jsm/lines/LineMaterial.js';
 import { isReducedMotion, ScrollTrigger } from '../../utils/gsapSetup';
-import { PixelCoverCanvas, usePixelCover } from './PixelCover';
+import { ScrollCue } from './PixelCover';
 import {
   METHOD_ENTER_END,
   METHOD_FUSE_END,
   METHOD_HOLD_END,
+  METHOD_SLIDE_VH,
   METHOD_TEXT_REVEAL_END,
   METHOD_TOTAL_VH,
 } from './methodTraceTiming';
@@ -97,6 +98,7 @@ const PIXEL_CELL_SIZE = 80;
 // 揭示的相对节奏不变，只是整体更紧凑。
 const HOLD_END = METHOD_HOLD_END;
 const PIXEL_TRANSITION_START = HOLD_END;
+const ENABLE_PIXEL_EXIT = false;
 
 const clamp = (value: number, min = 0, max = 1) => Math.min(max, Math.max(min, value));
 const lerp = (start: number, end: number, amount: number) => (1 - amount) * start + amount * end;
@@ -201,15 +203,13 @@ export const WorkMethodTrace: React.FC = () => {
   const labelRefs = useRef<Array<HTMLSpanElement | null>>([]);
   const outcomeRef = useRef<HTMLDivElement>(null);
   const outcomeLinkRef = useRef<HTMLAnchorElement>(null);
+  const cueWrapRef = useRef<HTMLDivElement>(null);
   const pixelGridRef = useRef<HTMLCanvasElement>(null);
   const [isCanvasReady, setIsCanvasReady] = useState(false);
   const headingId = useId();
   // 手机上不跑三维线条动画：钉住滚动在触屏上又长又卡，线条在竖屏上也只剩几根细线。
   // 换成一张静态示意图加同样的文案，节省三维库的运行开销，也不占额外的滚动距离。
   const [isCompact] = useState(() => typeof window !== 'undefined' && window.innerWidth < 768);
-  const pinRef = useRef<HTMLDivElement>(null);
-  const coverRef = useRef<HTMLCanvasElement>(null);
-  usePixelCover(pinRef, coverRef, '#F3F5F8', undefined, 3);
 
   useEffect(() => {
     const section = sectionRef.current;
@@ -484,6 +484,9 @@ export const WorkMethodTrace: React.FC = () => {
       // 鼠标继续下滑时，看到的一定是"线已经收成一条，然后文字出现"，
       // 不会是文字跟线条汇合同时抢跑。文字在 TEXT_REVEAL_END 就已经
       // 完全显现，之后到 HOLD_END 之间的一大段纯滚动就是转场前的缓冲。
+      // 底部的「下滑」提示：线条汇合、文字显现的过程中一直在，「关于」开始上滑覆盖时收起。
+      if (cueWrapRef.current) cueWrapRef.current.style.opacity = progress > HOLD_END ? '0' : '1';
+
       const outcomeReveal = smoothstep(FUSE_END, TEXT_REVEAL_END, progress);
       if (outcomeRef.current) {
         const isInteractive = outcomeReveal > 0.9;
@@ -506,7 +509,8 @@ export const WorkMethodTrace: React.FC = () => {
 
       // 最后一段(HOLD_END ~ 100%)专门留给黑变白的像素转场，跟 WorkImpact
       // 变黑那段一样是随机顺序铺开，只是这里铺的是浅色、方向是收尾。
-      if (pixelCtx && pixelCells.length) {
+      // 收尾已改成「关于」上滑覆盖，不再画黑变白的方块；这段保留但关闭。
+      if (ENABLE_PIXEL_EXIT && pixelCtx && pixelCells.length) {
         const transitionProgress = clamp(
           (progress - PIXEL_TRANSITION_START) / (1 - PIXEL_TRANSITION_START)
         );
@@ -588,9 +592,12 @@ export const WorkMethodTrace: React.FC = () => {
     const trigger = ScrollTrigger.create({
       trigger: sticky,
       start: 'top top',
-      // 总跨度见 methodTraceTiming：文字显现之后接统一的停留和铺方块，跟其他板块的转场节奏一致。
+      // 总跨度见 methodTraceTiming：文字显现、停留，最后 1 屏是「关于」上滑覆盖。
+      // pinSpacing 必须是 false（官方 layered-pinning 做法，同开场）：不额外留占位，
+      // 方法一直钉到「关于」完全盖上来；区块自己的高度在下面按动画段的长度撑出来。
       end: () => `+=${window.innerHeight * METHOD_TOTAL_VH}`,
       pin: true,
+      pinSpacing: false,
       scrub: true,
       anticipatePin: 1,
       // 页面里排在经历之后、关于之前：按从上到下的顺序算位置（见 PixelCover 的说明）。
@@ -649,7 +656,7 @@ export const WorkMethodTrace: React.FC = () => {
         aria-labelledby={headingId}
         className="method-trace-section relative -mt-[100dvh] bg-[#0A0B0D] px-6"
       >
-        <div ref={pinRef} className="relative flex min-h-dvh flex-col justify-center py-16">
+        <div className="relative flex min-h-dvh flex-col justify-center py-16">
           <div className="mx-auto w-full max-w-md">
             <svg
               viewBox="0 0 1000 560"
@@ -694,7 +701,6 @@ export const WorkMethodTrace: React.FC = () => {
               <ArrowUpRight size={17} strokeWidth={1.8} aria-hidden="true" />
             </a>
           </div>
-          <PixelCoverCanvas ref={coverRef} background="#0A0B0D" />
         </div>
       </section>
     );
@@ -706,6 +712,7 @@ export const WorkMethodTrace: React.FC = () => {
       ref={sectionRef}
       aria-labelledby={headingId}
       className="method-trace-section relative -mt-[100dvh] bg-[#0A0B0D]"
+      style={{ height: `calc(100dvh * ${1 + METHOD_TOTAL_VH - METHOD_SLIDE_VH})` }}
     >
       <h2 id={headingId} className="sr-only">
         方法：项目管理、IT 拉通、供应链协同与 AI 提效四条路径汇成一套中台
@@ -806,6 +813,10 @@ export const WorkMethodTrace: React.FC = () => {
               <ArrowUpRight size={17} strokeWidth={1.8} aria-hidden="true" />
             </a>
           </div>
+        </div>
+
+        <div ref={cueWrapRef} className="transition-opacity duration-300">
+          <ScrollCue label="下滑继续" tone="dark" />
         </div>
 
         <canvas ref={pixelGridRef} aria-hidden="true" className="pointer-events-none absolute inset-0 z-20 h-full w-full" />

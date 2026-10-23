@@ -128,7 +128,7 @@ export const WorkSelectedProjects: React.FC = () => {
         </div>
       </div>
 
-        <PixelCoverCanvas ref={coverRef} background="#0A0B0D" />
+        <PixelCoverCanvas ref={coverRef} background="#0A0B0D" cue={{ label: '下滑查看经历', tone: 'dark' }} />
       </div>
 
       {activeProject && (

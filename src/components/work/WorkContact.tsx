@@ -3,7 +3,7 @@ import { WORK_DATA } from '../../data/portfolioData';
 import { Copy, Check, AlertCircle, ExternalLink, Download } from 'lucide-react';
 import { gsap, isReducedMotion } from '../../utils/gsapSetup';
 import { copyText } from '../../utils/clipboard';
-import { useHoldPin } from './PixelCover';
+import { ScrollCue, useHoldPin } from './PixelCover';
 
 interface WorkContactProps {
   onOpenResume?: () => void;
@@ -198,6 +198,7 @@ export const WorkContact: React.FC<WorkContactProps> = ({ onOpenResume }) => {
         </div>
 
       </div>
+        <ScrollCue label="继续下滑" tone="dark" />
       </div>
     </section>
   );

@@ -1,4 +1,5 @@
 import React, { forwardRef, useLayoutEffect } from 'react';
+import { ArrowDown } from 'lucide-react';
 import { gsap, ScrollTrigger, isReducedMotion } from '../../utils/gsapSetup';
 import { PIXEL_COVER_VH, PIXEL_HOLD_VH } from './methodTraceTiming';
 
@@ -58,6 +59,11 @@ export function usePixelCover(
     let height = 0;
     let progress = 0;
     let revealed = false;
+
+    const holdAt = () => {
+      const timing = pixelTiming();
+      return holdFraction ?? timing.hold / (timing.hold + timing.cover);
+    };
 
     const draw = () => {
       ctx.clearRect(0, 0, width, height);
@@ -122,6 +128,8 @@ export function usePixelCover(
         progress = self.progress;
         draw();
         // 方块盖满之后整层淡出，露出叠在它后面的下一个板块（内容跟着渐显）；往回滚时立刻恢复。
+        // 方块开始铺开之后，底部的「下滑」提示就收起来。
+        pinEl.classList.toggle('px-covering', self.progress > holdAt() + 0.02);
         const done = self.progress >= 0.999;
         if (done && !revealed) {
           revealed = true;
@@ -153,6 +161,7 @@ export function usePixelCover(
       ScrollTrigger.removeEventListener('refresh', build);
       trigger.kill();
       gsap.killTweensOf(pinEl);
+      pinEl.classList.remove('px-covering');
       pinEl.style.opacity = '';
       pinEl.style.visibility = '';
       pinEl.style.zIndex = '';
@@ -164,9 +173,26 @@ export function usePixelCover(
 interface PixelCoverCanvasProps {
   /** 这一层自己的背景色：它盖在下一个板块上面，需要一个不透明的底，左右同样出血到整个视口宽度。 */
   background: string;
+  /** 底部的「下滑」提示：文案和深浅（light = 浅色底用深灰字，dark = 深色底用浅灰字）。不传就不显示。 */
+  cue?: { label: string; tone: 'light' | 'dark' };
 }
 
-export const PixelCoverCanvas = forwardRef<HTMLCanvasElement, PixelCoverCanvasProps>(({ background }, ref) => (
+/** 板块底部居中的小提示，告诉访客这里还可以继续往下滑（滚动有缓冲，不提示容易以为到底了）。 */
+export const ScrollCue: React.FC<{ label: string; tone: 'light' | 'dark' }> = ({ label, tone }) => (
+  <div
+    aria-hidden="true"
+    className="scroll-cue pointer-events-none absolute inset-x-0 bottom-5 z-[5] flex justify-center"
+  >
+    <span
+      className={`flex items-center gap-2 text-xs tracking-wide ${tone === 'light' ? 'text-[#5B6472]' : 'text-[#A8B0BC]'}`}
+    >
+      {label}
+      <ArrowDown className="scroll-cue-drift h-3.5 w-3.5 text-[#34D378]" />
+    </span>
+  </div>
+);
+
+export const PixelCoverCanvas = forwardRef<HTMLCanvasElement, PixelCoverCanvasProps>(({ background, cue }, ref) => (
   <>
     <div
       aria-hidden="true"
@@ -185,6 +211,7 @@ export const PixelCoverCanvas = forwardRef<HTMLCanvasElement, PixelCoverCanvasPr
         height: 'calc(100% + 4px)',
       }}
     />
+    {cue && <ScrollCue label={cue.label} tone={cue.tone} />}
   </>
 ));
 PixelCoverCanvas.displayName = 'PixelCoverCanvas';
