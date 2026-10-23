@@ -6,6 +6,8 @@ export interface StaggeredMenuItem {
   label: string;
   ariaLabel: string;
   link: string;
+  /** 有值时这一项不可点击，并在右下角显示这个小标签（例如「即将开放」）。 */
+  badge?: string;
 }
 
 export interface StaggeredMenuSocialItem {
@@ -359,7 +361,23 @@ const StaggeredMenu = React.forwardRef<StaggeredMenuHandle, StaggeredMenuProps>(
     };
   }, [closeOnClickAway, open, closeMenu]);
 
+  // Esc 关闭菜单，并把焦点还给菜单按钮。
+  React.useEffect(() => {
+    if (!open) return;
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key !== 'Escape') return;
+      closeMenu();
+      toggleBtnRef.current?.focus();
+    };
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [open, closeMenu]);
+
   const handleItemClick = (event: React.MouseEvent<HTMLAnchorElement>, link: string) => {
+    if (event.currentTarget.getAttribute('aria-disabled') === 'true') {
+      event.preventDefault();
+      return;
+    }
     if (onNavigate) {
       event.preventDefault();
       closeMenu();
@@ -387,7 +405,7 @@ const StaggeredMenu = React.forwardRef<StaggeredMenuHandle, StaggeredMenuProps>(
           return arr.map((c, i) => <div key={i} className="sm-prelayer" style={{ background: c }} />);
         })()}
       </div>
-      <header className="staggered-menu-header" aria-label="Main navigation header">
+      <header className="staggered-menu-header" aria-label="站点导航">
         {logoUrl && (
           <div className="sm-logo" aria-label="Logo">
             <img src={logoUrl} alt="Logo" className="sm-logo-img" draggable={false} width={110} height={24} />
@@ -396,7 +414,7 @@ const StaggeredMenu = React.forwardRef<StaggeredMenuHandle, StaggeredMenuProps>(
         <button
           ref={toggleBtnRef}
           className="sm-toggle"
-          aria-label={open ? 'Close menu' : 'Open menu'}
+          aria-label={open ? '关闭菜单' : '打开菜单'}
           aria-expanded={open}
           aria-controls="staggered-menu-panel"
           onClick={toggleMenu}
@@ -417,23 +435,19 @@ const StaggeredMenu = React.forwardRef<StaggeredMenuHandle, StaggeredMenuProps>(
               items.map((it, idx) => (
                 <li className="sm-panel-itemWrap" key={it.label + idx}>
                   <a
-                    className="sm-panel-item"
-                    href={it.link}
+                    className={'sm-panel-item' + (it.badge ? ' sm-panel-item--soon' : '')}
+                    href={it.badge ? undefined : it.link}
+                    aria-disabled={it.badge ? true : undefined}
                     aria-label={it.ariaLabel}
                     data-index={idx + 1}
                     onClick={event => handleItemClick(event, it.link)}
                   >
                     <span className="sm-panel-itemLabel">{it.label}</span>
+                    {it.badge && <span className="sm-panel-badge">{it.badge}</span>}
                   </a>
                 </li>
               ))
-            ) : (
-              <li className="sm-panel-itemWrap" aria-hidden="true">
-                <span className="sm-panel-item">
-                  <span className="sm-panel-itemLabel">No items</span>
-                </span>
-              </li>
-            )}
+            ) : null}
           </ul>
           {footer ? (
             <div className="sm-footer">{footer}</div>

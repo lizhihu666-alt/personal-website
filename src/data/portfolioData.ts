@@ -157,7 +157,7 @@ export const WORK_DATA = {
     {
       id: "exp-1",
       company: "美迈科技有限公司",
-      companyEn: "Miracle Miles Group Inc.",
+      companyEn: "Miracle Miles Group Inc",
       location: "中国 · 深圳",
       title: "项目运营主管",
       period: "2024.06 - 至今",

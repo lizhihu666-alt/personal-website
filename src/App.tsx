@@ -11,6 +11,9 @@ import ClickSpark from './components/effects/ClickSpark';
 import { LoadingScreen } from './components/effects/LoadingScreen';
 import { gsap, ScrollTrigger, isReducedMotion } from './utils/gsapSetup';
 
+// 首页背景的 WebGPU 代码体积大，加载页播放期间先在后台取回来。
+void import('./components/effects/AeroShards');
+
 // 按需加载：Work 页包含 three.js 3D 场景，Life 页体积也不小。
 // 首页不再把这些代码一起下载，首屏更快；进入对应模式时再加载。
 const WorkView = lazy(() =>
@@ -113,6 +116,122 @@ export default function App() {
       lenis.destroy();
     };
   }, []);
+
+  // 页面之间的吸附：滚动停下后，如果离某个板块的起点不远，就轻轻吸过去，避免一下滑过头。
+  // 只在职业页、非纯触屏设备上启用（手机原生触摸滚动不要打断）；方法板块的钉住动画内部
+  // 保持自由滚动，只吸它的起点和终点；比一屏高的板块（比如展开了经历）中间不吸。
+  useEffect(() => {
+    const lenis = lenisRef.current;
+    if (!lenis || currentMode !== 'work') return;
+    // 只排除纯触屏设备；带触屏的笔记本主指针常被判成 coarse，不能用 (pointer: fine) 判断。
+    if (window.matchMedia('(hover: none) and (pointer: coarse)').matches) return;
+
+    const SECTION_IDS = [
+      'work-hero',
+      'work-impact',
+      'work-projects',
+      'work-experience',
+      'work-method-trace',
+      'work-about',
+      'work-contact',
+      'work-motto',
+    ];
+    let timer = 0;
+    let snapping = false;
+
+    const getPoints = () => {
+      const vh = window.innerHeight;
+      const points: number[] = [];
+      let freeStart = 0;
+      let freeEnd = 0;
+      SECTION_IDS.forEach((id) => {
+        const el = document.getElementById(id);
+        if (!el) return;
+        const top = el.offsetTop;
+        const bottomAligned = top + el.offsetHeight - vh;
+        points.push(top);
+        if (el.offsetHeight > vh * 1.2) points.push(bottomAligned);
+        if (id === 'work-method-trace') {
+          freeStart = top + vh * 0.15;
+          freeEnd = bottomAligned - vh * 0.15;
+        }
+      });
+      points.push(document.documentElement.scrollHeight - vh);
+      return { points, freeStart, freeEnd };
+    };
+
+    // 上一次停稳的位置：用来判断这次是往下还是往上滚。
+    let settledY = lenis.scroll;
+    let prevY = lenis.scroll;
+    let pending = false;
+
+    const snap = () => {
+      if (snapping || lenis.isStopped) return;
+      const y = lenis.scroll;
+      const vh = window.innerHeight;
+      const { points, freeStart, freeEnd } = getPoints();
+      if (y > freeStart && y < freeEnd) {
+        settledY = y;
+        return;
+      }
+      const sorted = [...points].sort((x, z) => x - z);
+      const moved = y - settledY;
+      let target = sorted[0];
+      sorted.forEach((point) => {
+        if (Math.abs(point - y) < Math.abs(target - y)) target = point;
+      });
+
+      // 这次明显往某个方向滚了（超过 12px）：不回头，直接去那个方向的下一个板块起点，
+      // 一次滚动手势就翻一页；只有滚得很少时才回到原来的位置。
+      if (Math.abs(moved) > 12) {
+        const ahead =
+          moved > 0
+            ? sorted.find((point) => point > y + 2)
+            : [...sorted].reverse().find((point) => point < y - 2);
+        if (ahead !== undefined && Math.abs(ahead - y) <= vh * 1.25) target = ahead;
+      }
+
+      if (Math.abs(target - y) < 2 || Math.abs(target - y) > vh * 1.25) {
+        settledY = y;
+        return;
+      }
+      snapping = true;
+      lenis.scrollTo(target, {
+        duration: 0.7,
+        easing: (t: number) => 1 - Math.pow(1 - t, 3),
+        onComplete: () => {
+          snapping = false;
+          settledY = lenis.scroll;
+          prevY = lenis.scroll;
+        },
+      });
+    };
+
+    const onScroll = () => {
+      if (snapping) {
+        prevY = lenis.scroll;
+        return;
+      }
+      // 一次新的滚动手势开始时，把它开始前的位置记成「上一次停稳的位置」，
+      // 之后用它判断这次是往下还是往上。
+      if (!pending) {
+        settledY = prevY;
+        pending = true;
+      }
+      prevY = lenis.scroll;
+      window.clearTimeout(timer);
+      timer = window.setTimeout(() => {
+        pending = false;
+        snap();
+      }, 220);
+    };
+    lenis.on('scroll', onScroll);
+
+    return () => {
+      window.clearTimeout(timer);
+      lenis.off('scroll', onScroll);
+    };
+  }, [currentMode]);
 
   // 1. Initial URL detection (direct link to /work or #work skips opening animation)
   useEffect(() => {
@@ -319,8 +438,16 @@ export default function App() {
           />
         )}
 
+        {/* 跳到主内容：只在键盘聚焦时显示，让键盘用户不必先 Tab 过导航和进度圆点。 */}
+        <a
+          href="#main-content"
+          className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[200] focus:rounded-lg focus:bg-[#34D378] focus:px-4 focus:py-2 focus:text-sm focus:font-semibold focus:text-[#0A0B0D]"
+        >
+          跳到主要内容
+        </a>
+
         {/* Main View Area */}
-        <div className="flex-1 w-full">
+        <main id="main-content" tabIndex={-1} className="flex-1 w-full outline-none">
           <Suspense fallback={<div className="min-h-[80vh] w-full" aria-hidden="true" />}>
             {currentMode === 'home' && (
               <HomeHero
@@ -345,7 +472,7 @@ export default function App() {
               </div>
             )}
           </Suspense>
-        </div>
+        </main>
 
         {/* Floating Reading Progress & Quick Section Jump Indicator */}
         <ReadingProgressNav currentMode={currentMode} />

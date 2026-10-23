@@ -186,77 +186,6 @@
   animation: scrollCueDrift 2.4s cubic-bezier(0.33, 1, 0.68, 1) infinite;
 }
 
-/* 履历不是一组静态卡片，而是一条从过去推进到当下的轨道。 */
-.career-track-rail {
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  left: 13px;
-  width: 1px;
-  background: linear-gradient(to bottom, rgba(52, 211, 120, 0.14), rgba(52, 211, 120, 0.4));
-}
-
-.career-track-progress {
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  left: 13px;
-  width: 1px;
-  background: var(--color-work-proof);
-  box-shadow: 0 0 12px rgba(52, 211, 120, 0.48);
-  transform: scaleY(0);
-  transform-origin: top;
-  will-change: transform;
-}
-
-.career-track-node {
-  width: 11px;
-  height: 11px;
-  flex: 0 0 auto;
-  border-radius: 9999px;
-  border: 1px solid rgba(52, 211, 120, 0.3);
-  background: #2a5a43; /* 未悬停：不亮灯的灰绿色 */
-  box-shadow: 0 0 0 5px rgba(52, 211, 120, 0.07);
-  transition: none; /* 离开时瞬间变暗，和绿线一致；渐亮的过渡只写在悬停态里 */
-  position: relative;
-  overflow: hidden;
-}
-
-/* 水面：一块圆角约 42% 的方块，缓慢自转，上沿就会起伏成波浪；悬停时整块从圆点下方升到上方。 */
-.career-track-node::before {
-  content: '';
-  position: absolute;
-  left: 50%;
-  top: 11px;
-  width: 28px;
-  height: 28px;
-  margin-left: -14px;
-  border-radius: 42%;
-  background: var(--color-work-proof);
-  pointer-events: none;
-}
-
-/* 圆点平时是暗的，鼠标放到对应的那一行上，像水一样从下往上灌满（800ms，和绿线同步）。 */
-.career-track-item:has(.career-track-row:hover) .career-track-node {
-  border-color: var(--color-work-proof-strong);
-  box-shadow: 0 0 0 6px rgba(52, 211, 120, 0.13);
-  transition:
-    border-color 800ms cubic-bezier(0.22, 1, 0.36, 1),
-    box-shadow 800ms cubic-bezier(0.22, 1, 0.36, 1);
-}
-
-.career-track-item:has(.career-track-row:hover) .career-track-node::before {
-  top: -9px;
-  transition: top 800ms cubic-bezier(0.22, 1, 0.36, 1);
-  animation: careerNodeWave 1.4s linear infinite;
-}
-
-@keyframes careerNodeWave {
-  to {
-    transform: rotate(360deg);
-  }
-}
-
 /* 履历卡片的指针交互：参考 specia1ne 的作品列表——只做高亮，不挪动任何文字或圆点。
    悬停的那一张边框和上下两道线点亮、按钮实心，其余的退后变暗。只在有悬停能力的设备上生效。 */
 .career-track-row {
@@ -304,6 +233,35 @@
   background-position: top, bottom;
 }
 
+/* 经历板块是浅色底：同一套行样式，淡线换成浅灰、悬停的线换成深绿。 */
+.career-track-row.row-on-light {
+  background-image: linear-gradient(#d8dce2, #d8dce2);
+}
+
+.career-track-row.row-on-light.is-last {
+  background-image: linear-gradient(#d8dce2, #d8dce2), linear-gradient(#d8dce2, #d8dce2);
+}
+
+.career-track-row.row-on-light::before,
+.career-track-row.row-on-light::after {
+  background: #0e7c3d;
+}
+
+/* 浅色底（经历）的悬停线比深色底（项目）略粗：高度 2px、纵向缩放 0.625，实际约 1.25px；
+   深色底沿用默认的 1px × 0.75。 */
+.career-track-row.row-on-light::before,
+.career-track-row.row-on-light::after {
+  height: 2px;
+  transform: scale(0, 0.625);
+}
+
+@media (hover: hover) {
+  .career-track-row.row-on-light:hover::before,
+  .career-track-row.row-on-light:hover::after {
+    transform: scale(1, 0.625);
+  }
+}
+
 @media (hover: hover) {
   .career-track-item:has(.career-track-row:hover) + .career-track-item .career-track-row {
     background-image: none;
@@ -317,7 +275,10 @@
 }
 
 .career-track-arrow {
-  transition: transform 300ms cubic-bezier(0.22, 1, 0.36, 1);
+  opacity: 0.55;
+  transition:
+    transform 300ms cubic-bezier(0.22, 1, 0.36, 1),
+    opacity 300ms ease;
 }
 
 @media (hover: hover) {
@@ -332,91 +293,18 @@
     transition: transform 800ms cubic-bezier(0.22, 1, 0.36, 1);
   }
 
-  /* 地点平时不显示，悬停时在同样的 800ms 里淡入；它脱离文档流画在时间下方，
-     这样时间在行内始终垂直居中、行高也不会因为它出现而变化。手机宽度下保持正常显示。 */
-  @media (min-width: 1024px) {
-    .career-track-loc {
-      position: absolute;
-      top: 100%;
-      right: 0;
-      margin-top: -10px;
-      white-space: nowrap;
-      opacity: 0;
-      transition: none;
-    }
-
-    .career-track-row:hover .career-track-loc,
-    .career-track-row:has(button[aria-expanded='true']) .career-track-loc,
-    .career-track-row:has(button:focus-visible) .career-track-loc {
-      opacity: 1;
-      transition: opacity 800ms cubic-bezier(0.22, 1, 0.36, 1);
-    }
+  /* 说明、地点、指标说明都常驻显示（不再悬停才出现）：招聘方扫一眼就能读到，
+     悬停只负责点亮上下两条线和箭头，文字不再位移。 */
+  .career-track-row:hover .career-track-arrow {
+    opacity: 1;
   }
 
-  /* 地点出现的同时，时间往上挤一点，给它让位（离开时瞬间复位）。 */
-  @media (min-width: 1024px) {
-    .career-track-period {
-      transform: translateY(0);
-      transition: none;
-    }
-
-    .career-track-row:hover .career-track-period,
-    .career-track-row:has(button[aria-expanded='true']) .career-track-period,
-    .career-track-row:has(button:focus-visible) .career-track-period {
-      transform: translateY(-0.75rem);
-      transition: transform 800ms cubic-bezier(0.22, 1, 0.36, 1);
-    }
+  #work-projects .career-track-row:hover .career-track-arrow {
+    transform: translate(2px, -2px);
   }
 
-  /* 教育行的学校英文名：规则同地点——平时隐藏，悬停时 800ms 淡入，画在学校名下方，
-     学校名同时上挪一点让位（离开时瞬间复位）。 */
-  @media (min-width: 1024px) {
-    .career-track-sub {
-      position: absolute;
-      top: 100%;
-      left: 0;
-      margin-top: -10px;
-      white-space: nowrap;
-      opacity: 0;
-      transition: none;
-    }
-
-    .career-track-head {
-      transform: translateY(0);
-      transition: none;
-    }
-
-    .career-track-row:hover .career-track-sub,
-    .career-track-row:has(button[aria-expanded='true']) .career-track-sub,
-    .career-track-row:has(button:focus-visible) .career-track-sub {
-      opacity: 1;
-      transition: opacity 800ms cubic-bezier(0.22, 1, 0.36, 1);
-    }
-
-    .career-track-row:hover .career-track-head,
-    .career-track-row:has(button[aria-expanded='true']) .career-track-head,
-    .career-track-row:has(button:focus-visible) .career-track-head {
-      transform: translateY(-0.75rem);
-      transition: transform 800ms cubic-bezier(0.22, 1, 0.36, 1);
-    }
-  }
-
-  /* 箭头平时不存在；悬停时先画出竖线（前 400ms），再画出两条斜线（后 400ms），
-     合计 800ms，和绿线延伸的时间一致；离开时瞬间消失。已展开的行和键盘聚焦时保持完整显示。 */
-  .career-track-arrow path {
-    stroke-dashoffset: 1;
-    transition: none;
-  }
-
-  .career-track-row:hover .career-track-arrow path,
-  .career-track-row:has(button[aria-expanded='true']) .career-track-arrow path,
-  .career-track-row:has(button:focus-visible) .career-track-arrow path {
-    stroke-dashoffset: 0;
-    transition: stroke-dashoffset 400ms cubic-bezier(0.22, 1, 0.36, 1);
-  }
-
-  .career-track-row:hover .career-track-arrow path:nth-child(n + 2) {
-    transition-delay: 400ms;
+  .career-track-row:has(button[aria-expanded='true']) .career-track-arrow {
+    opacity: 1;
   }
 }
 
@@ -497,7 +385,7 @@
   z-index: 2;
   color: #F7F7F7;
   font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-  font-size: 0.6875rem;
+  font-size: 0.875rem;
   font-weight: 600;
   line-height: 1;
   letter-spacing: 0.02em;
@@ -528,7 +416,7 @@
 .method-trace-outcome-kicker {
   color: var(--work-accent);
   font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-  font-size: 0.6875rem;
+  font-size: 0.8125rem;
   font-weight: 700;
   line-height: 1;
   letter-spacing: 0.14em;
@@ -582,7 +470,7 @@
 
 @media (max-width: 767px) {
   .method-trace-label {
-    font-size: 0.625rem;
+    font-size: 0.8125rem;
   }
 
   /* 手机上没有位置摆一张跟桌面端一样的右侧卡片，之前是直接把这块
@@ -814,23 +702,10 @@
   .scroll-cue-drift {
     animation: none;
   }
-  .career-track-progress {
-    transform: scaleY(1) !important;
-  }
-  .career-track-node,
   .copy-confirm-icon {
     animation: none !important;
     opacity: 1;
     transform: none;
-  }
-  .career-track-node {
-    background: var(--color-work-proof);
-    border-color: var(--color-work-proof-strong);
-    box-shadow: none;
-  }
-  /* 水面填充是纯装饰性的空间位移，减少动效时直接用实心亮点代替 */
-  .career-track-node::before {
-    display: none;
   }
   /* 静态降级保留原生 SVG 的完整收束结果，不依赖 WebGL。 */
   .method-trace-section {
@@ -966,5 +841,65 @@
   .resume-overlay-in,
   .resume-overlay-in .resume-print-sheet {
     animation: none;
+  }
+}
+
+/* 工作经历 / 教育背景的行：只有箭头在悬停（或展开、键盘聚焦）时才出现，先画竖线、再画斜线；
+   地点常驻显示。 */
+@media (hover: hover) {
+  .career-track-row.row-on-light .career-track-arrow {
+    opacity: 1;
+  }
+
+  .career-track-row.row-on-light .career-track-arrow path {
+    stroke-dashoffset: 1;
+    transition: none;
+  }
+
+  .career-track-row.row-on-light:hover .career-track-arrow path,
+  .career-track-row.row-on-light:has(button[aria-expanded='true']) .career-track-arrow path,
+  .career-track-row.row-on-light:has(button:focus-visible) .career-track-arrow path {
+    stroke-dashoffset: 0;
+    transition: stroke-dashoffset 400ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  .career-track-row.row-on-light:hover .career-track-arrow path:nth-child(n + 2) {
+    transition-delay: 400ms;
+  }
+
+}
+
+/* 浅色板块（成果、经历、关于）上，说明文字和焦点轮廓都要用更深的颜色才能满足对比度：
+   亮绿轮廓 #34D378 在浅底上约 1.7:1。 */
+.career-track-row.row-on-light .career-track-loc {
+  color: #566070;
+}
+
+#work-impact :focus-visible,
+#work-experience :focus-visible,
+#work-about :focus-visible {
+  outline-color: #0e7c3d !important;
+}
+
+/* 项目行：箭头同样只在悬停（或键盘聚焦）时出现，先画斜线、再画折线，各 400ms。
+   触屏等没有悬停的设备上保持常驻淡色。 */
+@media (hover: hover) {
+  #work-projects .career-track-row .career-track-arrow {
+    opacity: 1;
+  }
+
+  #work-projects .career-track-row .career-track-arrow path {
+    stroke-dashoffset: 1;
+    transition: none;
+  }
+
+  #work-projects .career-track-row:hover .career-track-arrow path,
+  #work-projects .career-track-row:has(button:focus-visible) .career-track-arrow path {
+    stroke-dashoffset: 0;
+    transition: stroke-dashoffset 400ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  #work-projects .career-track-row:hover .career-track-arrow path:nth-child(n + 2) {
+    transition-delay: 400ms;
   }
 }

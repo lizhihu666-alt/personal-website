@@ -38,7 +38,7 @@ web
 - 职业侧承载：结果指标、精选项目案例（含全屏案例舞台）、履历时间轨道、教育与联系方式（邮箱与微信号可复制）。
 - 生活侧承载：个人价值、宠物摄影、羽毛球、旅行、近期在做的事。
 - **语言约束**：中文为主，只有少量术语保留英文（SOP、API、GMV、Vibe Coding 这类）。这是明确要求，不是默认。
-- **联系方式约束**：全站只公开邮箱 lizhihu666@gmail.com、微信 LeoHu_Connect、LinkedIn 与 GitHub。仓库中不存在手机号，不要新增。
+- **联系方式约束**：全站只公开邮箱 lizhihu666@gmail.com、微信 Hu-Leo-731、LinkedIn 与 GitHub。仓库中不存在手机号，不要新增。
 - 既有技术事实：React 19 + TypeScript + Vite + Tailwind CSS 4，动效由 GSAP / motion 承担，图标用 lucide-react。
 
 ## Brand Commitments

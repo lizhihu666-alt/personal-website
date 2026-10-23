@@ -50,7 +50,7 @@ export const LifeComingSoon: React.FC<LifeComingSoonProps> = ({ onSwitchToWork }
 
       <section
         id="life-hero"
-        className="relative mx-auto flex min-h-[calc(100dvh-4rem)] max-w-6xl flex-col justify-center px-6 py-14 sm:py-20"
+        className="relative mx-auto flex min-h-[calc(100dvh-4rem)] max-w-6xl flex-col justify-center px-6 pb-[7.5rem] pt-14 sm:pb-36 sm:pt-20"
       >
         <div className="grid items-center gap-12 lg:grid-cols-[1.25fr_1fr] lg:gap-14">
           <div>
@@ -71,7 +71,7 @@ export const LifeComingSoon: React.FC<LifeComingSoonProps> = ({ onSwitchToWork }
               <button
                 type="button"
                 onClick={onSwitchToWork}
-                className="group mt-9 inline-flex min-h-11 items-center gap-2 rounded-xl bg-[#2F6FED] px-5 py-3 text-sm font-medium text-white transition-colors hover:bg-[#2A62D1]"
+                className="group mt-6 inline-flex min-h-11 items-center gap-2 rounded-xl bg-[#2F6FED] px-5 py-3 text-sm font-medium text-white transition-colors hover:bg-[#2A62D1]"
               >
                 <span>看看上班的 Leo</span>
                 <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />

@@ -10,6 +10,13 @@ interface HeaderProps {
   onOpenContact?: () => void;
 }
 
+// 生活页还在开发：菜单里先放几个不可点击、带「即将开放」标签的栏目，上线后去掉 badge、填上 link 即可。
+const LIFE_MENU_ITEMS = [
+  { label: '摄影', ariaLabel: '摄影（即将开放）', link: '#', badge: '即将开放' },
+  { label: '旅行', ariaLabel: '旅行（即将开放）', link: '#', badge: '即将开放' },
+  { label: '运动', ariaLabel: '运动（即将开放）', link: '#', badge: '即将开放' },
+];
+
 export const Header: React.FC<HeaderProps> = ({
   currentMode,
   onSelectMode,
@@ -112,10 +119,10 @@ export const Header: React.FC<HeaderProps> = ({
     <>
       <header
         ref={headerRef}
-        className={`sticky top-0 z-40 w-full backdrop-blur-md transition-colors duration-200 ${
+        className={`sticky top-0 z-40 w-full transition-colors duration-200 ${
           isScrolled
             ? 'bg-[#0A0B0D]/95 shadow-xs'
-            : 'bg-[#0A0B0D]/80'
+            : 'bg-[#0A0B0D]/90'
         }`}
       >
         <div className="px-6 sm:px-10 lg:px-16">
@@ -147,8 +154,11 @@ export const Header: React.FC<HeaderProps> = ({
                 ref={menuRef}
                 isFixed
                 position="right"
-                items={[
+                items={currentMode === 'life' ? LIFE_MENU_ITEMS : [
+                  { label: '成果', ariaLabel: '查看成果', link: '#work-impact' },
                   { label: '项目', ariaLabel: '查看精选项目', link: '#work-projects' },
+                  { label: '经历', ariaLabel: '查看经历', link: '#work-experience' },
+                  { label: '方法', ariaLabel: '查看方法', link: '#work-method-trace' },
                   { label: '关于', ariaLabel: '关于我', link: '#work-about' },
                   { label: '联系', ariaLabel: '联系方式', link: '#work-contact' },
                 ]}

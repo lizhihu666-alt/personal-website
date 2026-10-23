@@ -50,6 +50,9 @@
 
 .sm-toggle {
   position: relative;
+  min-width: 44px;
+  min-height: 44px;
+  justify-content: center;
   display: inline-flex;
   align-items: center;
   gap: 0.3rem;
@@ -118,7 +121,7 @@
   -webkit-backdrop-filter: blur(12px);
   display: flex;
   flex-direction: column;
-  padding: 6em 2em 2em 2em;
+  padding: 4.5em 2em 2em 2em;
   overflow-y: auto;
   z-index: 10;
   pointer-events: auto;
@@ -250,7 +253,7 @@
   padding: 0;
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: 1.1rem;
 }
 
 .sm-panel-item {
@@ -267,7 +270,7 @@
     color 0.25s;
   display: inline-block;
   text-decoration: none;
-  padding-right: 1.4em;
+  padding-right: 2.2rem;
 }
 
 .staggered-menu-panel .sm-socials-list .sm-socials-link {
@@ -298,6 +301,27 @@
   color: var(--sm-accent, #5227ff);
 }
 
+/* 不可点击的「即将开放」项：编号和普通项一样紧贴文字右侧，标签放在编号正下方、左边对齐。 */
+.sm-panel-item--soon {
+  cursor: default;
+}
+
+.sm-panel-badge {
+  position: absolute;
+  left: calc(100% - 1.4rem);
+  top: calc(30% + 0.75rem);
+  padding: 1px 10px;
+  border: 1px solid #d8dce2;
+  border-radius: 9999px;
+  font-size: 12px;
+  font-weight: 400;
+  letter-spacing: 0;
+  line-height: 1.4;
+  text-transform: none;
+  color: #6b7280;
+  white-space: nowrap;
+}
+
 .sm-panel-list[data-numbering] {
   counter-reset: smItem;
 }
@@ -306,9 +330,10 @@
   counter-increment: smItem;
   content: counter(smItem, decimal-leading-zero);
   position: absolute;
-  top: 0.1em;
-  right: 2.8em;
-  font-size: 18px;
+  top: 30%;
+  right: 0;
+  transform: translateY(-50%);
+  font-size: 20px;
   font-weight: 400;
   color: var(--sm-accent, #5227ff);
   letter-spacing: 0;
@@ -342,11 +367,23 @@
 
   /* 手机上文字只有两三个字宽，编号按 em 算会压在文字上，改成紧贴在文字右侧 */
   .sm-panel-list[data-numbering] .sm-panel-item::after {
-    right: -1.2rem;
     font-size: 14px;
   }
 
   .staggered-menu-wrapper[data-open] .sm-logo-img {
     filter: invert(100%);
+  }
+}
+
+/* 菜单项变多之后，窗口特别矮时才把字号收一档，避免挤到底部的职业/生活切换。 */
+@media (max-height: 660px) {
+  .sm-panel-list {
+    gap: 0.5rem;
+  }
+}
+
+@media (max-height: 640px) {
+  .sm-panel-item {
+    font-size: 2.75rem;
   }
 }

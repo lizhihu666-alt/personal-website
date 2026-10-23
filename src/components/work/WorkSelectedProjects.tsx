@@ -1,5 +1,4 @@
 import React, { useRef, useState } from 'react';
-import { ArrowUpRight } from 'lucide-react';
 import { WORK_DATA } from '../../data/portfolioData';
 import { ProjectCaseStudy } from '../../types';
 import { ProjectImmersive } from './ProjectImmersive';
@@ -47,67 +46,76 @@ export const WorkSelectedProjects: React.FC = () => {
     <section
       id="work-projects"
       ref={containerRef}
-      className="relative bg-[#F3F5F8] text-[#0A0B0D]"
+      className="relative flex min-h-dvh flex-col justify-center bg-[#0A0B0D] px-6 text-[#F3F5F8] sm:px-10 lg:px-16"
     >
-      <div className="project-rail relative py-16 sm:py-24">
-        <div className="max-w-6xl mx-auto w-full px-6 sm:px-10 lg:px-16">
-          <h2 className="type-section text-[#0A0B0D] max-w-4xl">
+      <div className="project-rail relative py-10 sm:py-14">
+        <div className="mx-auto w-full max-w-6xl">
+          <h2 className="type-section text-[#F3F5F8] max-w-4xl">
             少而精，<br />
-            <span className="text-[#0E7C3D]">件件有结果</span>
+            <span className="text-[#34D378]">件件有结果</span>
           </h2>
-          <p className="type-lead mt-6 max-w-[62ch] text-[#4B5563]">
+          <p className="type-lead mt-6 max-w-[62ch] text-[#A8B0BC]">
             点开任意一个，查看从问题、系统到结果的完整案例
           </p>
 
-          {/* 4 个项目一次全部铺开：手机单列，平板及以上 2×2，不再横向滑动。 */}
-          <div className="mt-10 grid grid-cols-1 gap-6 sm:mt-12 sm:grid-cols-2 sm:gap-8">
-            {projects.map((project) => {
+          {/* 行式列表，和经历板块同一套交互：整行可点，悬停时绿线延伸、一句话说明和指标说明淡入。 */}
+          <div className="career-track-list mt-8 sm:mt-8">
+            {projects.map((project, index) => {
               const metric = project.metrics?.[0];
 
               return (
-                <article
-                  key={project.id}
-                  className="project-card group flex flex-col rounded-2xl border border-[#D8DCE2] bg-white/70 p-7 transition-colors duration-300 hover:bg-white sm:p-8"
-                >
-                  <h3 className="project-card-title type-section-sm text-[#0A0B0D]">
-                    {project.title}
-                  </h3>
-                  <p className="type-body mt-4 text-[#4B5563]">{project.subtitle}</p>
-
-                  {metric && (
-                    <div className="mt-6">
-                      <div className="type-number text-4xl font-semibold text-[#0E7C3D]">
-                        {metric.value}
-                      </div>
-                      <div className="type-meta mt-1 text-[#6B7280]">{metric.label}</div>
-                    </div>
-                  )}
-
-                  <div className="mt-5 flex flex-wrap gap-2">
-                    {project.tags.slice(0, 3).map((tag) => (
-                      <span
-                        key={tag}
-                        className="rounded-full border border-[#D8DCE2] px-3 py-1 text-xs text-[#4B5563]"
-                      >
-                        {tag}
-                      </span>
-                    ))}
-                  </div>
-
-                  <button
-                    type="button"
-                    onClick={(event) => openProject(project, event.currentTarget)}
-                    aria-haspopup="dialog"
-                    aria-label={`进入${project.title}全屏案例`}
-                    className="project-card-action group mt-5 inline-flex min-h-11 items-center justify-center gap-2 self-start rounded-xl bg-[#0E7C3D] px-5 py-2.5 text-sm font-medium text-white transition-colors hover:bg-[#0A6631]"
+                <div key={project.id} className="career-track-item">
+                  <article
+                    className={`career-track-card career-track-row ${
+                      index === projects.length - 1 ? 'is-last' : ''
+                    }`}
                   >
-                    进入全屏案例
-                    <ArrowUpRight
-                      className="h-4 w-4 transition-transform duration-200 group-hover:-translate-y-0.5 group-hover:translate-x-0.5"
-                      aria-hidden="true"
-                    />
-                  </button>
-                </article>
+                    <button
+                      type="button"
+                      onClick={(event) => openProject(project, event.currentTarget)}
+                      aria-haspopup="dialog"
+                      aria-label={`进入${project.title}全屏案例`}
+                      className="group min-h-[88px] w-full px-0 py-3 text-left sm:py-3.5"
+                    >
+                      <div className="grid gap-2 lg:grid-cols-12 lg:items-center lg:gap-8">
+                        <div className="relative lg:col-span-8">
+                          <div className="career-track-head">
+                            <h3 className="project-card-title text-2xl font-semibold tracking-tight text-[#F3F5F8] sm:text-3xl">
+                              {project.title}
+                            </h3>
+                          </div>
+                          <p className="career-track-sub type-meta mt-1 text-[#A8B0BC]">{project.subtitle}</p>
+                        </div>
+
+                        <div className="flex items-center justify-between gap-5 lg:col-span-4 lg:justify-end">
+                          {metric && (
+                            <div className="career-track-meta relative lg:text-right">
+                              <div className="career-track-period type-number text-3xl font-semibold tabular-nums text-[#34D378] sm:text-4xl">
+                                {metric.value}
+                              </div>
+                              <div className="career-track-loc type-meta mt-1 text-[#A8B0BC]">{metric.label}</div>
+                            </div>
+                          )}
+                          <span className="inline-flex h-10 w-10 shrink-0 items-center justify-center text-[#34D378]">
+                            <svg
+                              className="career-track-arrow h-6 w-6"
+                              viewBox="0 0 24 24"
+                              fill="none"
+                              stroke="currentColor"
+                              strokeWidth="1.75"
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              aria-hidden="true"
+                            >
+                              <path d="M6 18 L18 6" pathLength="1" />
+                              <path d="M8.5 6 H18 V15.5" pathLength="1" />
+                            </svg>
+                          </span>
+                        </div>
+                      </div>
+                    </button>
+                  </article>
+                </div>
               );
             })}
           </div>

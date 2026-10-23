@@ -1,7 +1,10 @@
-import React, { useEffect, useRef, useState } from 'react';
-import AeroShards from '../effects/AeroShards';
+import React, { Suspense, lazy, useEffect, useRef, useState } from 'react';
 import Topography from '../effects/Topography';
 import { ArrowRight } from 'lucide-react';
+
+// AeroShards 连带 vgpu 体积很大，单独拆成一个包；App 在加载页播放期间就会开始预取，
+// 首页挂载时通常已经就绪，背景不会晚出现。
+const AeroShards = lazy(() => import('../effects/AeroShards'));
 
 interface HomeHeroProps {
   onChooseMode: (mode: 'work' | 'life', sourceEl?: HTMLElement | null) => void;
@@ -270,7 +273,9 @@ export const HomeHero: React.FC<HomeHeroProps> = ({
             {gpuFailed ? (
               <FallbackBackdrop />
             ) : (
-              <AeroShards {...AERO_BASE} onError={markGpuFailed} shardColor={WORK_COLOR} crossColor={LIFE_COLOR} />
+              <Suspense fallback={null}>
+                <AeroShards {...AERO_BASE} onError={markGpuFailed} shardColor={WORK_COLOR} crossColor={LIFE_COLOR} />
+              </Suspense>
             )}
           </div>
         )}
@@ -301,7 +306,9 @@ export const HomeHero: React.FC<HomeHeroProps> = ({
               {gpuFailed ? (
                 <FallbackBackdrop side="work" />
               ) : (
-                <AeroShards {...AERO_BASE} onError={markGpuFailed} shardColor={WORK_COLOR} crossColor={WORK_COLOR} />
+                <Suspense fallback={null}>
+                  <AeroShards {...AERO_BASE} onError={markGpuFailed} shardColor={WORK_COLOR} crossColor={WORK_COLOR} />
+                </Suspense>
               )}
             </div>
           )}

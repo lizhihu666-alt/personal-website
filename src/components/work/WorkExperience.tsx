@@ -8,9 +8,14 @@ export const WorkExperience: React.FC = () => {
   const experiences = WORK_DATA.experiences;
   const education = WORK_DATA.education;
   const [expandedExpId, setExpandedExpId] = useState('');
+  const [tab, setTab] = useState<'work' | 'education'>('work');
   const sectionRef = useRef<HTMLElement>(null);
   const headingRef = useRef<HTMLHeadingElement>(null);
   const trackRef = useRef<HTMLDivElement>(null);
+  const TABS = [
+    { id: 'work' as const, label: '工作经历', Icon: Briefcase },
+    { id: 'education' as const, label: '教育背景', Icon: GraduationCap },
+  ];
 
   useLayoutEffect(() => {
     const track = trackRef.current;
@@ -58,6 +63,30 @@ export const WorkExperience: React.FC = () => {
     };
   }, []);
 
+  // 切换页签：收起已展开的行，并让新列表轻轻淡入。
+  const switchTab = (next: 'work' | 'education') => {
+    if (next === tab) return;
+    setExpandedExpId('');
+    setTab(next);
+  };
+
+  const tabMountedRef = useRef(false);
+  useLayoutEffect(() => {
+    // 首次挂载由下面的滚动入场负责，这里只处理之后的切换。
+    if (!tabMountedRef.current) {
+      tabMountedRef.current = true;
+      return;
+    }
+    if (isReducedMotion()) return;
+    const rows = trackRef.current?.querySelectorAll('.career-track-item');
+    if (!rows?.length) return;
+    gsap.fromTo(
+      rows,
+      { y: 14, opacity: 0 },
+      { y: 0, opacity: 1, duration: 0.5, ease: 'power3.out', stagger: 0.07, clearProps: 'transform,opacity' }
+    );
+  }, [tab]);
+
   const toggleExp = (id: string) => {
     setExpandedExpId((prev) => (prev === id ? '' : id));
   };
@@ -66,31 +95,62 @@ export const WorkExperience: React.FC = () => {
     <section
       id="work-experience"
       ref={sectionRef}
-      className="relative px-6 py-20 sm:px-10 sm:py-28 lg:px-16 bg-[#0A0B0D]"
+      className="relative flex min-h-dvh flex-col justify-center px-6 py-8 sm:px-10 sm:py-8 lg:px-16 bg-[#F3F5F8]"
     >
       <div className="mx-auto w-full max-w-6xl">
-        <div className="mb-14 max-w-3xl sm:mb-20">
-          <h2 ref={headingRef} className="type-section-sm text-[#F3F5F8]">
+        <div className="mb-8 max-w-5xl sm:mb-8">
+          <h2 ref={headingRef} className="type-section-sm text-[#0A0B0D]">
             从审计、业务、产品、数据到跨境电商，
-            <span className="text-[#34D378]">每一站都在把复杂的事理顺</span>
+            <span className="text-[#0E7C3D]">每一站都在把复杂的事理顺</span>
           </h2>
         </div>
 
         <div ref={trackRef} className="relative">
-          <div className="mb-5 flex items-center gap-3">
-            <Briefcase className="h-6 w-6 text-[#34D378]" aria-hidden="true" />
-            <h3 className="text-xl font-semibold tracking-tight text-[#F3F5F8] sm:text-2xl">工作经历</h3>
+          {/* 工作 / 教育切换：两个文字页签，文字和图标颜色不变，只靠绿色下划线标出选中项，不另做按钮底色。 */}
+          <div role="tablist" aria-label="经历类别" className="mb-5 flex items-center gap-8">
+            {TABS.map(({ id, label, Icon }) => {
+              const active = tab === id;
+              return (
+                <button
+                  key={id}
+                  type="button"
+                  role="tab"
+                  id={`work-experience-tab-${id}`}
+                  aria-selected={active}
+                  aria-controls="work-experience-list"
+                  onClick={() => switchTab(id)}
+                  className="group relative flex items-center gap-3 pb-3 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#0E7C3D]"
+                >
+                  <Icon
+                    className="h-6 w-6 text-[#0E7C3D]"
+                    aria-hidden="true"
+                  />
+                  <span
+                    className="text-xl font-semibold tracking-tight text-[#0A0B0D] sm:text-2xl"
+                  >
+                    {label}
+                  </span>
+                  <span
+                    aria-hidden="true"
+                    className={`absolute -bottom-px left-0 h-px w-full origin-left bg-[#0E7C3D] transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] ${
+                      active ? 'scale-x-100' : 'scale-x-0'
+                    }`}
+                  />
+                </button>
+              );
+            })}
           </div>
 
-          <div className="career-track-list">
-            {experiences.map((exp, index) => {
+          <div id="work-experience-list" role="tabpanel" aria-labelledby={`work-experience-tab-${tab}`} className="career-track-list min-h-[450px]">
+            {tab === 'work' &&
+              experiences.map((exp, index) => {
               // 所有经历默认折叠，只露出岗位/公司/时间/地点，点展开按钮再看简介和关键交付。
               const isExpanded = exp.id === expandedExpId;
 
               return (
                 <div key={exp.id} className="career-track-item">
                   <article
-                    className={`career-track-card career-track-row overflow-hidden ${
+                    className={`career-track-card career-track-row row-on-light overflow-hidden ${
                       index === experiences.length - 1 ? 'is-last' : ''
                     }`}
                   >
@@ -99,31 +159,31 @@ export const WorkExperience: React.FC = () => {
                       onClick={() => toggleExp(exp.id)}
                       aria-expanded={isExpanded}
                       aria-controls={`work-experience-panel-${exp.id}`}
-                      className="group min-h-[90px] w-full px-0 py-4 text-left sm:py-5"
+                      className="group min-h-[90px] w-full px-0 py-3 text-left sm:py-3.5"
                     >
                       <div className="grid gap-2 lg:grid-cols-12 lg:items-center lg:gap-8">
                         <div className="relative lg:col-span-8">
                           <div className="career-track-head flex flex-wrap items-baseline gap-x-4 gap-y-1">
-                            <h3 className="text-lg font-semibold tracking-tight text-[#F3F5F8] sm:text-xl">
+                            <h3 className="text-lg font-semibold tracking-tight text-[#0A0B0D] sm:text-xl">
                               {exp.company}
                             </h3>
-                            <span className="type-body font-medium text-[#34D378]">
+                            <span className="type-body font-semibold text-[#0E7C3D]">
                               {exp.title}
                             </span>
                           </div>
                           {exp.companyEn && (
-                            <p className="career-track-sub type-meta mt-1 text-[#A8B0BC]">{exp.companyEn}</p>
+                            <p className="career-track-sub type-meta mt-1 text-[#4B5563]">{exp.companyEn}</p>
                           )}
                         </div>
 
                         <div className="flex items-center justify-between gap-5 lg:col-span-4 lg:justify-end">
                           <div className="career-track-meta relative lg:text-right">
-                            <div className="career-track-period text-lg font-light tracking-tight text-work-proof sm:text-xl">
+                            <div className="career-track-period text-lg font-medium tabular-nums tracking-tight text-[#0E7C3D] sm:text-xl">
                               {exp.period}
                             </div>
-                            <div className="career-track-loc type-meta mt-1 text-[#A8B0BC]">{exp.location}</div>
+                            <div className="career-track-loc type-meta mt-1 text-[#4B5563]">{exp.location}</div>
                           </div>
-                          <span className="inline-flex h-10 w-10 shrink-0 items-center justify-center text-[#34D378]">
+                          <span className="inline-flex h-10 w-10 shrink-0 items-center justify-center text-[#0E7C3D]">
                             <svg
                               className={`career-track-arrow h-6 w-6 ${isExpanded ? 'rotate-180' : ''}`}
                               viewBox="0 0 24 24"
@@ -151,21 +211,18 @@ export const WorkExperience: React.FC = () => {
                       }`}
                     >
                       <div className="min-h-0">
-                        <div className="grid gap-5 border-t border-dashed border-[#232A33] py-6 sm:py-8 lg:grid-cols-12">
-                          <div className="type-label text-[#F3F5F8] lg:col-span-3">关键交付</div>
+                        <div className="grid gap-5 border-t border-dashed border-[#D8DCE2] py-6 sm:py-8 lg:grid-cols-12">
+                          <div className="type-label text-[#0A0B0D] lg:col-span-3">关键交付</div>
                           <div className="lg:col-span-9">
-                            <p className="text-sm leading-relaxed mb-4 text-[#C3CAD5]">{exp.description}</p>
-                            <ul className="text-sm leading-relaxed space-y-2.5 text-[#C3CAD5]">
+                            <p className="text-sm leading-relaxed mb-4 text-[#4B5563]">{exp.description}</p>
+                            <ul className="text-sm leading-relaxed space-y-2.5 text-[#4B5563]">
                               {exp.keyProjects.map((project) => (
                                 <li key={project} className="relative pl-4">
-                                  <span className="absolute left-0 top-[0.72em] h-1.5 w-1.5 rounded-full bg-[#34D378]" />
+                                  <span className="absolute left-0 top-[0.72em] h-1.5 w-1.5 rounded-full bg-[#0E7C3D]" />
                                   <span>{project}</span>
                                 </li>
                               ))}
                             </ul>
-                            <p className="type-meta mt-5 text-[#A8B0BC]">
-                              {exp.skills.join(' · ')}
-                            </p>
                           </div>
                         </div>
                       </div>
@@ -175,15 +232,11 @@ export const WorkExperience: React.FC = () => {
               );
             })}
 
-            <div className="mb-5 mt-10 flex items-center gap-3 sm:mt-12">
-              <GraduationCap className="h-6 w-6 text-[#34D378]" aria-hidden="true" />
-              <h3 className="text-xl font-semibold tracking-tight text-[#F3F5F8] sm:text-2xl">教育背景</h3>
-            </div>
-
-            {education.map((edu, index) => (
+            {tab === 'education' &&
+              education.map((edu, index) => (
               <div key={edu.institution} className="career-track-item">
                 <article
-                  className={`career-track-card career-track-row overflow-hidden ${
+                  className={`career-track-card career-track-row row-on-light overflow-hidden ${
                     index === education.length - 1 ? 'is-last' : ''
                   }`}
                 >
@@ -192,27 +245,29 @@ export const WorkExperience: React.FC = () => {
                     onClick={() => toggleExp(edu.institution)}
                     aria-expanded={edu.institution === expandedExpId}
                     aria-controls={`work-education-panel-${index}`}
-                    className="flex min-h-[90px] w-full flex-col justify-center gap-2 py-4 text-left sm:flex-row sm:items-center sm:justify-between sm:gap-6 sm:py-5"
+                    className="flex min-h-[90px] w-full flex-col justify-center gap-2 py-3 text-left sm:flex-row sm:items-center sm:justify-between sm:gap-6 sm:py-3.5"
                   >
                     <div className="relative min-w-0">
                       <div className="career-track-head flex flex-wrap items-baseline gap-x-4 gap-y-1">
-                        <h4 className="text-lg font-semibold tracking-tight text-[#F3F5F8] sm:text-xl">
+                        <h4 className="text-lg font-semibold tracking-tight text-[#0A0B0D] sm:text-xl">
                           {edu.institutionZh ?? edu.institution}
                         </h4>
-                        <span className="type-body font-medium text-[#34D378]">{edu.degree}</span>
+                        <span className="type-body font-semibold text-[#0E7C3D]">{edu.degree}</span>
                       </div>
                       {edu.institutionZh && (
-                        <p className="career-track-sub type-meta mt-1 text-[#A8B0BC]">{edu.institution}</p>
+                        <p className="career-track-sub type-meta mt-1 text-[#4B5563]">
+                          {edu.institution}
+                        </p>
                       )}
                     </div>
                     <div className="flex shrink-0 items-center justify-between gap-5 sm:justify-end">
                       <div className="career-track-meta relative sm:text-right">
-                        <div className="career-track-period text-lg font-light tracking-tight text-work-proof sm:text-xl">
+                        <div className="career-track-period text-lg font-medium tabular-nums tracking-tight text-[#0E7C3D] sm:text-xl">
                           {edu.period}
                         </div>
-                        <div className="career-track-loc type-meta mt-1 text-[#A8B0BC]">{edu.location}</div>
+                        <div className="career-track-loc type-meta mt-1 text-[#4B5563]">{edu.location}</div>
                       </div>
-                      <span className="inline-flex h-10 w-10 shrink-0 items-center justify-center text-[#34D378]">
+                      <span className="inline-flex h-10 w-10 shrink-0 items-center justify-center text-[#0E7C3D]">
                         <svg
                           className={`career-track-arrow h-6 w-6 ${edu.institution === expandedExpId ? 'rotate-180' : ''}`}
                           viewBox="0 0 24 24"
@@ -239,21 +294,21 @@ export const WorkExperience: React.FC = () => {
                     }`}
                   >
                     <div className="min-h-0">
-                      <div className="grid gap-5 border-t border-dashed border-[#232A33] py-6 sm:py-8 lg:grid-cols-12">
-                        <div className="type-label text-[#F3F5F8] lg:col-span-3">绩点与荣誉</div>
-                        <div className="space-y-2.5 text-sm leading-relaxed text-[#C3CAD5] lg:col-span-9">
+                      <div className="grid gap-5 border-t border-dashed border-[#D8DCE2] py-6 sm:py-8 lg:grid-cols-12">
+                        <div className="type-label text-[#0A0B0D] lg:col-span-3">绩点与荣誉</div>
+                        <div className="space-y-2.5 text-sm leading-relaxed text-[#4B5563] lg:col-span-9">
                           {edu.gpa && <p>GPA：{edu.gpa}</p>}
                           {edu.honors && edu.honors.length > 0 && (
                             <ul className="space-y-2.5">
                               {edu.honors.map((honor) => (
                                 <li key={honor} className="relative pl-4">
-                                  <span className="absolute left-0 top-[0.72em] h-1.5 w-1.5 rounded-full bg-[#34D378]" />
+                                  <span className="absolute left-0 top-[0.72em] h-1.5 w-1.5 rounded-full bg-[#0E7C3D]" />
                                   <span>{honor}</span>
                                 </li>
                               ))}
                             </ul>
                           )}
-                          {!edu.gpa && !edu.honors?.length && <p className="text-[#A8B0BC]">绩点与荣誉待补充</p>}
+                          {!edu.gpa && !edu.honors?.length && <p className="text-[#4B5563]">绩点与荣誉待补充</p>}
                         </div>
                       </div>
                     </div>

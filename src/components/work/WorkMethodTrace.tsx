@@ -5,6 +5,7 @@ import { Line2 } from 'three/examples/jsm/lines/Line2.js';
 import { LineGeometry } from 'three/examples/jsm/lines/LineGeometry.js';
 import { LineMaterial } from 'three/examples/jsm/lines/LineMaterial.js';
 import { isReducedMotion, ScrollTrigger } from '../../utils/gsapSetup';
+import { METHOD_TEXT_REVEAL_END } from './methodTraceTiming';
 
 interface TraceDefinition {
   label: string;
@@ -117,9 +118,8 @@ const smoothstep = (start: number, end: number, value: number) => {
 // 要跟着 HOLD_END 一起改，不能只改其中一个。
 const ENTER_END = 0.4082;
 const FUSE_END = 0.6122;
-const TEXT_REVEAL_END = 0.7755;
-// 右侧阅读进度条用它判断「文字已完全显现」的滚动位置。
-export const METHOD_TEXT_REVEAL_END = TEXT_REVEAL_END;
+// 右侧阅读进度条也用它判断「文字已完全显现」的滚动位置，所以定义在单独的文件里。
+const TEXT_REVEAL_END = METHOD_TEXT_REVEAL_END;
 
 const getScrollState = (progress: number) => {
   const enterProgress = easeOutQuad(clamp(progress / ENTER_END));
@@ -575,7 +575,8 @@ export const WorkMethodTrace: React.FC = () => {
     const trigger = ScrollTrigger.create({
       trigger: sticky,
       start: 'top top',
-      end: () => `+=${window.innerHeight * 4.9}`,
+      // 总跨度约 1.2 屏（最早 4.9 屏、后来 2 屏）：各阶段在总跨度里的占比不变，整体按比例压缩。
+      end: () => `+=${window.innerHeight * 1.2}`,
       pin: true,
       scrub: true,
       anticipatePin: 1,
@@ -633,7 +634,7 @@ export const WorkMethodTrace: React.FC = () => {
       className="method-trace-section relative bg-[#0A0B0D]"
     >
       <h2 id={headingId} className="sr-only">
-        四条路径的滚动动画
+        方法：项目管理、IT 拉通、供应链协同与 AI 提效四条路径汇成一套中台
       </h2>
 
       <div
@@ -724,10 +725,10 @@ export const WorkMethodTrace: React.FC = () => {
             </p>
             <a
               ref={outcomeLinkRef}
-              href="#work-projects"
+              href="#work-about"
               className="method-trace-outcome-link"
             >
-              <span>查看精选项目</span>
+              <span>了解更多关于我</span>
               <ArrowUpRight size={17} strokeWidth={1.8} aria-hidden="true" />
             </a>
           </div>

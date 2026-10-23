@@ -48,19 +48,17 @@ export const WorkView: React.FC<WorkViewProps> = ({ onOpenResume, onSwitchToLife
         skipIntro={skipHeroIntro}
       />
 
-      {/* 01 / IMPACT：数字全部显现后，同一屏会紧接着被像素方块盖成
-          方法区的深色，转场效果做在 WorkImpact 内部（跟数字揭示用
-          同一个钉住的画面），不再单独起一段过渡区块。 */}
+      {/* 01 / IMPACT：数字逐行显现，显现完直接接下面同为浅色的项目板块。 */}
       <WorkImpact />
 
-      {/* 02 / METHOD TRACE */}
-      <WorkMethodTrace />
-
-      {/* 03 / PROJECTS */}
+      {/* 02 / PROJECTS */}
       <WorkSelectedProjects />
 
-      {/* 04 / EXPERIENCE */}
+      {/* 03 / EXPERIENCE */}
       <WorkExperience />
+
+      {/* 04 / METHOD TRACE：放在经历之后，体量大的动画不挡在 HR 最想看的项目和经历前面 */}
+      <WorkMethodTrace />
 
       {/* 05 / ABOUT & TOOLKIT */}
       <WorkAbout onSwitchToLife={onSwitchToLife} />

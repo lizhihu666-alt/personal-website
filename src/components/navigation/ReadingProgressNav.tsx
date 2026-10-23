@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { AppMode } from '../../types';
 import { ScrollTrigger } from '../../utils/gsapSetup';
-import { METHOD_TEXT_REVEAL_END } from '../work/WorkMethodTrace';
+import { METHOD_TEXT_REVEAL_END } from '../work/methodTraceTiming';
 
 interface NavItem {
   id: string;
@@ -11,9 +11,9 @@ interface NavItem {
 const WORK_SECTIONS: NavItem[] = [
   { id: 'work-hero', label: '开场' },
   { id: 'work-impact', label: '成果' },
-  { id: 'work-method-trace', label: '方法' },
   { id: 'work-projects', label: '项目' },
   { id: 'work-experience', label: '经历' },
+  { id: 'work-method-trace', label: '方法' },
   { id: 'work-about', label: '关于' },
   { id: 'work-contact', label: '联系' },
 ];
@@ -71,6 +71,22 @@ export const ReadingProgressNav: React.FC<ReadingProgressNavProps> = ({ currentM
     if (sections.length === 0) return;
 
     let ticking = false;
+    // 每个圆点对应的滚动位置只在布局变化时量一次（resize / ScrollTrigger refresh / 兜底定时器），
+    // 滚动过程中直接用缓存值，不再每一帧遍历 ScrollTrigger。
+    let tops: number[] = [];
+    let totalScroll = 0;
+
+    const measure = () => {
+      totalScroll = document.documentElement.scrollHeight - window.innerHeight;
+      let prevTop = 0;
+      tops = sections.map((sec) => {
+        prevTop = Math.max(prevTop, Math.min(getMilestone(sec.id), Math.max(0, totalScroll)));
+        return prevTop;
+      });
+      // 各章节 offsetTop 同样缓存，用于判断当前所在章节
+      sectionTops = sections.map((sec) => document.getElementById(sec.id)?.offsetTop);
+    };
+    let sectionTops: Array<number | undefined> = [];
 
     const handleScroll = () => {
       if (ticking) return;
@@ -78,7 +94,7 @@ export const ReadingProgressNav: React.FC<ReadingProgressNavProps> = ({ currentM
 
       window.requestAnimationFrame(() => {
         const scrollY = window.scrollY;
-        const totalScroll = document.documentElement.scrollHeight - window.innerHeight;
+        if (tops.length !== sections.length) measure();
         if (totalScroll > 0) {
           setProgress(Math.min(1, Math.max(0, scrollY / totalScroll)));
         }
@@ -91,11 +107,6 @@ export const ReadingProgressNav: React.FC<ReadingProgressNavProps> = ({ currentM
         // 两节之间按滚动比例在相邻圆点间插值。
         // 以视口顶边为基准：页面顶边滚到某一节的起点，这一节的圆点就刚好被填满；
         // 页面底部的几节可能永远滚不到起点，所以起点按最大滚动距离封顶。
-        let prevTop = 0;
-        const tops = sections.map((sec) => {
-          prevTop = Math.max(prevTop, Math.min(getMilestone(sec.id), Math.max(0, totalScroll)));
-          return prevTop;
-        });
         let fillFrac = dotFraction(0, sections.length);
         for (let i = 0; i < sections.length; i += 1) {
           if (scrollY < tops[i]) break;
@@ -110,7 +121,7 @@ export const ReadingProgressNav: React.FC<ReadingProgressNavProps> = ({ currentM
         }
         setFill(fillFrac);
         const active = [...sections].reverse().find((sec) => {
-          const top = document.getElementById(sec.id)?.offsetTop;
+          const top = sectionTops[sections.indexOf(sec)];
           return top !== undefined && top <= midY;
         });
         if (active) setActiveId(active.id);
@@ -120,18 +131,23 @@ export const ReadingProgressNav: React.FC<ReadingProgressNavProps> = ({ currentM
     };
 
     window.addEventListener('scroll', handleScroll, { passive: true });
-    window.addEventListener('resize', handleScroll);
+    const remeasure = () => {
+      measure();
+      handleScroll();
+    };
+    window.addEventListener('resize', remeasure);
     // 页面首次挂载时各个钉住区块的高度还没撑开，量到的滚动总长是错的，
     // 又没有滚动事件来重算，进度线会一直停在「全满」。等 ScrollTrigger
     // 把布局都算定（refresh）之后，以及稍后兜底，再重算一次。
-    ScrollTrigger.addEventListener('refresh', handleScroll);
-    const timers = [300, 1000, 2500].map((ms) => window.setTimeout(handleScroll, ms));
+    ScrollTrigger.addEventListener('refresh', remeasure);
+    const timers = [300, 1000, 2500].map((ms) => window.setTimeout(remeasure, ms));
+    measure();
     handleScroll();
 
     return () => {
       window.removeEventListener('scroll', handleScroll);
-      window.removeEventListener('resize', handleScroll);
-      ScrollTrigger.removeEventListener('refresh', handleScroll);
+      window.removeEventListener('resize', remeasure);
+      ScrollTrigger.removeEventListener('refresh', remeasure);
       timers.forEach((id) => window.clearTimeout(id));
     };
   }, [sections]);

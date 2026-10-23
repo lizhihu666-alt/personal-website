@@ -42,7 +42,7 @@ export const WorkAbout: React.FC<WorkAboutProps> = ({ onSwitchToLife }) => {
     <section
       id="work-about"
       ref={containerRef}
-      className="relative py-20 sm:py-28 px-6 sm:px-10 lg:px-16 bg-[#F3F5F8]"
+      className="relative flex min-h-dvh flex-col justify-center py-12 sm:py-14 px-6 sm:px-10 lg:px-16 bg-[#F3F5F8]"
     >
       <div className="max-w-6xl mx-auto w-full">
         <div className="grid grid-cols-1 md:grid-cols-12 gap-8 md:gap-10 lg:gap-16 items-start">
@@ -75,7 +75,7 @@ export const WorkAbout: React.FC<WorkAboutProps> = ({ onSwitchToLife }) => {
           </div>
         </div>
 
-        <div className="mt-16 about-reveal p-8 sm:p-12 bg-white border border-[#D8DCE2] rounded-2xl flex flex-col md:flex-row items-center justify-between gap-8 shadow-[0_2px_18px_rgba(0,0,0,0.04)]">
+        <div className="mt-10 about-reveal p-6 sm:p-8 bg-white border border-[#D8DCE2] rounded-2xl flex flex-col md:flex-row items-center justify-between gap-8 shadow-[0_2px_18px_rgba(0,0,0,0.04)]">
           <div>
             <h3 className="text-2xl sm:text-3xl font-bold text-[#0A0B0D]">
               工作之外，我也在认真体验世界
