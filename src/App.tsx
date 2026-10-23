@@ -121,8 +121,10 @@ export default function App() {
   // 只在职业页、非纯触屏设备上启用（手机原生触摸滚动不要打断）；方法板块的钉住动画内部
   // 保持自由滚动，只吸它的起点和终点；比一屏高的板块（比如展开了经历）中间不吸。
   useEffect(() => {
+    // 有 Lenis 时用它滚（平滑），没有时（比如系统开了「减少动画」，Lenis 不会创建）退回原生滚动：
+    // 吸附不依赖 Lenis 是否存在，滚动事件统一监听 window 的 scroll。
     const lenis = lenisRef.current;
-    if (!lenis || currentMode !== 'work') return;
+    if (currentMode !== 'work') return;
     // 只排除纯触屏设备；带触屏的笔记本主指针常被判成 coarse，不能用 (pointer: fine) 判断。
     if (window.matchMedia('(hover: none) and (pointer: coarse)').matches) return;
 
@@ -161,13 +163,14 @@ export default function App() {
     };
 
     // 上一次停稳的位置：用来判断这次是往下还是往上滚。
-    let settledY = lenis.scroll;
-    let prevY = lenis.scroll;
+    const getY = () => (lenis ? lenis.scroll : window.scrollY);
+    let settledY = getY();
+    let prevY = getY();
     let pending = false;
 
     const snap = () => {
-      if (snapping || lenis.isStopped) return;
-      const y = lenis.scroll;
+      if (snapping || lenis?.isStopped) return;
+      const y = getY();
       const vh = window.innerHeight;
       const { points, freeStart, freeEnd } = getPoints();
       if (y > freeStart && y < freeEnd) {
@@ -196,20 +199,26 @@ export default function App() {
         return;
       }
       snapping = true;
-      lenis.scrollTo(target, {
-        duration: 0.7,
-        easing: (t: number) => 1 - Math.pow(1 - t, 3),
-        onComplete: () => {
-          snapping = false;
-          settledY = lenis.scroll;
-          prevY = lenis.scroll;
-        },
-      });
+      const finish = () => {
+        snapping = false;
+        settledY = getY();
+        prevY = getY();
+      };
+      if (lenis) {
+        lenis.scrollTo(target, {
+          duration: 0.7,
+          easing: (t: number) => 1 - Math.pow(1 - t, 3),
+          onComplete: finish,
+        });
+      } else {
+        window.scrollTo({ top: target, behavior: 'auto' });
+        window.setTimeout(finish, 50);
+      }
     };
 
     const onScroll = () => {
       if (snapping) {
-        prevY = lenis.scroll;
+        prevY = getY();
         return;
       }
       // 一次新的滚动手势开始时，把它开始前的位置记成「上一次停稳的位置」，
@@ -218,18 +227,18 @@ export default function App() {
         settledY = prevY;
         pending = true;
       }
-      prevY = lenis.scroll;
+      prevY = getY();
       window.clearTimeout(timer);
       timer = window.setTimeout(() => {
         pending = false;
         snap();
       }, 220);
     };
-    lenis.on('scroll', onScroll);
+    window.addEventListener('scroll', onScroll, { passive: true });
 
     return () => {
       window.clearTimeout(timer);
-      lenis.off('scroll', onScroll);
+      window.removeEventListener('scroll', onScroll);
     };
   }, [currentMode]);
 
