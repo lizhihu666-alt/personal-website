@@ -184,14 +184,16 @@ export default function App() {
         if (Math.abs(point - y) < Math.abs(target - y)) target = point;
       });
 
-      // 这次明显往某个方向滚了（超过 12px）：不回头，直接去那个方向的下一个板块起点，
-      // 一次滚动手势就翻一页；只有滚得很少时才回到原来的位置。
+      // 这次明显往某个方向滚了（超过 12px）：目标是「起点之后的下一个板块起点」，一次手势翻一页。
+      // 滚得少、或惯性滑过头一点（没超过那个板块起点 0.5 屏）都去它，不会跳过它；
+      // 真的一口气滚过了很远（比如拖滚动条），才改成就近吸附。
       if (Math.abs(moved) > 12) {
-        const ahead =
+        const next =
           moved > 0
-            ? sorted.find((point) => point > y + 2)
-            : [...sorted].reverse().find((point) => point < y - 2);
-        if (ahead !== undefined && Math.abs(ahead - y) <= vh * 1.25) target = ahead;
+            ? sorted.find((point) => point > settledY + 2)
+            : [...sorted].reverse().find((point) => point < settledY - 2);
+        const overshoot = moved > 0 ? y - (next ?? y) : (next ?? y) - y;
+        if (next !== undefined && overshoot <= vh * 0.5) target = next;
       }
 
       if (Math.abs(target - y) < 2 || Math.abs(target - y) > vh * 1.25) {
