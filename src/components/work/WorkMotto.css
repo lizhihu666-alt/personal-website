@@ -2,6 +2,10 @@
 .motto-float.scroll-float {
   margin: 0;
   padding-bottom: 0.06em;
+  /* 字符从下方浮上来，需要在竖直方向裁切；但横向不能裁——缩进后的那一行比容器剩余宽度略宽，
+     最后一个字母（H）会被容器边缘切掉。竖向 clip、横向 visible 即可。 */
+  overflow-x: visible;
+  overflow-y: clip;
 }
 
 .motto-float .scroll-float-text {
