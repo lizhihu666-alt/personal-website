@@ -51,7 +51,7 @@ export const WorkSelectedProjects: React.FC = () => {
     <section
       id="work-projects"
       ref={containerRef}
-      className="relative bg-[#0A0B0D] px-6 text-[#F3F5F8] sm:px-10 lg:px-16"
+      className="relative -mt-[100dvh] bg-[#0A0B0D] px-6 text-[#F3F5F8] sm:px-10 lg:px-16"
     >
       <div ref={pinRef} className="relative flex min-h-dvh flex-col justify-center">
       <div className="project-rail relative py-10 sm:py-14">
@@ -128,7 +128,7 @@ export const WorkSelectedProjects: React.FC = () => {
         </div>
       </div>
 
-        <PixelCoverCanvas ref={coverRef} />
+        <PixelCoverCanvas ref={coverRef} background="#0A0B0D" />
       </div>
 
       {activeProject && (

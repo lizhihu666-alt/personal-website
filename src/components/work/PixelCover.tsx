@@ -1,5 +1,5 @@
 import React, { forwardRef, useLayoutEffect } from 'react';
-import { ScrollTrigger, isReducedMotion } from '../../utils/gsapSetup';
+import { gsap, ScrollTrigger, isReducedMotion } from '../../utils/gsapSetup';
 
 // 板块之间的「方格子转场」：当前板块滚到底（底边对齐视口底）时被钉住，
 // 一层随机顺序铺开的方块把它盖成下一个板块的颜色，盖满后钉住松开，下一个板块（同色）
@@ -9,6 +9,8 @@ const CELL_SIZE = 80;
 // 钉住的前 40% 是「停留」：内容刚好完整露出来之后，要再往下滚一小段才开始变色，
 // 给观众留出看完内容的缓冲，不会一到位就立刻开始转场。
 const HOLD_FRACTION = 0.4;
+// 方块盖满之后，这一层不是立刻消失，而是用这么长时间（秒）淡出，下一个板块的内容跟着渐显。
+const REVEAL_DURATION = 0.6;
 
 const clamp01 = (value: number) => Math.min(1, Math.max(0, value));
 const smoothstep = (edge0: number, edge1: number, value: number) => {
@@ -39,12 +41,17 @@ export function usePixelCover(
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
+    // 钉住的这一层要盖在「下一个板块」上面（下一个板块用负的 margin-top 提前叠到它后面），
+    // 这样转场一结束、这一层隐藏，下一个板块的内容就直接出现在原地，不用再滑过一整屏空白。
+    // z-index 按页面次序递减（refreshPriority 越大越靠上），上面的板块才始终盖在下面的板块之上。
+    pinEl.style.zIndex = String(20 + refreshPriority * 10);
     let cells: Array<{ col: number; row: number; threshold: number }> = [];
     let cellW = 0;
     let cellH = 0;
     let width = 0;
     let height = 0;
     let progress = 0;
+    let revealed = false;
 
     const draw = () => {
       ctx.clearRect(0, 0, width, height);
@@ -103,29 +110,64 @@ export function usePixelCover(
       onUpdate: (self) => {
         progress = self.progress;
         draw();
+        // 方块盖满之后整层淡出，露出叠在它后面的下一个板块（内容跟着渐显）；往回滚时立刻恢复。
+        const done = self.progress >= 0.999;
+        if (done && !revealed) {
+          revealed = true;
+          gsap.to(pinEl, {
+            opacity: 0,
+            duration: REVEAL_DURATION,
+            ease: 'power1.out',
+            overwrite: true,
+            onComplete: () => {
+              if (revealed) pinEl.style.visibility = 'hidden';
+            },
+          });
+        } else if (!done && revealed) {
+          revealed = false;
+          gsap.killTweensOf(pinEl);
+          gsap.set(pinEl, { opacity: 1 });
+          pinEl.style.visibility = 'visible';
+        }
       },
     });
 
     return () => {
       ScrollTrigger.removeEventListener('refresh', build);
       trigger.kill();
+      gsap.killTweensOf(pinEl);
+      pinEl.style.opacity = '';
+      pinEl.style.visibility = '';
+      pinEl.style.zIndex = '';
     };
   }, [pinRef, canvasRef, color, lengthVh, refreshPriority]);
 }
 
 /** 盖在被钉住那一层上的画布：左右「出血」到整个视口宽度，盖住父元素的左右内边距。 */
-export const PixelCoverCanvas = forwardRef<HTMLCanvasElement>((_, ref) => (
-  <canvas
-    ref={ref}
-    aria-hidden="true"
-    className="pointer-events-none absolute left-1/2 right-1/2 top-0 z-10"
-    style={{
-      width: '100vw',
-      marginLeft: '-50vw',
-      marginRight: '-50vw',
-      // canvas 是替换元素，要给明确的 height；多 4px 是为了盖住 pin 占位的小数取整缝。
-      height: 'calc(100% + 4px)',
-    }}
-  />
+interface PixelCoverCanvasProps {
+  /** 这一层自己的背景色：它盖在下一个板块上面，需要一个不透明的底，左右同样出血到整个视口宽度。 */
+  background: string;
+}
+
+export const PixelCoverCanvas = forwardRef<HTMLCanvasElement, PixelCoverCanvasProps>(({ background }, ref) => (
+  <>
+    <div
+      aria-hidden="true"
+      className="pointer-events-none absolute left-1/2 top-0 -z-10"
+      style={{ width: '100vw', marginLeft: '-50vw', height: 'calc(100% + 4px)', background }}
+    />
+    <canvas
+      ref={ref}
+      aria-hidden="true"
+      className="pointer-events-none absolute left-1/2 right-1/2 top-0 z-10"
+      style={{
+        width: '100vw',
+        marginLeft: '-50vw',
+        marginRight: '-50vw',
+        // canvas 是替换元素，要给明确的 height；多 4px 是为了盖住 pin 占位的小数取整缝。
+        height: 'calc(100% + 4px)',
+      }}
+    />
+  </>
 ));
 PixelCoverCanvas.displayName = 'PixelCoverCanvas';

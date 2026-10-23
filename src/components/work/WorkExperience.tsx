@@ -100,7 +100,7 @@ export const WorkExperience: React.FC = () => {
     <section
       id="work-experience"
       ref={sectionRef}
-      className="relative px-6 sm:px-10 lg:px-16 bg-[#F3F5F8]"
+      className="relative -mt-[100dvh] px-6 sm:px-10 lg:px-16 bg-[#F3F5F8]"
     >
       <div ref={pinRef} className="relative flex min-h-dvh flex-col justify-center py-8">
       <div className="mx-auto w-full max-w-6xl">
@@ -325,7 +325,7 @@ export const WorkExperience: React.FC = () => {
           </div>
         </div>
       </div>
-        <PixelCoverCanvas ref={coverRef} />
+        <PixelCoverCanvas ref={coverRef} background="#F3F5F8" />
       </div>
     </section>
   );

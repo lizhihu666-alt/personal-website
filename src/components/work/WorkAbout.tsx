@@ -103,7 +103,7 @@ export const WorkAbout: React.FC<WorkAboutProps> = ({ onSwitchToLife }) => {
           </button>
         </div>
       </div>
-        <PixelCoverCanvas ref={coverRef} />
+        <PixelCoverCanvas ref={coverRef} background="#F3F5F8" />
       </div>
     </section>
   );

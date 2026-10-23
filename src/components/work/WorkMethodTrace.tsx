@@ -633,7 +633,7 @@ export const WorkMethodTrace: React.FC = () => {
       id="work-method-trace"
       ref={sectionRef}
       aria-labelledby={headingId}
-      className="method-trace-section relative bg-[#0A0B0D]"
+      className="method-trace-section relative -mt-[100dvh] bg-[#0A0B0D]"
     >
       <h2 id={headingId} className="sr-only">
         方法：项目管理、IT 拉通、供应链协同与 AI 提效四条路径汇成一套中台
