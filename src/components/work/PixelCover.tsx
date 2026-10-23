@@ -8,7 +8,7 @@ import { PIXEL_COVER_VH, PIXEL_HOLD_VH } from './methodTraceTiming';
 // hook，每个交界处只需要说明「盖成什么颜色」。
 const CELL_SIZE = 80;
 // 方块盖满之后，这一层不是立刻消失，而是用这么长时间（秒）淡出，下一个板块的内容跟着渐显。
-const REVEAL_DURATION = 1;
+const REVEAL_DURATION = 1.3;
 
 const clamp01 = (value: number) => Math.min(1, Math.max(0, value));
 const smoothstep = (edge0: number, edge1: number, value: number) => {
