@@ -748,7 +748,7 @@ const WorkMethodTraceDesktop: React.FC = () => {
               <span>汇成一套可运行的中台</span>
             </h3>
             <p className="method-trace-outcome-copy">
-              从招商入驻、SaaS 迁站到自研商家中心，再用 AI 工具补上最后一段提效
+              项目管理拉主线，IT 打通系统，<br />供应链保障履约，AI 补上提效
             </p>
             <a
               ref={outcomeLinkRef}

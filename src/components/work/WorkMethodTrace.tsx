@@ -65,7 +65,7 @@ export const WorkMethodTrace: React.FC = () => {
               <span className="text-[#34D378]">汇成一套可运行的中台</span>
             </h2>
             <p className="type-body mt-4 text-[#A8B0BC]">
-              从招商入驻、SaaS 迁站到自研商家中心，再用 AI 工具补上最后一段提效
+              项目管理拉主线，IT 打通系统，<br />供应链保障履约，AI 补上提效
             </p>
             <a
               href="#work-about"
