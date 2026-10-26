@@ -287,8 +287,24 @@
   .contact-profile-card .pc-behind {
     display: none;
   }
+  /* 背景模糊要对后面一直在动的首页画布逐帧重算，手机上去掉，改用更不透明的遮罩。 */
   .contact-modal-backdrop {
-    -webkit-backdrop-filter: blur(6px);
-    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+    background: rgba(5, 8, 7, 0.9);
+  }
+
+  /* 全息层靠 color-dodge / difference / overlay 等混合模式叠在 3D 翻转的卡片上，手机 GPU 上容易闪。
+     手机上换成静态的半透明 LEO 水印（保留遮罩形状），不用任何混合模式和滤镜。 */
+  .contact-profile-card .pc-shine {
+    mix-blend-mode: normal;
+    filter: none;
+    background-image: none;
+    background-color: rgba(120, 255, 180, 0.07);
+  }
+  .contact-profile-card .pc-shine::before,
+  .contact-profile-card .pc-shine::after,
+  .contact-profile-card .pc-glare {
+    display: none;
   }
 }

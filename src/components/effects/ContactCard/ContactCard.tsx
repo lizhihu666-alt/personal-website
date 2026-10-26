@@ -72,6 +72,8 @@ export function ContactCard({
   const [flipped, setFlipped] = useState(false);
   const [qrFailed, setQrFailed] = useState(false);
   const [reduced] = useState(() => isReducedMotion());
+  // 触屏设备没有悬停，倾斜/反光跟手指走没有意义，还会让混合层在手指按住时不断重绘，直接关掉。
+  const [touchOnly] = useState(() => typeof window !== 'undefined' && window.matchMedia('(hover: none)').matches);
 
   return (
     <div className="contact-flip-wrap">
@@ -91,7 +93,7 @@ export function ContactCard({
               iconUrl={LEO_WATERMARK}
               showMiniAvatar={false}
               showUserInfo
-              enableTilt={!reduced}
+              enableTilt={!reduced && !touchOnly}
               enableMobileTilt={false}
               behindGlowEnabled
               behindGlowColor={GREEN_GLOW}

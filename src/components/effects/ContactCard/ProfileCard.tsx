@@ -128,7 +128,8 @@ const ProfileCardComponent: React.FC<ProfileCardProps> = ({
 
       const stillFar = Math.abs(targetX - currentX) > 0.05 || Math.abs(targetY - currentY) > 0.05;
 
-      if (stillFar || document.hasFocus()) {
+      // 只在还没追上目标位置时继续逐帧更新；追上之后立刻停下，不再每帧重写 CSS 变量（会让整张卡的混合层持续重绘）。
+      if (stillFar) {
         rafId = requestAnimationFrame(step);
       } else {
         running = false;
