@@ -202,7 +202,7 @@ export const ProjectImmersive: React.FC<ProjectImmersiveProps> = ({
           <div className="mx-auto flex h-16 max-w-6xl items-center justify-between gap-3">
             <span className="flex shrink-0 items-center gap-2 whitespace-nowrap py-1">
               <span className="text-lg font-bold tracking-tight text-[#0E7C3D] sm:text-[19px]">Leo Hu</span>
-              <span className="hidden text-sm text-[#5B6472] sm:inline-block">/ 胡利致</span>
+              <span className="hidden text-[16.5px] font-bold tracking-tight text-[#0E7C3D] sm:inline-block sm:text-[17.5px]">/ 胡利致</span>
             </span>
             <button
               ref={closeButtonRef}
@@ -260,7 +260,7 @@ export const ProjectImmersive: React.FC<ProjectImmersiveProps> = ({
               )}
             </div>
 
-            <div className="lg:col-span-8">
+            <div className="lg:col-span-8" style={{ fontSize: '0.92em' }}>
               <div className="project-stage-reveal grid grid-cols-[4.5em_1fr] gap-4 pb-[0.75em]">
                 <div>
                   <h3 className="text-[0.95em] font-semibold text-white">情境</h3>
