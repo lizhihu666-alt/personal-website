@@ -106,7 +106,13 @@ export const WorkContact: React.FC<WorkContactProps> = ({ onOpenResume }) => {
             <div>
               <div className="type-label text-[#A8B0BC]">邮箱</div>
               <div className="type-body mt-3 font-medium text-[#F3F5F8] break-words">
-                {WORK_DATA.contact.email}
+                <a
+                  id="contact-mailto-link"
+                  href={`mailto:${WORK_DATA.contact.email}`}
+                  className="underline decoration-[#3A424E] underline-offset-4 transition-colors hover:text-[#34D378] hover:decoration-[#34D378]"
+                >
+                  {WORK_DATA.contact.email}
+                </a>
               </div>
             </div>
             <button

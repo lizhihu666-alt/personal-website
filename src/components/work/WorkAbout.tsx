@@ -2,7 +2,7 @@ import React, { useRef, useLayoutEffect } from 'react';
 import { ArrowRight } from 'lucide-react';
 import { gsap, isReducedMotion } from '../../utils/gsapSetup';
 import { resetPointerMotion, updatePointerMotion } from '../../utils/pointerMotion';
-import leoHeadshot from '../../assets/photos/leo-headshot.jpg';
+import leoHeadshot from '../../assets/photos/leo-headshot.webp';
 import { PixelCoverCanvas, usePixelCover } from './PixelCover';
 
 interface WorkAboutProps {

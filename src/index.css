@@ -615,12 +615,16 @@
   /* 隔离：只有简历弹窗打开时，才把页面上其它所有内容藏起来。
      弹窗和作品集首页是"兄弟节点"，不藏的话第一屏会先打出作品集首页，
      简历被排到十几屏之后，浏览器就只截到那一屏。 */
-  html:has(.resume-print-root) #root > div > *:not(.resume-print-root) {
+  /* 弹窗外面还套着点击火花等包装层，所以不能写死层级：藏掉弹窗的所有兄弟节点，
+     再把弹窗的各级祖先都还原成普通的块级白底，以及藏掉点击火花的画布。 */
+  html:has(.resume-print-root) :has(> .resume-print-root) > :not(.resume-print-root),
+  html:has(.resume-print-root) #root canvas {
     display: none !important;
   }
-  html:has(.resume-print-root) #root > div {
+  html:has(.resume-print-root) #root :has(.resume-print-root) {
     display: block !important;
     min-height: 0 !important;
+    height: auto !important;
     background: #ffffff !important;
   }
   /* 打开弹窗时脚本会把 body 锁成 fixed 来禁止背景滚动，打印时要把这个锁解开 */

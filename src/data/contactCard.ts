@@ -1,4 +1,4 @@
-import avatarUrl from '../assets/photos/leo-card-avatar.jpg';
+import avatarUrl from '../assets/photos/leo-card-avatar.webp';
 import { WORK_DATA } from './portfolioData';
 
 export const CONTACT_CARD_PROPS = {
@@ -7,7 +7,7 @@ export const CONTACT_CARD_PROPS = {
   status: '商家入驻 · 项目运营 · AI 提效',
   contactText: '添加微信',
   avatarUrl,
-  qrUrl: '/photos/wechat-qr.jpg',
+  qrUrl: '/photos/wechat-qr.webp',
   qrAlt: 'Leo Hu 的微信二维码',
   qrTitle: '胡利致',
   qrCaption: '扫码添加微信',

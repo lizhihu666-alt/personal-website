@@ -37,16 +37,43 @@ type ViewTransitionDocument = Document & {
   };
 };
 
+// 加载页只给第一次来的人演：看过之后 12 小时内再打开（刷新、回访）直接进入，不再重复等 3 秒。
+// 带 ?print=resume 的链接（生成 PDF 简历用）也直接跳过。
+const INTRO_SEEN_KEY = 'leo-intro-seen-at';
+const INTRO_TTL_MS = 12 * 60 * 60 * 1000;
+
+const shouldPlayIntro = () => {
+  if (isReducedMotion()) return false;
+  if (new URLSearchParams(window.location.search).get('print') === 'resume') return false;
+  try {
+    const seenAt = Number(window.localStorage.getItem(INTRO_SEEN_KEY));
+    return !(seenAt && Date.now() - seenAt < INTRO_TTL_MS);
+  } catch {
+    return true;
+  }
+};
+
+const markIntroSeen = () => {
+  try {
+    window.localStorage.setItem(INTRO_SEEN_KEY, String(Date.now()));
+  } catch {
+    // 隐私模式等拿不到 localStorage 时就算了，下次再演一遍
+  }
+};
+
 export default function App() {
   // 全站唯一一次加载页：人脸<->LEO 变形循环播完之前，下面整棵应用树都
   // 不挂载——不是叠在首页上面的角标动效，是真正的开场门槛。
   // reduced-motion 时直接跳过，不显示这一屏。
-  const [isLoading, setIsLoading] = useState(() => !isReducedMotion());
+  const [isLoading, setIsLoading] = useState(shouldPlayIntro);
 
   // Navigation & Mode state
   const [currentMode, setCurrentMode] = useState<AppMode>('home');
   const [transitioningTo, setTransitioningTo] = useState<'work' | 'life' | null>(null);
-  const [isResumeModalOpen, setIsResumeModalOpen] = useState(false);
+  // ?print=resume：直接打开简历弹窗，用于用无头浏览器生成 public/resume.pdf（见 package.json 的 resume:pdf）。
+  const [isResumeModalOpen, setIsResumeModalOpen] = useState(
+    () => new URLSearchParams(window.location.search).get('print') === 'resume'
+  );
 
   // Independent scroll position memories
   const scrollPositions = useRef<{ work: number; life: number }>({ work: 0, life: 0 });
@@ -289,7 +316,14 @@ export default function App() {
   };
 
   if (isLoading) {
-    return <LoadingScreen onDone={() => setIsLoading(false)} />;
+    return (
+      <LoadingScreen
+        onDone={() => {
+          markIntroSeen();
+          setIsLoading(false);
+        }}
+      />
+    );
   }
 
   return (

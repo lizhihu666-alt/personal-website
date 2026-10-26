@@ -181,11 +181,21 @@ export const WorkResumeModal: React.FC<WorkResumeModalProps> = ({ isOpen, onClos
             <button
               id="resume-btn-print"
               onClick={handlePrint}
-              className="flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-mono uppercase tracking-wider bg-[#0E7C3D] text-white hover:bg-[#0A6631] rounded-md transition-colors shadow-xs"
+              className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-mono uppercase tracking-wider text-[#A8B0BC] hover:text-[#F3F5F8] hover:bg-black/5 rounded-md transition-colors"
             >
               <Printer className="w-3.5 h-3.5" />
-              <span>打印 / 另存为 PDF</span>
+              <span>打印</span>
             </button>
+
+            <a
+              id="resume-btn-download"
+              href="/resume.pdf"
+              download="胡利致-简历.pdf"
+              className="flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-mono uppercase tracking-wider bg-[#0E7C3D] text-white hover:bg-[#0A6631] rounded-md transition-colors shadow-xs"
+            >
+              <Download className="w-3.5 h-3.5" />
+              <span>下载 PDF</span>
+            </a>
 
             <button
               id="resume-btn-close"
