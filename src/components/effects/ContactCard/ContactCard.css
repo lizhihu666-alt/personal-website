@@ -302,6 +302,16 @@
     background-image: none;
     background-color: rgba(120, 255, 180, 0.07);
   }
+  /* 照片上那层深绿色罩（桌面端的设计）在手机上会把人脸染绿，手机上只留中性的上下渐暗，保证肤色自然。 */
+  .contact-profile-card .pc-scrim {
+    background: linear-gradient(to bottom, rgba(0, 0, 0, 0.32) 0%, rgba(0, 0, 0, 0) 26%, rgba(0, 0, 0, 0) 55%, rgba(0, 0, 0, 0.5) 100%);
+  }
+
+  /* 手机屏幕本来就小，名片缩小一些，周围留出呼吸空间。 */
+  .contact-modal-panel {
+    max-width: 17rem;
+  }
+
   .contact-profile-card .pc-shine::before,
   .contact-profile-card .pc-shine::after,
   .contact-profile-card .pc-glare {
