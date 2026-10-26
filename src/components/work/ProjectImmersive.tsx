@@ -208,7 +208,7 @@ export const ProjectImmersive: React.FC<ProjectImmersiveProps> = ({
               ref={closeButtonRef}
               type="button"
               onClick={requestClose}
-              className="group inline-flex min-h-11 items-center gap-3 rounded-full bg-[#0E7C3D] py-1.5 pl-5 pr-1.5 text-sm font-semibold text-white transition-colors hover:bg-[#0A5C2E] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0E7C3D]"
+              className="group inline-flex min-h-11 items-center gap-3 rounded-full bg-[#0E7C3D] py-1.5 pl-5 pr-1.5 text-sm font-normal text-white transition-colors hover:bg-[#0A5C2E] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0E7C3D]"
             >
               <span>关闭案例</span>
               <span className="flex h-8 w-8 items-center justify-center rounded-full bg-white text-[#0E7C3D] transition-transform duration-200 group-hover:rotate-90">
