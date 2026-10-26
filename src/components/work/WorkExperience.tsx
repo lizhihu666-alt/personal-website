@@ -102,10 +102,10 @@ export const WorkExperience: React.FC = () => {
       ref={sectionRef}
       className="relative md:-mt-[100dvh] px-6 sm:px-10 lg:px-16 bg-[#F3F5F8]"
     >
-      <div ref={pinRef} className="relative flex flex-col justify-center pb-14 pt-6 md:min-h-dvh">
+      <div ref={pinRef} className="relative flex flex-col justify-center pb-14 pt-6 md:min-h-dvh md:pb-11 md:pt-[4.5rem]">
       <div className="mx-auto w-full max-w-6xl">
         <div className="mb-6 max-w-5xl sm:mb-6">
-          <h2 ref={headingRef} className="type-section-sm text-[#0A0B0D]">
+          <h2 ref={headingRef} className="type-section-sm text-[#0A0B0D] [@media(max-height:820px)]:text-[2.25rem]">
             从审计、业务、<span className="whitespace-nowrap">产品</span>、数据到
             <span className="whitespace-nowrap">跨境电商</span>，
             <span className="text-[#0E7C3D]">每一站都在把复杂的事理顺</span>
@@ -148,7 +148,7 @@ export const WorkExperience: React.FC = () => {
             })}
           </div>
 
-          <div id="work-experience-list" role="tabpanel" aria-labelledby={`work-experience-tab-${tab}`} className="career-track-list min-h-[450px]">
+          <div id="work-experience-list" role="tabpanel" aria-labelledby={`work-experience-tab-${tab}`} className="career-track-list min-h-[450px] [@media(max-height:820px)]:min-h-[380px]">
             {tab === 'work' &&
               experiences.map((exp, index) => {
               // 所有经历默认折叠，只露出岗位/公司/时间/地点，点展开按钮再看简介和关键交付。
@@ -166,7 +166,7 @@ export const WorkExperience: React.FC = () => {
                       onClick={() => toggleExp(exp.id)}
                       aria-expanded={isExpanded}
                       aria-controls={`work-experience-panel-${exp.id}`}
-                      className="group min-h-[90px] w-full px-0 py-3 text-left sm:py-3.5"
+                      className="group min-h-[90px] [@media(max-height:820px)]:min-h-[72px] [@media(max-height:760px)]:!py-1.5 w-full px-0 py-3 text-left sm:py-3.5"
                     >
                       <div className="grid gap-2 lg:grid-cols-12 lg:items-center lg:gap-8">
                         <div className="relative lg:col-span-8">
@@ -252,7 +252,7 @@ export const WorkExperience: React.FC = () => {
                     onClick={() => toggleExp(edu.institution)}
                     aria-expanded={edu.institution === expandedExpId}
                     aria-controls={`work-education-panel-${index}`}
-                    className="flex min-h-[90px] w-full flex-col justify-center gap-2 py-3 text-left sm:flex-row sm:items-center sm:justify-between sm:gap-6 sm:py-3.5"
+                    className="flex min-h-[90px] [@media(max-height:820px)]:min-h-[72px] [@media(max-height:760px)]:!py-1.5 w-full flex-col justify-center gap-2 py-3 text-left sm:flex-row sm:items-center sm:justify-between sm:gap-6 sm:py-3.5"
                   >
                     <div className="relative min-w-0">
                       <div className="career-track-head flex flex-wrap items-baseline gap-x-4 gap-y-1">

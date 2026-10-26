@@ -140,7 +140,11 @@ export const ProjectImmersive: React.FC<ProjectImmersiveProps> = ({
 
     const previousOverflow = document.body.style.overflow;
     const previousActiveElement = document.activeElement as HTMLElement | null;
+    const previousPaddingRight = document.body.style.paddingRight;
+    // 锁滚动会让页面滚动条消失、主页顶栏整体右移；用右内边距补上滚动条宽度，打开瞬间主页不跳动。
+    const scrollbarWidth = window.innerWidth - document.documentElement.clientWidth;
     document.body.style.overflow = 'hidden';
+    if (scrollbarWidth > 0) document.body.style.paddingRight = `${scrollbarWidth}px`;
 
     const getFocusableElements = () => {
       const elements: HTMLElement[] = Array.from(
@@ -185,6 +189,7 @@ export const ProjectImmersive: React.FC<ProjectImmersiveProps> = ({
 
     return () => {
       document.body.style.overflow = previousOverflow;
+      document.body.style.paddingRight = previousPaddingRight;
       document.removeEventListener('keydown', handleKeyDown);
       window.cancelAnimationFrame(focusFrame);
       previousActiveElement?.focus();
@@ -206,32 +211,23 @@ export const ProjectImmersive: React.FC<ProjectImmersiveProps> = ({
         className="pointer-events-none absolute inset-0 h-full w-full opacity-80"
       />
 
+      {/* 滚动条槽位透出的是底下的绿色，白色顶栏要铺满整行，这里垫一条白底。 */}
+      <div aria-hidden="true" className="absolute inset-x-0 top-0 h-16 bg-white" />
+
       <div ref={scrollRef} data-lenis-prevent className="relative h-full overflow-y-auto overscroll-contain [scrollbar-gutter:stable]">
         <header className="sticky top-0 z-30 bg-white px-6 sm:px-10 lg:px-16">
           <div className="mx-auto flex h-16 max-w-6xl items-center justify-between gap-3">
             <span className="flex shrink-0 items-center gap-2 whitespace-nowrap py-1">
               <span className="text-lg font-bold tracking-tight text-[#0E7C3D] sm:text-[19px]">Leo Hu</span>
-              <span className="hidden text-[16.5px] font-bold tracking-tight text-[#0E7C3D] sm:inline-block sm:text-[17.5px]">/ 胡利致</span>
+              <span className="hidden text-sm font-bold text-[#0E7C3D] sm:inline-block">/ 胡利致</span>
             </span>
-            <button
-              type="button"
-              onClick={openMenu}
-              aria-label="打开菜单"
-              className="relative flex min-h-11 min-w-11 shrink-0 items-center justify-center text-[#0E7C3D] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0E7C3D]"
-            >
-              <span aria-hidden="true" className="relative block h-4 w-5">
-                <span className="absolute left-0 top-0 h-0.5 w-full rounded-sm bg-current" />
-                <span className="absolute left-0 top-1/2 -mt-px h-0.5 w-full rounded-sm bg-current" />
-                <span className="absolute bottom-0 left-0 h-0.5 w-full rounded-sm bg-current" />
-              </span>
-            </button>
           </div>
         </header>
 
-        <section className="project-immersive-stage flex min-h-[calc(100dvh-4rem)] items-center px-6 pb-28 pt-6 sm:px-10 lg:px-16">
+        <section className="project-immersive-stage flex min-h-[calc(100dvh-4rem)] items-center px-6 pb-24 pt-6 sm:px-10 lg:px-16">
           <div
             className="project-stage-content mx-auto grid w-full max-w-7xl grid-cols-1 gap-8 lg:grid-cols-12 lg:gap-14"
-            style={{ fontSize: 'clamp(14px, min(2.3vh, 1.4vw), 22px)' }}
+            style={{ fontSize: 'clamp(14px, min(2.4vh, 1.55vw), 24px)' }}
           >
             <div className="lg:col-span-4">
               <h2
@@ -309,12 +305,27 @@ export const ProjectImmersive: React.FC<ProjectImmersiveProps> = ({
         </section>
       </div>
 
+      {/* 菜单按钮：位置和尺寸与主页顶栏的菜单按钮（StaggeredMenu：右内边距 2.5rem、44px）完全一致，
+          所以放在滚动区外，不受滚动条槽位影响。 */}
+      <button
+        type="button"
+        onClick={openMenu}
+        aria-label="打开菜单"
+        className="absolute right-10 top-2.5 z-30 flex h-11 w-11 items-center justify-center text-[#0E7C3D] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0E7C3D]"
+      >
+        <span aria-hidden="true" className="relative block h-4 w-5">
+          <span className="absolute left-0 top-0 h-0.5 w-full rounded-sm bg-current" />
+          <span className="absolute left-0 top-1/2 -mt-px h-0.5 w-full rounded-sm bg-current" />
+          <span className="absolute bottom-0 left-0 h-0.5 w-full rounded-sm bg-current" />
+        </span>
+      </button>
+
       <button
         ref={closeButtonRef}
         type="button"
         onClick={requestClose}
         aria-label="关闭案例"
-        className="group absolute bottom-12 left-1/2 z-30 flex -translate-x-1/2 items-center rounded-full bg-white p-[3px] text-sm text-[#0E7C3D] shadow-[0_4px_16px_rgba(0,0,0,0.18)] transition-colors hover:bg-white/90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+        className="group absolute bottom-12 left-1/2 z-30 flex -translate-x-1/2 items-center rounded-full bg-white p-[2px] text-sm text-[#0E7C3D] shadow-[0_4px_16px_rgba(0,0,0,0.18)] transition-colors hover:bg-white/90 focus-visible:outline focus-visible:outline-1 focus-visible:outline-offset-2 focus-visible:outline-white"
       >
         <span className="max-w-0 overflow-hidden whitespace-nowrap pl-0 opacity-0 transition-[max-width,opacity,padding] duration-300 ease-out group-hover:max-w-[6rem] group-hover:pl-3.5 group-hover:pr-2 group-hover:opacity-100 group-focus-visible:max-w-[6rem] group-focus-visible:pl-3.5 group-focus-visible:pr-2 group-focus-visible:opacity-100">
           关闭案例
