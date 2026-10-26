@@ -52,6 +52,15 @@ export const ProjectImmersive: React.FC<ProjectImmersiveProps> = ({
     });
   }, [onClose, origin.bottom, origin.left, origin.right, origin.top]);
 
+  // 站点菜单挂在主页顶栏里、被案例弹层盖住了：先收起案例，再点开主页顶栏的菜单按钮。
+  const openMenu = useCallback(() => {
+    requestClose();
+    window.setTimeout(
+      () => document.querySelector<HTMLButtonElement>('.sm-toggle')?.click(),
+      isReducedMotion() ? 50 : 340
+    );
+  }, [requestClose]);
+
   useLayoutEffect(() => {
     const root = rootRef.current;
     const scroller = scrollRef.current;
@@ -204,6 +213,18 @@ export const ProjectImmersive: React.FC<ProjectImmersiveProps> = ({
               <span className="text-lg font-bold tracking-tight text-[#0E7C3D] sm:text-[19px]">Leo Hu</span>
               <span className="hidden text-[16.5px] font-bold tracking-tight text-[#0E7C3D] sm:inline-block sm:text-[17.5px]">/ 胡利致</span>
             </span>
+            <button
+              type="button"
+              onClick={openMenu}
+              aria-label="打开菜单"
+              className="relative flex min-h-11 min-w-11 shrink-0 items-center justify-center text-[#0E7C3D] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0E7C3D]"
+            >
+              <span aria-hidden="true" className="relative block h-4 w-5">
+                <span className="absolute left-0 top-0 h-0.5 w-full rounded-sm bg-current" />
+                <span className="absolute left-0 top-1/2 -mt-px h-0.5 w-full rounded-sm bg-current" />
+                <span className="absolute bottom-0 left-0 h-0.5 w-full rounded-sm bg-current" />
+              </span>
+            </button>
           </div>
         </header>
 
