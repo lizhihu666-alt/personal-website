@@ -60,8 +60,8 @@ export const WORK_DATA = {
   projects: [
     {
       id: "engage-hub",
-      title: "独立站中台",
-      subtitle: "招商部门中台从 0 到 1：统筹项目、IT 系统、供应链与商家运营",
+      title: "搭建独立站招商中台",
+      subtitle: "从 0 到 1 搭起招商中台，把 9 类系统、多个团队拉进同一条履约链路",
       category: "跨境平台 · 中台架构",
       period: "2024.06 - 至今",
       tags: ["中台搭建", "供应链协同", "WMS/OMS/ERP", "9610 退税", "数据看板"],
@@ -77,14 +77,14 @@ export const WORK_DATA = {
       system: "形成覆盖入库、运费、关务、退货的履约链路，以及商品、库存、销售三类数据看板。",
       result: "支撑 20+ 品牌入驻与迁移，迁站后单季度 GMV 达 200 万美元，0 起重大事故。",
       metrics: [
-        { value: "8+", label: "系统适配改造", note: "协调 9 类系统团队完成的适配改造数量" },
+        { value: "8+", label: "套系统完成适配改造", note: "协调 9 类系统团队完成的适配改造数量" },
       ],
       whatILearned: "中台项目的难点往往不在代码，而在于让业务、IT、供应链和海外团队说同一种语言；牵头人要做的是把需求翻译清楚。",
     },
     {
       id: "system-migration",
-      title: "SaaS 选型迁站",
-      subtitle: "从多家海外 SaaS 中选型，并把老系统平稳迁到 Shopify",
+      title: "主导 SaaS 选型与迁站",
+      subtitle: "比选 6+ 家海外 SaaS 定方案，带 6 个品牌平稳迁上 Shopify",
       category: "基础设施 · 系统选型 · 迁站",
       period: "2024",
       tags: ["SaaS 选型", "Shopify 迁站", "API 集成", "英语协作", "零重大事故"],
@@ -106,8 +106,8 @@ export const WORK_DATA = {
     },
     {
       id: "brand-onboarding",
-      title: "品牌入驻体系",
-      subtitle: "标准化 Onboarding SOP，并推动品牌从 SaaS 切换到自研商家中心",
+      title: "标准化品牌入驻体系",
+      subtitle: "用一套 SOP 把入驻流程标准化，再带 20+ 品牌平稳切到自研商家中心",
       category: "流程架构 · 标准化运营",
       period: "2024 - 至今",
       tags: ["Onboarding SOP", "合同模板", "商家中心", "知识库", "分批切流"],
@@ -130,8 +130,8 @@ export const WORK_DATA = {
     },
     {
       id: "ai-tools",
-      title: "AI 提效工具",
-      subtitle: "Chrome 插件 + RAG 问答助手，把重复工作交给工具",
+      title: "自研 AI 提效工具",
+      subtitle: "做出三个上线工具，把结算、答疑和审核里的重复劳动交给机器",
       category: "AI 辅助开发 · 运营提效",
       period: "2024 - 至今",
       tags: ["Claude Code", "RAG", "Chrome 插件", "知识库", "自助化"],

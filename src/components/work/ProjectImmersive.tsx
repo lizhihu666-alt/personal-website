@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useId, useLayoutEffect, useRef, useState } from 'react';
-import { ArrowDown, X } from 'lucide-react';
+import { X } from 'lucide-react';
 import { ProjectCaseStudy } from '../../types';
 import { gsap, isReducedMotion, ScrollTrigger } from '../../utils/gsapSetup';
 import { ProjectSystemField } from './ProjectSystemField';
@@ -25,8 +25,6 @@ export const ProjectImmersive: React.FC<ProjectImmersiveProps> = ({
   const rootRef = useRef<HTMLDivElement>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
   const closeButtonRef = useRef<HTMLButtonElement>(null);
-  const progressRef = useRef<HTMLDivElement>(null);
-  const verticalProgressRef = useRef<HTMLDivElement>(null);
   const closingRef = useRef(false);
   const [isClosing, setIsClosing] = useState(false);
   const headingId = useId();
@@ -135,17 +133,6 @@ export const ProjectImmersive: React.FC<ProjectImmersiveProps> = ({
     const previousActiveElement = document.activeElement as HTMLElement | null;
     document.body.style.overflow = 'hidden';
 
-    const updateProgress = () => {
-      const maxScroll = scroller.scrollHeight - scroller.clientHeight;
-      const progress = maxScroll > 0 ? scroller.scrollTop / maxScroll : 0;
-      if (progressRef.current) {
-        progressRef.current.style.transform = `scaleX(${progress})`;
-      }
-      if (verticalProgressRef.current) {
-        verticalProgressRef.current.style.transform = `scaleY(${progress})`;
-      }
-    };
-
     const getFocusableElements = () => {
       const elements: HTMLElement[] = Array.from(
         root.querySelectorAll(
@@ -184,15 +171,12 @@ export const ProjectImmersive: React.FC<ProjectImmersiveProps> = ({
       }
     };
 
-    scroller.addEventListener('scroll', updateProgress, { passive: true });
     document.addEventListener('keydown', handleKeyDown);
-    updateProgress();
     const focusFrame = window.requestAnimationFrame(() => closeButtonRef.current?.focus());
 
     return () => {
       document.body.style.overflow = previousOverflow;
       document.removeEventListener('keydown', handleKeyDown);
-      scroller.removeEventListener('scroll', updateProgress);
       window.cancelAnimationFrame(focusFrame);
       previousActiveElement?.focus();
     };
@@ -205,7 +189,7 @@ export const ProjectImmersive: React.FC<ProjectImmersiveProps> = ({
       aria-modal="true"
       aria-labelledby={headingId}
       tabIndex={-1}
-      className="fixed inset-0 z-[80] overflow-hidden bg-[#0E7C3D] text-white"
+      className="fixed inset-0 z-[120] overflow-hidden bg-[#0E7C3D] text-white"
       data-state={isClosing ? 'closing' : 'open'}
     >
       <ProjectSystemField
@@ -213,7 +197,7 @@ export const ProjectImmersive: React.FC<ProjectImmersiveProps> = ({
         className="pointer-events-none absolute inset-0 h-full w-full opacity-80"
       />
 
-      <div ref={scrollRef} className="relative h-full overflow-y-auto overscroll-contain">
+      <div ref={scrollRef} data-lenis-prevent className="relative h-full overflow-y-auto overscroll-contain">
         <header className="sticky top-0 z-30 bg-[#0E7C3D] px-6 sm:px-10 lg:px-16">
           <div className="mx-auto flex h-16 max-w-7xl items-center justify-between sm:h-20">
             <span className="type-label text-white/75">Leo Hu / 项目案例</span>
@@ -228,128 +212,83 @@ export const ProjectImmersive: React.FC<ProjectImmersiveProps> = ({
             </button>
           </div>
           <div className="absolute bottom-0 left-0 h-px w-full bg-white/20" />
-          <div
-            ref={progressRef}
-            className="absolute bottom-0 left-0 h-px w-full origin-left bg-work-proof"
-            style={{ transform: 'scaleX(0)' }}
-            aria-hidden="true"
-          />
         </header>
 
-        <div className="project-scroll-rail pointer-events-none absolute bottom-4 top-24 hidden lg:block" aria-hidden="true">
-          <div ref={verticalProgressRef} className="project-scroll-rail-progress" />
-        </div>
+        <section className="project-immersive-stage flex min-h-[calc(100dvh-5rem)] items-center px-6 py-6 sm:px-10 lg:px-16">
+          <div
+            className="project-stage-content mx-auto grid w-full max-w-7xl grid-cols-1 gap-8 lg:grid-cols-12 lg:gap-14"
+            style={{ fontSize: 'clamp(14px, min(2.3vh, 1.4vw), 22px)' }}
+          >
+            <div className="lg:col-span-4">
+              <h2
+                id={headingId}
+                className="project-stage-reveal font-semibold leading-[1.15] text-white"
+                style={{ fontSize: 'clamp(1.9rem, 2.6em + 0.6vw, 3.1rem)' }}
+              >
+                {project.title}
+              </h2>
+              <p className="project-stage-reveal mt-4 max-w-[34rem] text-[1.12em] leading-[1.7] text-white/90">
+                {project.subtitle}
+              </p>
 
-        <section className="project-immersive-stage flex min-h-[100dvh] items-center px-6 py-24 sm:px-10 lg:px-16">
-          <div className="project-stage-content mx-auto w-full max-w-6xl">
-            <div className="project-stage-reveal type-meta text-white/75">
-              {project.period} · {project.category}
-            </div>
-            <h2
-              id={headingId}
-              className="project-stage-reveal type-display mt-5 max-w-[12ch] text-white"
-            >
-              {project.title}
-            </h2>
-            <p className="project-stage-reveal type-lead mt-7 max-w-[50rem] text-white/90">
-              {project.subtitle}
-            </p>
-
-            {primaryMetric && (
-              <div className="project-stage-reveal mt-12 flex flex-wrap items-end gap-x-6 gap-y-3 border-t border-white/25 pt-7">
-                <span className="type-number text-6xl font-semibold leading-none text-work-proof sm:text-8xl">
-                  {primaryMetric.value}
-                </span>
-                <span className="type-body pb-1 text-white/85">{primaryMetric.label}</span>
-              </div>
-            )}
-
-            <div className="project-stage-reveal mt-16 inline-flex items-center gap-3 text-sm text-white/75">
-              <span>向下滚动，查看系统如何落地</span>
-              <ArrowDown className="h-4 w-4" aria-hidden="true" />
-            </div>
-          </div>
-        </section>
-
-        <section className="project-immersive-stage flex min-h-[100dvh] items-center border-t border-white/25 px-6 py-24 sm:px-10 lg:px-16">
-          <div className="project-stage-content mx-auto grid w-full max-w-6xl grid-cols-1 gap-8 lg:grid-cols-12 lg:gap-16">
-            <div className="project-stage-reveal lg:col-span-4">
-              <h3 className="type-section">问题</h3>
-              <span className="project-stage-rule" aria-hidden="true" />
-            </div>
-            <p className="project-stage-reveal type-lead lg:col-span-8 max-w-[54rem] text-white/90">
-              {project.problem}
-            </p>
-          </div>
-        </section>
-
-        <section className="project-immersive-stage flex min-h-[100dvh] items-center border-t border-white/25 px-6 py-24 sm:px-10 lg:px-16">
-          <div className="project-stage-content mx-auto w-full max-w-6xl">
-            <div className="grid grid-cols-1 gap-8 lg:grid-cols-12 lg:gap-16">
-              <div className="project-stage-reveal lg:col-span-4">
-                <h3 className="type-section">系统</h3>
-                <span className="project-stage-rule" aria-hidden="true" />
-              </div>
-              <div className="lg:col-span-8">
-                <p className="project-stage-reveal type-lead max-w-[54rem] text-white/90">
-                  {project.system ?? project.context}
-                </p>
-                {project.whatIDid.length > 0 && (
-                  <ul className="project-stage-reveal mt-12 grid grid-cols-1 gap-x-10 gap-y-6 md:grid-cols-2">
-                    {project.whatIDid.map((action) => (
-                      <li key={action} className="relative pl-5 text-base leading-7 text-white/80">
-                        <span className="absolute left-0 top-[0.78em] h-1.5 w-1.5 rounded-full bg-white" />
-                        {action}
-                      </li>
-                    ))}
-                  </ul>
-                )}
-              </div>
-            </div>
-          </div>
-        </section>
-
-        <section className="project-immersive-stage flex min-h-[100dvh] items-center border-t border-white/25 px-6 py-24 sm:px-10 lg:px-16">
-          <div className="project-stage-content mx-auto w-full max-w-6xl">
-            <div className="grid grid-cols-1 gap-8 lg:grid-cols-12 lg:gap-16">
-              <div className="project-stage-reveal lg:col-span-4">
-                <h3 className="type-section text-work-proof">结果</h3>
-                <span className="project-stage-rule project-stage-rule-proof" aria-hidden="true" />
-              </div>
-              <div className="lg:col-span-8">
-                <p className="project-stage-reveal type-lead max-w-[54rem] font-medium text-white">
-                  {project.result}
-                </p>
-
-                {project.metrics && project.metrics.length > 0 && (
-                  <div className="project-stage-reveal mt-12 grid grid-cols-1 gap-8 border-t border-white/25 pt-8 sm:grid-cols-2">
-                    {project.metrics.map((metric) => (
-                      <div key={metric.label}>
-                        <div className="type-number text-5xl font-semibold leading-none text-work-proof sm:text-6xl">
-                          {metric.value}
-                        </div>
-                        <div className="type-subheading mt-4 text-white">{metric.label}</div>
-                        {metric.note && metric.note !== metric.label && (
-                          <p className="type-meta mt-2 text-white/70">{metric.note}</p>
-                        )}
+              {project.metrics && project.metrics.length > 0 && (
+                <div className="project-stage-reveal mt-7 flex flex-wrap gap-x-10 gap-y-4">
+                  {project.metrics.map((metric) => (
+                    <div key={metric.label}>
+                      <div className="type-number text-[3.6em] font-semibold leading-none text-work-proof">
+                        {metric.value}
                       </div>
-                    ))}
-                  </div>
-                )}
+                      <div className="mt-2 text-[0.95em] text-white/85">{metric.label}</div>
+                    </div>
+                  ))}
+                </div>
+              )}
 
-                {project.whatILearned && (
-                  <p className="project-stage-reveal type-body mt-12 max-w-[48rem] text-white/75">
-                    {project.whatILearned}
-                  </p>
-                )}
+              {project.tags.length > 0 && (
+                <ul className="project-stage-reveal mt-6 flex flex-wrap gap-2">
+                  {project.tags.map((tag) => (
+                    <li key={tag} className="rounded-full border border-white/30 px-3.5 py-1 text-[0.82em] text-white/80">
+                      {tag}
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
 
-                <button
-                  type="button"
-                  onClick={requestClose}
-                  className="project-stage-reveal mt-14 inline-flex min-h-11 items-center gap-2 rounded-xl border border-white/35 px-5 py-3 text-sm font-medium text-white transition-colors hover:border-white hover:bg-white/10"
-                >
-                  返回项目列表
-                </button>
+            <div className="lg:col-span-8">
+              <div className="project-stage-reveal grid grid-cols-[4.5em_1fr] gap-4 pb-[0.75em]">
+                <div>
+                  <h3 className="text-[0.95em] font-semibold text-white">情境</h3>
+                </div>
+                <div className="text-[1em] leading-[1.75] text-white/85">
+                  <p>{project.context}</p>
+                  <p className="mt-[0.4em] text-white/70">{project.problem}</p>
+                </div>
+              </div>
+              <div className="project-stage-reveal grid grid-cols-[4.5em_1fr] gap-4 border-t border-white/25 py-[0.75em]">
+                <div>
+                  <h3 className="text-[0.95em] font-semibold text-white">任务</h3>
+                </div>
+                <p className="text-[1em] leading-[1.75] text-white/85">{project.myRole}</p>
+              </div>
+              <div className="project-stage-reveal grid grid-cols-[4.5em_1fr] gap-4 border-t border-white/25 py-[0.75em]">
+                <div>
+                  <h3 className="text-[0.95em] font-semibold text-white">行动</h3>
+                </div>
+                <ul className="space-y-[0.6em]">
+                  {project.whatIDid.map((action) => (
+                    <li key={action} className="relative pl-4 text-[1em] leading-[1.75] text-white/80">
+                      <span className="absolute left-0 top-[0.8em] h-1.5 w-1.5 rounded-full bg-white" />
+                      {action}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+              <div className="project-stage-reveal grid grid-cols-[4.5em_1fr] gap-4 border-t border-white/25 py-[0.75em]">
+                <div>
+                  <h3 className="text-[0.95em] font-semibold text-white">结果</h3>
+                </div>
+                <p className="text-[1em] font-normal leading-[1.75] text-white/85">{project.result}</p>
               </div>
             </div>
           </div>

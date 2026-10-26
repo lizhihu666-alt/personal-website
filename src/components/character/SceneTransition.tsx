@@ -44,7 +44,7 @@ export const SceneTransition: React.FC<SceneTransitionProps> = ({
     <div
       ref={overlayRef}
       id="transition-overlay"
-      className="fixed inset-0 z-50 bg-[#0A0B0D] opacity-0 pointer-events-none"
+      className="fixed inset-0 z-[130] bg-[#0A0B0D] opacity-0 pointer-events-none"
       aria-hidden="true"
     />
   );

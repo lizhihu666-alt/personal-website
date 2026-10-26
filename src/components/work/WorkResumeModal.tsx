@@ -136,7 +136,7 @@ export const WorkResumeModal: React.FC<WorkResumeModalProps> = ({ isOpen, onClos
 
   return (
     <div
-      className="resume-print-root fixed inset-0 z-50 overflow-y-auto bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 sm:p-6 resume-overlay-in"
+      className="resume-print-root fixed inset-0 z-[120] overflow-y-auto bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 sm:p-6 resume-overlay-in"
       onMouseDown={(event) => {
         if (event.target === event.currentTarget) onClose();
       }}

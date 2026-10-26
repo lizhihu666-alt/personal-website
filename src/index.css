@@ -347,7 +347,7 @@
   display: block;
   width: min(100%, 10rem);
   height: 1px;
-  margin-top: 1.5rem;
+  margin-top: 1rem;
   transform: scaleX(0);
   transform-origin: left;
   background: rgba(255, 255, 255, 0.42);
