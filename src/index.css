@@ -912,3 +912,13 @@
 .px-covering .scroll-cue {
   opacity: 0;
 }
+
+/* 菜单展开时，右侧阅读进度条和手机顶部的进度细条都先收起来，免得叠在白色菜单面板上。 */
+.reading-progress-nav {
+  transition: opacity 0.25s ease;
+}
+
+body:has(.staggered-menu-wrapper[data-open]) .reading-progress-nav {
+  opacity: 0;
+  pointer-events: none;
+}

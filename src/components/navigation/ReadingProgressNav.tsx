@@ -161,7 +161,7 @@ export const ReadingProgressNav: React.FC<ReadingProgressNavProps> = ({ currentM
   return (
     <>
       {/* Mobile Top Subtle Progress Bar */}
-      <div className="fixed top-0 left-0 right-0 h-[2px] z-[100] pointer-events-none lg:hidden bg-transparent">
+      <div className="reading-progress-nav fixed top-0 left-0 right-0 h-[2px] z-[100] pointer-events-none lg:hidden bg-transparent">
         <div
           className="h-full transition-all duration-150"
           style={{ width: `${progress * 100}%`, backgroundColor: ACTIVE_COLOR }}
@@ -171,7 +171,7 @@ export const ReadingProgressNav: React.FC<ReadingProgressNavProps> = ({ currentM
       {/* Desktop Vertical Minimalist Navigation on Right Edge */}
       <aside
         aria-label="章节阅读进度"
-        className="fixed right-6 top-1/2 -translate-y-1/2 z-[100] hidden lg:flex flex-col items-center py-4 select-none"
+        className="reading-progress-nav fixed right-6 top-1/2 -translate-y-1/2 z-[100] hidden lg:flex flex-col items-center py-4 select-none"
       >
         {/* Background Track Line */}
         <div className="relative w-[2px] h-48 bg-[#232A33] rounded-full flex flex-col justify-between py-1">
