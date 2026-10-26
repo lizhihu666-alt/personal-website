@@ -37,28 +37,10 @@ type ViewTransitionDocument = Document & {
   };
 };
 
-// 加载页只给第一次来的人演：看过之后 12 小时内再打开（刷新、回访）直接进入，不再重复等 3 秒。
-// 带 ?print=resume 的链接（生成 PDF 简历用）也直接跳过。
-const INTRO_SEEN_KEY = 'leo-intro-seen-at';
-const INTRO_TTL_MS = 12 * 60 * 60 * 1000;
-
+// 加载页每次打开都演；减少动态效果、或带 ?print=resume 的链接（生成 PDF 简历用）直接跳过。
 const shouldPlayIntro = () => {
   if (isReducedMotion()) return false;
-  if (new URLSearchParams(window.location.search).get('print') === 'resume') return false;
-  try {
-    const seenAt = Number(window.localStorage.getItem(INTRO_SEEN_KEY));
-    return !(seenAt && Date.now() - seenAt < INTRO_TTL_MS);
-  } catch {
-    return true;
-  }
-};
-
-const markIntroSeen = () => {
-  try {
-    window.localStorage.setItem(INTRO_SEEN_KEY, String(Date.now()));
-  } catch {
-    // 隐私模式等拿不到 localStorage 时就算了，下次再演一遍
-  }
+  return new URLSearchParams(window.location.search).get('print') !== 'resume';
 };
 
 export default function App() {
@@ -318,10 +300,7 @@ export default function App() {
   if (isLoading) {
     return (
       <LoadingScreen
-        onDone={() => {
-          markIntroSeen();
-          setIsLoading(false);
-        }}
+        onDone={() => setIsLoading(false)}
       />
     );
   }

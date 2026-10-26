@@ -204,22 +204,10 @@ export const ProjectImmersive: React.FC<ProjectImmersiveProps> = ({
               <span className="text-lg font-bold tracking-tight text-[#0E7C3D] sm:text-[19px]">Leo Hu</span>
               <span className="hidden text-[16.5px] font-bold tracking-tight text-[#0E7C3D] sm:inline-block sm:text-[17.5px]">/ 胡利致</span>
             </span>
-            <button
-              ref={closeButtonRef}
-              type="button"
-              onClick={requestClose}
-              className="group inline-flex min-h-11 items-center gap-3 rounded-full bg-[#0E7C3D] py-1.5 pl-5 pr-1.5 text-sm font-normal text-white transition-colors hover:bg-[#0A5C2E] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0E7C3D]"
-            >
-              <span>关闭案例</span>
-              <span className="flex h-8 w-8 items-center justify-center rounded-full bg-white text-[#0E7C3D] transition-transform duration-200 group-hover:rotate-90">
-                <X className="h-4 w-4" aria-hidden="true" />
-              </span>
-            </button>
           </div>
-          <div className="absolute bottom-0 left-0 h-px w-full bg-[#0E7C3D]/25" />
         </header>
 
-        <section className="project-immersive-stage flex min-h-[calc(100dvh-4rem)] items-center px-6 py-6 sm:px-10 lg:px-16">
+        <section className="project-immersive-stage flex min-h-[calc(100dvh-4rem)] items-center px-6 pb-28 pt-6 sm:px-10 lg:px-16">
           <div
             className="project-stage-content mx-auto grid w-full max-w-7xl grid-cols-1 gap-8 lg:grid-cols-12 lg:gap-14"
             style={{ fontSize: 'clamp(14px, min(2.3vh, 1.4vw), 22px)' }}
@@ -299,6 +287,21 @@ export const ProjectImmersive: React.FC<ProjectImmersiveProps> = ({
           </div>
         </section>
       </div>
+
+      <button
+        ref={closeButtonRef}
+        type="button"
+        onClick={requestClose}
+        aria-label="关闭案例"
+        className="group absolute bottom-12 left-1/2 z-30 flex -translate-x-1/2 items-center rounded-full bg-white p-[3px] text-sm text-[#0E7C3D] shadow-[0_4px_16px_rgba(0,0,0,0.18)] transition-colors hover:bg-white/90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+      >
+        <span className="max-w-0 overflow-hidden whitespace-nowrap pl-0 opacity-0 transition-[max-width,opacity,padding] duration-300 ease-out group-hover:max-w-[6rem] group-hover:pl-3.5 group-hover:pr-2 group-hover:opacity-100 group-focus-visible:max-w-[6rem] group-focus-visible:pl-3.5 group-focus-visible:pr-2 group-focus-visible:opacity-100">
+          关闭案例
+        </span>
+        <span className="flex h-8 w-8 items-center justify-center rounded-full bg-[#0E7C3D] text-white transition-transform duration-200 group-hover:rotate-90">
+          <X className="h-4 w-4" aria-hidden="true" />
+        </span>
+      </button>
     </div>
   );
 };
