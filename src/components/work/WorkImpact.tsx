@@ -130,17 +130,17 @@ export const WorkImpact: React.FC = () => {
     {
       num: '30%',
       title: '品牌上线周期缩短',
-      context: 'Onboarding SOP + 招商 Pipeline，启动 6 个月后平均缩短',
+      context: '入驻 SOP + 招商 Pipeline，6 个月内平均缩短',
     },
     {
       num: '20+',
       title: '品牌平稳过渡',
-      context: '从 SaaS 切换到自研商家中心，逐个把控切流节奏',
+      context: '表格 → 外采 SaaS → 自研系统，逐个把握切流',
     },
     {
-      num: '9套',
+      num: '6套',
       title: '可复用运营方案',
-      context: 'SaaS 运营 4 个月沉淀，成功跑通其中 6 套',
+      context: '上线 4 个月沉淀方案，成功跑通 6 套',
     },
     {
       num: '$2M',
@@ -161,10 +161,13 @@ export const WorkImpact: React.FC = () => {
       >
         <div className="mx-auto w-full max-w-6xl lg:grid lg:grid-cols-12 lg:gap-10">
           <div className="mb-10 pt-4 sm:pt-5 lg:col-span-4 lg:mb-0">
-            <h2 ref={headingRef} className="type-section-sm text-[#0A0B0D]">
+            <h2 ref={headingRef} className="type-section text-[#0A0B0D]">
               中台落地，<br />
               <span className="text-[#0E7C3D]">用结果说话</span>
             </h2>
+            <p className="type-lead mt-6 max-w-[62ch] text-[#5B6472]">
+              把中台建设，落成可衡量的业务结果
+            </p>
           </div>
 
           <div className="lg:col-span-8">
@@ -192,7 +195,12 @@ export const WorkImpact: React.FC = () => {
                     {item.title}
                   </h3>
                   <div className="impact-context mt-1.5 text-pretty text-base leading-relaxed text-[#5B6472] sm:text-lg">
-                    {item.context}
+                    {item.context.split('\n').map((part, i) => (
+                      <React.Fragment key={part}>
+                        {i > 0 && <br />}
+                        {part}
+                      </React.Fragment>
+                    ))}
                   </div>
                 </div>
               </div>

@@ -61,7 +61,7 @@ export const WorkSelectedProjects: React.FC = () => {
             <span className="text-[#34D378]">件件有结果</span>
           </h2>
           <p className="type-lead mt-6 max-w-[62ch] text-[#A8B0BC]">
-            点开任意一个，查看从问题、系统到结果的完整案例
+            点-线-面结合，查看从问题、行动到结果的完整案例
           </p>
 
           {/* 行式列表，和经历板块同一套交互：整行可点，悬停时绿线延伸、一句话说明和指标说明淡入。 */}
@@ -86,7 +86,7 @@ export const WorkSelectedProjects: React.FC = () => {
                       <div className="grid gap-2 lg:grid-cols-12 lg:items-center lg:gap-8">
                         <div className="relative lg:col-span-8">
                           <div className="career-track-head">
-                            <h3 className="project-card-title text-2xl font-semibold tracking-tight text-[#F3F5F8] sm:text-3xl">
+                            <h3 className="project-card-title text-2xl font-semibold tracking-tight text-[#F3F5F8] transition-colors duration-200 group-hover:text-[#34D378] group-focus-visible:text-[#34D378] sm:text-3xl">
                               {project.title}
                             </h3>
                           </div>
