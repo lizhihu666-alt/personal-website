@@ -47,7 +47,7 @@ export const WorkAbout: React.FC<WorkAboutProps> = ({ onSwitchToLife }) => {
     <section
       id="work-about"
       ref={containerRef}
-      className="relative z-[35] px-6 sm:px-10 lg:px-16 bg-[#F3F5F8] shadow-[0_-40px_60px_-30px_rgba(0,0,0,0.45)]"
+      className="relative px-6 sm:px-10 lg:px-16 bg-[#F3F5F8] shadow-[0_-40px_60px_-30px_rgba(0,0,0,0.45)]"
     >
       <div ref={pinRef} className="relative flex min-h-dvh flex-col justify-center py-12 sm:py-14">
       <div className="max-w-6xl mx-auto w-full">
