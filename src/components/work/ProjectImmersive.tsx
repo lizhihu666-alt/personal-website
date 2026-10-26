@@ -197,24 +197,29 @@ export const ProjectImmersive: React.FC<ProjectImmersiveProps> = ({
         className="pointer-events-none absolute inset-0 h-full w-full opacity-80"
       />
 
-      <div ref={scrollRef} data-lenis-prevent className="relative h-full overflow-y-auto overscroll-contain">
-        <header className="sticky top-0 z-30 bg-[#0E7C3D] px-6 sm:px-10 lg:px-16">
-          <div className="mx-auto flex h-16 max-w-7xl items-center justify-between sm:h-20">
-            <span className="type-label text-white/75">Leo Hu / 项目案例</span>
+      <div ref={scrollRef} data-lenis-prevent className="relative h-full overflow-y-auto overscroll-contain [scrollbar-gutter:stable]">
+        <header className="sticky top-0 z-30 bg-white px-6 sm:px-10 lg:px-16">
+          <div className="mx-auto flex h-16 max-w-6xl items-center justify-between gap-3">
+            <span className="flex shrink-0 items-center gap-2 whitespace-nowrap py-1">
+              <span className="text-lg font-bold tracking-tight text-[#0E7C3D] sm:text-[19px]">Leo Hu</span>
+              <span className="hidden text-sm text-[#5B6472] sm:inline-block">/ 胡利致</span>
+            </span>
             <button
               ref={closeButtonRef}
               type="button"
               onClick={requestClose}
-              className="inline-flex min-h-11 items-center gap-2 rounded-xl border border-white/35 px-4 py-2 text-sm font-medium text-white transition-colors hover:border-white hover:bg-white/10"
+              className="group inline-flex min-h-11 items-center gap-3 rounded-full bg-[#0E7C3D] py-1.5 pl-5 pr-1.5 text-sm font-semibold text-white transition-colors hover:bg-[#0A5C2E] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0E7C3D]"
             >
               <span>关闭案例</span>
-              <X className="h-4 w-4" aria-hidden="true" />
+              <span className="flex h-8 w-8 items-center justify-center rounded-full bg-white text-[#0E7C3D] transition-transform duration-200 group-hover:rotate-90">
+                <X className="h-4 w-4" aria-hidden="true" />
+              </span>
             </button>
           </div>
-          <div className="absolute bottom-0 left-0 h-px w-full bg-white/20" />
+          <div className="absolute bottom-0 left-0 h-px w-full bg-[#0E7C3D]/25" />
         </header>
 
-        <section className="project-immersive-stage flex min-h-[calc(100dvh-5rem)] items-center px-6 py-6 sm:px-10 lg:px-16">
+        <section className="project-immersive-stage flex min-h-[calc(100dvh-4rem)] items-center px-6 py-6 sm:px-10 lg:px-16">
           <div
             className="project-stage-content mx-auto grid w-full max-w-7xl grid-cols-1 gap-8 lg:grid-cols-12 lg:gap-14"
             style={{ fontSize: 'clamp(14px, min(2.3vh, 1.4vw), 22px)' }}
@@ -227,7 +232,7 @@ export const ProjectImmersive: React.FC<ProjectImmersiveProps> = ({
               >
                 {project.title}
               </h2>
-              <p className="project-stage-reveal mt-4 max-w-[34rem] text-[1.12em] leading-[1.7] text-white/90">
+              <p className="project-stage-reveal mt-4 max-w-[34rem] text-[1.12em] leading-[1.7] text-white">
                 {project.subtitle}
               </p>
 
@@ -238,7 +243,7 @@ export const ProjectImmersive: React.FC<ProjectImmersiveProps> = ({
                       <div className="type-number text-[3.6em] font-semibold leading-none text-work-proof">
                         {metric.value}
                       </div>
-                      <div className="mt-2 text-[0.95em] text-white/85">{metric.label}</div>
+                      <div className="mt-2 text-[0.95em] text-white">{metric.label}</div>
                     </div>
                   ))}
                 </div>
@@ -247,7 +252,7 @@ export const ProjectImmersive: React.FC<ProjectImmersiveProps> = ({
               {project.tags.length > 0 && (
                 <ul className="project-stage-reveal mt-6 flex flex-wrap gap-2">
                   {project.tags.map((tag) => (
-                    <li key={tag} className="rounded-full border border-white/30 px-3.5 py-1 text-[0.82em] text-white/80">
+                    <li key={tag} className="rounded-full border border-white/30 px-3.5 py-1 text-[0.82em] text-white">
                       {tag}
                     </li>
                   ))}
@@ -260,16 +265,16 @@ export const ProjectImmersive: React.FC<ProjectImmersiveProps> = ({
                 <div>
                   <h3 className="text-[0.95em] font-semibold text-white">情境</h3>
                 </div>
-                <div className="text-[1em] leading-[1.75] text-white/85">
+                <div className="text-[1em] leading-[1.75] text-white">
                   <p>{project.context}</p>
-                  <p className="mt-[0.4em] text-white/70">{project.problem}</p>
+                  <p className="mt-[0.4em] text-white">{project.problem}</p>
                 </div>
               </div>
               <div className="project-stage-reveal grid grid-cols-[4.5em_1fr] gap-4 border-t border-white/25 py-[0.75em]">
                 <div>
                   <h3 className="text-[0.95em] font-semibold text-white">任务</h3>
                 </div>
-                <p className="text-[1em] leading-[1.75] text-white/85">{project.myRole}</p>
+                <p className="text-[1em] leading-[1.75] text-white">{project.myRole}</p>
               </div>
               <div className="project-stage-reveal grid grid-cols-[4.5em_1fr] gap-4 border-t border-white/25 py-[0.75em]">
                 <div>
@@ -277,7 +282,7 @@ export const ProjectImmersive: React.FC<ProjectImmersiveProps> = ({
                 </div>
                 <ul className="space-y-[0.6em]">
                   {project.whatIDid.map((action) => (
-                    <li key={action} className="relative pl-4 text-[1em] leading-[1.75] text-white/80">
+                    <li key={action} className="relative pl-4 text-[1em] leading-[1.75] text-white">
                       <span className="absolute left-0 top-[0.8em] h-1.5 w-1.5 rounded-full bg-white" />
                       {action}
                     </li>
@@ -288,7 +293,7 @@ export const ProjectImmersive: React.FC<ProjectImmersiveProps> = ({
                 <div>
                   <h3 className="text-[0.95em] font-semibold text-white">结果</h3>
                 </div>
-                <p className="text-[1em] font-normal leading-[1.75] text-white/85">{project.result}</p>
+                <p className="text-[1em] font-normal leading-[1.75] text-white">{project.result}</p>
               </div>
             </div>
           </div>
