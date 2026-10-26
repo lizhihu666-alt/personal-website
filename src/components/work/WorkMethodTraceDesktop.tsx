@@ -488,12 +488,18 @@ const WorkMethodTraceDesktop: React.FC = () => {
       const outcomeReveal = smoothstep(FUSE_END, TEXT_REVEAL_END, progress);
       if (outcomeRef.current) {
         const isInteractive = outcomeReveal > 0.9;
-        outcomeRef.current.style.opacity = String(outcomeReveal);
+        // 文字从左到右一点点「划」出来：用一条带软边的横向遮罩，边缘随进度向右推；
+        // 不再整块淡入上移。完全显现后撤掉遮罩，避免留下渲染开销。
+        const SOFT_EDGE = 0.18;
+        const edge = outcomeReveal * (1 + SOFT_EDGE);
+        const wipe =
+          outcomeReveal >= 1
+            ? 'none'
+            : `linear-gradient(90deg, #000 ${((edge - SOFT_EDGE) * 100).toFixed(2)}%, transparent ${(edge * 100).toFixed(2)}%)`;
+        outcomeRef.current.style.opacity = outcomeReveal > 0 ? '1' : '0';
+        outcomeRef.current.style.maskImage = wipe;
+        outcomeRef.current.style.webkitMaskImage = wipe;
         outcomeRef.current.style.pointerEvents = isInteractive ? 'auto' : 'none';
-        outcomeRef.current.style.setProperty(
-          '--method-outcome-shift',
-          `${(1 - outcomeReveal) * 18}px`
-        );
         // 文案还没显现的时候链接本身仍然是可 Tab 到的真实 <a>——键盘
         // 用户会先聚焦到一个看不见的链接上，然后被 scrollIntoView 之类
         // 的默认聚焦滚动行为拽到这段很长的钉住区域中间。跟着可见性一起

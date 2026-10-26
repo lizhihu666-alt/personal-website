@@ -409,10 +409,6 @@
   transform: translateY(-50%);
 }
 
-.method-trace-outcome-inner {
-  transform: translate3d(0, var(--method-outcome-shift, 18px), 0);
-}
-
 .method-trace-outcome-kicker {
   color: var(--work-accent);
   font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
@@ -729,6 +725,8 @@
   .method-trace-outcome {
     opacity: 1 !important;
     pointer-events: auto !important;
+    -webkit-mask-image: none !important;
+    mask-image: none !important;
   }
   .method-trace-outcome-inner {
     transform: none !important;
