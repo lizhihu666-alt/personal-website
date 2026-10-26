@@ -62,7 +62,7 @@ export const WorkMethodTrace: React.FC = () => {
             <h2 id={headingId} className="type-section-sm mt-10 text-[#F3F5F8]">
               四条路径，
               <br />
-              <span className="text-[#34D378]">汇成一套可运行的中台</span>
+              <span className="text-[#34D378]">汇成一套高效的中台</span>
             </h2>
             <p className="type-body mt-4 text-[#A8B0BC]">
               项目管理拉主线，IT 打通系统，<br />供应链保障履约，AI 补上提效
@@ -71,7 +71,7 @@ export const WorkMethodTrace: React.FC = () => {
               href="#work-about"
               className="mt-6 inline-flex min-h-11 items-center gap-2 border-b border-[#34D378] pb-1 text-sm font-semibold text-[#F3F5F8]"
             >
-              <span>了解更多关于我</span>
+              <span>关于我</span>
               <ArrowUpRight size={17} strokeWidth={1.8} aria-hidden="true" />
             </a>
           </div>

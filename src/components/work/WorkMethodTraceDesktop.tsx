@@ -127,6 +127,8 @@ const smoothstep = (start: number, end: number, value: number) => {
 // 要跟着 HOLD_END 一起改，不能只改其中一个。
 const ENTER_END = METHOD_ENTER_END;
 const FUSE_END = METHOD_FUSE_END;
+// 四条线汇成一条之后，汇合点上显示的文字。
+const CONVERGED_LABEL = '高效中台';
 // 右侧阅读进度条也用它判断「文字已完全显现」的滚动位置，所以定义在单独的文件里。
 const TEXT_REVEAL_END = METHOD_TEXT_REVEAL_END;
 
@@ -473,6 +475,10 @@ const WorkMethodTraceDesktop: React.FC = () => {
             ? entryOpacity * (1 - smoothstep(0.96, 1, progress))
             : entryOpacity * (1 - fuseProgress);
 
+          // 主线汇合后，这条线的标签从「项目管理」换成汇合的结果「高效中台」。
+          const labelText = definition.highlighted && fuseProgress >= 1 ? CONVERGED_LABEL : definition.label;
+          if (label.textContent !== labelText) label.textContent = labelText;
+
           label.style.opacity = String(clamp(labelOpacity));
           label.style.transform = `translate3d(${screenX}px, ${screenY}px, 0) translate(-50%, -136%)`;
         }
@@ -745,7 +751,7 @@ const WorkMethodTraceDesktop: React.FC = () => {
             <h3 className="method-trace-outcome-title">
               四条路径，
               <br />
-              <span>汇成一套可运行的中台</span>
+              <span>汇成一套高效的中台</span>
             </h3>
             <p className="method-trace-outcome-copy">
               项目管理拉主线，IT 打通系统，<br />供应链保障履约，AI 补上提效
@@ -755,7 +761,7 @@ const WorkMethodTraceDesktop: React.FC = () => {
               href="#work-about"
               className="method-trace-outcome-link"
             >
-              <span>了解更多关于我</span>
+              <span>关于我</span>
               <ArrowUpRight size={17} strokeWidth={1.8} aria-hidden="true" />
             </a>
           </div>

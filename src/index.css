@@ -443,10 +443,10 @@
 
 .method-trace-outcome-link {
   display: inline-flex;
-  align-items: center;
+  align-items: flex-end;
   gap: 0.5rem;
   min-height: 2.75rem;
-  margin-top: 1.75rem;
+  margin-top: 0.75rem;
   padding-bottom: 0.2rem;
   border-bottom: 1px solid rgba(52, 211, 120, 0.65);
   color: #F7F7F7;
