@@ -87,9 +87,9 @@ export const WorkContact: React.FC<WorkContactProps> = ({ onOpenResume }) => {
     <section
       id="work-contact"
       ref={containerRef}
-      className="relative -mt-[100dvh] px-6 sm:px-10 lg:px-16 bg-[#0A0B0D]"
+      className="relative md:-mt-[100dvh] px-6 sm:px-10 lg:px-16 bg-[#0A0B0D]"
     >
-      <div ref={pinRef} className="relative flex min-h-dvh flex-col justify-center pt-20 pb-10 sm:pt-28 sm:pb-12">
+      <div ref={pinRef} className="relative flex flex-col justify-center pt-16 pb-12 sm:pt-28 sm:pb-12 md:min-h-dvh">
       <div className="max-w-6xl mx-auto w-full">
         <div className="max-w-3xl mb-16 contact-reveal">
           <h2 className="type-section-sm text-[#F3F5F8]">
@@ -109,7 +109,7 @@ export const WorkContact: React.FC<WorkContactProps> = ({ onOpenResume }) => {
                 <a
                   id="contact-mailto-link"
                   href={`mailto:${WORK_DATA.contact.email}`}
-                  className="underline decoration-[#3A424E] underline-offset-4 transition-colors hover:text-[#34D378] hover:decoration-[#34D378]"
+                  className="relative underline decoration-[#3A424E] underline-offset-4 transition-colors before:absolute before:-inset-y-3 before:inset-x-0 before:content-[''] hover:text-[#34D378] hover:decoration-[#34D378]"
                 >
                   {WORK_DATA.contact.email}
                 </a>

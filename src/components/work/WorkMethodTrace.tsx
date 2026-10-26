@@ -28,9 +28,9 @@ export const WorkMethodTrace: React.FC = () => {
       <section
         id="work-method-trace"
         aria-labelledby={headingId}
-        className="method-trace-section relative -mt-[100dvh] bg-[#0A0B0D] px-6"
+        className="method-trace-section relative bg-[#0A0B0D] px-6"
       >
-        <div className="relative flex min-h-dvh flex-col justify-center py-16">
+        <div className="relative flex flex-col justify-center py-16">
           <div className="mx-auto w-full max-w-md">
             <svg
               viewBox="0 0 1000 300"
@@ -87,7 +87,7 @@ export const WorkMethodTrace: React.FC = () => {
         <section
           id="work-method-trace"
           aria-hidden="true"
-          className="method-trace-section relative -mt-[100dvh] bg-[#0A0B0D]"
+          className="method-trace-section relative md:-mt-[100dvh] bg-[#0A0B0D]"
           style={{ height: `calc(100dvh * ${1 + METHOD_TOTAL_VH - METHOD_SLIDE_VH})` }}
         />
       }

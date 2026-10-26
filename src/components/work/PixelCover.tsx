@@ -45,6 +45,9 @@ export function usePixelCover(
     const pinEl = pinRef.current;
     const canvas = canvasRef.current;
     if (!pinEl || !canvas || isReducedMotion()) return;
+    // 手机上不做钉住和铺方块：板块按正常文档流依次排下去，自然往下读。
+    const mm = gsap.matchMedia();
+    mm.add('(min-width: 768px)', () => {
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
@@ -166,6 +169,8 @@ export function usePixelCover(
       pinEl.style.visibility = '';
       pinEl.style.zIndex = '';
     };
+    });
+    return () => mm.revert();
   }, [pinRef, canvasRef, color, lengthVh, refreshPriority, holdFraction]);
 }
 
@@ -181,7 +186,7 @@ interface PixelCoverCanvasProps {
 export const ScrollCue: React.FC<{ label: string; tone: 'light' | 'dark' }> = ({ label, tone }) => (
   <div
     aria-hidden="true"
-    className="scroll-cue pointer-events-none absolute inset-x-0 bottom-5 z-[5] flex justify-center"
+    className="scroll-cue pointer-events-none absolute inset-x-0 bottom-5 z-[5] hidden justify-center md:flex"
   >
     <span
       className={`flex items-center gap-2 text-xs tracking-wide ${tone === 'light' ? 'text-[#5B6472]' : 'text-[#A8B0BC]'}`}
@@ -196,13 +201,13 @@ export const PixelCoverCanvas = forwardRef<HTMLCanvasElement, PixelCoverCanvasPr
   <>
     <div
       aria-hidden="true"
-      className="pointer-events-none absolute left-1/2 top-0 -z-10"
+      className="pointer-events-none absolute left-1/2 top-0 -z-10 hidden md:block"
       style={{ width: '100vw', marginLeft: '-50vw', height: 'calc(100% + 4px)', background }}
     />
     <canvas
       ref={ref}
       aria-hidden="true"
-      className="pointer-events-none absolute left-1/2 right-1/2 top-0 z-10"
+      className="pointer-events-none absolute left-1/2 right-1/2 top-0 z-10 hidden md:block"
       style={{
         width: '100vw',
         marginLeft: '-50vw',
@@ -228,6 +233,8 @@ export function useHoldPin(
   useLayoutEffect(() => {
     const pinEl = pinRef.current;
     if (!pinEl || isReducedMotion()) return;
+    const mm = gsap.matchMedia();
+    mm.add('(min-width: 768px)', () => {
     const trigger = ScrollTrigger.create({
       trigger: pinEl,
       start: 'bottom bottom',
@@ -237,5 +244,7 @@ export function useHoldPin(
       refreshPriority,
     });
     return () => trigger.kill();
+    });
+    return () => mm.revert();
   }, [pinRef, lengthVh, refreshPriority]);
 }

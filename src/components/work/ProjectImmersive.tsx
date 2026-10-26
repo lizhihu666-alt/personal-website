@@ -227,12 +227,12 @@ export const ProjectImmersive: React.FC<ProjectImmersiveProps> = ({
             <div className="lg:col-span-4">
               <h2
                 id={headingId}
-                className="project-stage-reveal font-semibold leading-[1.15] text-white"
+                className="project-stage-reveal font-semibold leading-[1.15] text-white max-sm:[text-wrap:balance]"
                 style={{ fontSize: 'clamp(1.9rem, 2.6em + 0.6vw, 3.1rem)' }}
               >
                 {project.title}
               </h2>
-              <p className="project-stage-reveal mt-4 max-w-[34rem] text-[1.12em] leading-[1.7] text-white">
+              <p className="project-stage-reveal mt-4 max-w-[34rem] text-[1.12em] leading-[1.7] text-white max-sm:[text-wrap:pretty]">
                 {project.subtitle}
               </p>
 
@@ -261,7 +261,7 @@ export const ProjectImmersive: React.FC<ProjectImmersiveProps> = ({
             </div>
 
             <div className="lg:col-span-8" style={{ fontSize: '0.92em' }}>
-              <div className="project-stage-reveal grid grid-cols-[4.5em_1fr] gap-4 pb-[0.75em]">
+              <div className="project-stage-reveal grid grid-cols-[3.4em_1fr] gap-3 sm:grid-cols-[4.5em_1fr] sm:gap-4 pb-[0.75em]">
                 <div>
                   <h3 className="text-[0.95em] font-semibold text-white">情境</h3>
                 </div>
@@ -270,13 +270,13 @@ export const ProjectImmersive: React.FC<ProjectImmersiveProps> = ({
                   <p className="mt-[0.4em] text-white">{project.problem}</p>
                 </div>
               </div>
-              <div className="project-stage-reveal grid grid-cols-[4.5em_1fr] gap-4 border-t border-white/25 py-[0.75em]">
+              <div className="project-stage-reveal grid grid-cols-[3.4em_1fr] gap-3 sm:grid-cols-[4.5em_1fr] sm:gap-4 border-t border-white/25 py-[0.75em]">
                 <div>
                   <h3 className="text-[0.95em] font-semibold text-white">任务</h3>
                 </div>
                 <p className="text-[1em] leading-[1.75] text-white">{project.myRole}</p>
               </div>
-              <div className="project-stage-reveal grid grid-cols-[4.5em_1fr] gap-4 border-t border-white/25 py-[0.75em]">
+              <div className="project-stage-reveal grid grid-cols-[3.4em_1fr] gap-3 sm:grid-cols-[4.5em_1fr] sm:gap-4 border-t border-white/25 py-[0.75em]">
                 <div>
                   <h3 className="text-[0.95em] font-semibold text-white">行动</h3>
                 </div>
@@ -289,7 +289,7 @@ export const ProjectImmersive: React.FC<ProjectImmersiveProps> = ({
                   ))}
                 </ul>
               </div>
-              <div className="project-stage-reveal grid grid-cols-[4.5em_1fr] gap-4 border-t border-white/25 py-[0.75em]">
+              <div className="project-stage-reveal grid grid-cols-[3.4em_1fr] gap-3 sm:grid-cols-[4.5em_1fr] sm:gap-4 border-t border-white/25 py-[0.75em]">
                 <div>
                   <h3 className="text-[0.95em] font-semibold text-white">结果</h3>
                 </div>

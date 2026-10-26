@@ -49,7 +49,7 @@ export const WorkAbout: React.FC<WorkAboutProps> = ({ onSwitchToLife }) => {
       ref={containerRef}
       className="relative px-6 sm:px-10 lg:px-16 bg-[#F3F5F8] shadow-[0_-40px_60px_-30px_rgba(0,0,0,0.45)]"
     >
-      <div ref={pinRef} className="relative flex min-h-dvh flex-col justify-center py-12 sm:py-14">
+      <div ref={pinRef} className="relative flex flex-col justify-center py-12 sm:py-14 md:min-h-dvh">
       <div className="max-w-6xl mx-auto w-full">
         <div className="grid grid-cols-1 md:grid-cols-12 gap-8 md:gap-10 lg:gap-16 items-start">
           <div className="md:col-span-5 lg:col-span-4 xl:col-span-3 about-reveal">

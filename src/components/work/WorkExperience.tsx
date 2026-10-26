@@ -100,9 +100,9 @@ export const WorkExperience: React.FC = () => {
     <section
       id="work-experience"
       ref={sectionRef}
-      className="relative -mt-[100dvh] px-6 sm:px-10 lg:px-16 bg-[#F3F5F8]"
+      className="relative md:-mt-[100dvh] px-6 sm:px-10 lg:px-16 bg-[#F3F5F8]"
     >
-      <div ref={pinRef} className="relative flex min-h-dvh flex-col justify-center pb-14 pt-6">
+      <div ref={pinRef} className="relative flex flex-col justify-center pb-14 pt-6 md:min-h-dvh">
       <div className="mx-auto w-full max-w-6xl">
         <div className="mb-6 max-w-5xl sm:mb-6">
           <h2 ref={headingRef} className="type-section-sm text-[#0A0B0D]">
@@ -126,7 +126,7 @@ export const WorkExperience: React.FC = () => {
                   aria-selected={active}
                   aria-controls="work-experience-list"
                   onClick={() => switchTab(id)}
-                  className="group relative flex items-center gap-3 pb-3 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#0E7C3D]"
+                  className="group relative flex min-h-11 items-center md:min-h-0 gap-3 pb-3 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#0E7C3D]"
                 >
                   <Icon
                     className="h-6 w-6 text-[#0E7C3D]"

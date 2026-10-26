@@ -233,6 +233,13 @@
   box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
 }
 
+/* 视觉上保持 2rem，点击区域扩到 44px */
+.contact-modal-close::before {
+  content: '';
+  position: absolute;
+  inset: -6px;
+}
+
 .contact-modal-close:hover {
   color: #fff;
   background: #14231b;
@@ -266,4 +273,22 @@
 .contact-profile-card .pc-contact-btn {
   white-space: nowrap;
   flex-shrink: 0;
+}
+
+/* 手机上没有悬停，全息层的两条无限动画会一直重绘（叠着混合模式、滤镜和遮罩，在 3D 翻转的卡片上表现为不停闪烁），
+   所以手机上停掉动画，保留静态的全息质感。 */
+@media (max-width: 768px), (hover: none) {
+  .contact-profile-card .pc-card,
+  .contact-profile-card .pc-shine {
+    animation: none;
+  }
+
+  /* 卡片背后那团 50px 模糊的光晕在手机上很吃 GPU，且和翻转、混合模式叠在一起容易闪；手机上去掉，弹窗背景模糊也降一档。 */
+  .contact-profile-card .pc-behind {
+    display: none;
+  }
+  .contact-modal-backdrop {
+    -webkit-backdrop-filter: blur(6px);
+    backdrop-filter: blur(6px);
+  }
 }

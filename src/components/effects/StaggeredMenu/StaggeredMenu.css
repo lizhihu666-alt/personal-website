@@ -12,6 +12,7 @@
   left: 0;
   width: 100vw;
   height: 100vh;
+  height: 100dvh;
   z-index: 40;
   overflow: hidden;
 }
@@ -386,4 +387,11 @@
   .sm-panel-item {
     font-size: 2.75rem;
   }
+}
+
+/* 手机上菜单项文字行高偏矮（约 40px），在不改变布局的前提下，把可点击区域上下各放大一点，达到 44px 触控目标。 */
+.sm-panel-item::before {
+  content: '';
+  position: absolute;
+  inset: -4px 0;
 }

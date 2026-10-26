@@ -157,7 +157,7 @@ export const WorkImpact: React.FC = () => {
     >
       <div
         ref={gridRef}
-        className="relative flex min-h-dvh items-center py-8"
+        className="relative flex items-center py-12 md:min-h-dvh md:py-8"
       >
         <div className="mx-auto w-full max-w-6xl lg:grid lg:grid-cols-12 lg:gap-10">
           <div className="mb-10 pt-4 sm:pt-5 lg:col-span-4 lg:mb-0">

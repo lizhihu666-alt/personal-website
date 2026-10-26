@@ -150,8 +150,8 @@ export const WorkResumeModal: React.FC<WorkResumeModalProps> = ({ isOpen, onClos
         aria-labelledby="resume-title"
       >
         {/* Modal Top Control Bar (Hidden on print) */}
-        <div className="no-print flex items-center justify-between px-6 py-4 border-b border-[#232A33] bg-[#0A0B0D]">
-          <div className="flex items-center gap-2 text-xs font-mono uppercase tracking-wider text-[#A8B0BC]">
+        <div className="no-print flex items-center justify-end gap-2 px-4 py-3 sm:justify-between sm:px-6 sm:py-4 border-b border-[#232A33] bg-[#0A0B0D]">
+          <div className="hidden items-center gap-2 text-xs font-mono uppercase tracking-wider text-[#A8B0BC] sm:flex">
             <span className="w-2 h-2 rounded-full bg-[#0E7C3D]" />
             <span>个人简历预览</span>
           </div>
@@ -160,7 +160,7 @@ export const WorkResumeModal: React.FC<WorkResumeModalProps> = ({ isOpen, onClos
             <button
               id="resume-btn-copy-email"
               onClick={handleCopyEmail}
-              className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-mono uppercase tracking-wider rounded-md transition-colors ${
+              className={`flex min-h-11 items-center gap-1.5 whitespace-nowrap px-3 py-1.5 sm:min-h-0 text-xs font-mono uppercase tracking-wider rounded-md transition-colors ${
                 copyStatus === 'error'
                   ? 'text-[#FFB4AB] hover:bg-black/5'
                   : 'text-[#34D378] hover:bg-black/5'
@@ -181,7 +181,7 @@ export const WorkResumeModal: React.FC<WorkResumeModalProps> = ({ isOpen, onClos
             <button
               id="resume-btn-print"
               onClick={handlePrint}
-              className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-mono uppercase tracking-wider text-[#A8B0BC] hover:text-[#F3F5F8] hover:bg-black/5 rounded-md transition-colors"
+              className="hidden items-center gap-1.5 px-3 py-1.5 text-xs font-mono uppercase tracking-wider text-[#A8B0BC] hover:text-[#F3F5F8] hover:bg-black/5 rounded-md transition-colors sm:flex"
             >
               <Printer className="w-3.5 h-3.5" />
               <span>打印</span>
@@ -191,7 +191,7 @@ export const WorkResumeModal: React.FC<WorkResumeModalProps> = ({ isOpen, onClos
               id="resume-btn-download"
               href="/resume.pdf"
               download="胡利致-简历.pdf"
-              className="flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-mono uppercase tracking-wider bg-[#0E7C3D] text-white hover:bg-[#0A6631] rounded-md transition-colors shadow-xs"
+              className="flex min-h-11 items-center gap-1.5 whitespace-nowrap px-3.5 py-1.5 sm:min-h-0 text-xs font-mono uppercase tracking-wider bg-[#0E7C3D] text-white hover:bg-[#0A6631] rounded-md transition-colors shadow-xs"
             >
               <Download className="w-3.5 h-3.5" />
               <span>下载 PDF</span>
@@ -200,7 +200,7 @@ export const WorkResumeModal: React.FC<WorkResumeModalProps> = ({ isOpen, onClos
             <button
               id="resume-btn-close"
               onClick={onClose}
-              className="p-1.5 text-[#A8B0BC] hover:text-[#F3F5F8] hover:bg-black/5 rounded-md transition-colors ml-2"
+              className="flex h-11 w-11 items-center justify-center sm:h-auto sm:w-auto sm:p-1.5 text-[#A8B0BC] hover:text-[#F3F5F8] hover:bg-black/5 rounded-md transition-colors sm:ml-1"
               aria-label="关闭"
             >
               <X className="w-4 h-4" />
