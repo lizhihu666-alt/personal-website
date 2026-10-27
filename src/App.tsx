@@ -57,27 +57,6 @@ export default function App() {
     () => new URLSearchParams(window.location.search).get('print') === 'resume'
   );
 
-  // 切走标签页时，标题换成座右铭的一半；回来就还原。只改标题，不打扰页面本身。
-  useEffect(() => {
-    const AWAY_TITLE = 'Stay hungry · Leo Hu';
-    let originalTitle = document.title;
-
-    const handleVisibility = () => {
-      if (document.hidden) {
-        originalTitle = document.title;
-        document.title = AWAY_TITLE;
-      } else if (document.title === AWAY_TITLE) {
-        document.title = originalTitle;
-      }
-    };
-
-    document.addEventListener('visibilitychange', handleVisibility);
-    return () => {
-      document.removeEventListener('visibilitychange', handleVisibility);
-      if (document.title === AWAY_TITLE) document.title = originalTitle;
-    };
-  }, []);
-
   // Independent scroll position memories
   const scrollPositions = useRef<{ work: number; life: number }>({ work: 0, life: 0 });
 
