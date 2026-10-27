@@ -100,7 +100,6 @@ export const ProjectImmersive: React.FC<ProjectImmersiveProps> = ({
   const closingRef = useRef(false);
   const [isClosing, setIsClosing] = useState(false);
   const headingId = useId();
-  const primaryMetric = project.metrics?.[0];
 
   const requestClose = useCallback(() => {
     const root = rootRef.current;
@@ -176,30 +175,20 @@ export const ProjectImmersive: React.FC<ProjectImmersiveProps> = ({
         });
 
         const direction = directionRef.current;
-        // 案例间切换：内容带着一道横向遮罩，从切换的那一侧划入（和方法板块「从左到右划出」同一种语言）；
+        // 案例间切换：内容从切换的那一侧平移淡入，不加遮罩（遮罩会把滑动中的文字切掉一块）；
         // 首次打开仍是原来的上浮入场。
         const from = direction
-          ? {
-              x: direction * 44,
-              opacity: 0,
-              clipPath: direction > 0 ? 'inset(0 0 0 60%)' : 'inset(0 60% 0 0)',
-            }
+          ? { x: direction * 44, opacity: 0 }
           : { y: 30, opacity: 0, clipPath: 'inset(0 0 26% 0)' };
+        const to = direction
+          ? { x: 0, opacity: 1, duration: 0.6, stagger: 0.05 }
+          : { y: 0, opacity: 1, clipPath: 'inset(0 0 0% 0)', duration: 0.72, stagger: 0.07 };
 
-        revealTimeline.fromTo(
-          reveals,
-          from,
-          {
-            x: 0,
-            y: 0,
-            opacity: 1,
-            clipPath: 'inset(0 0 0% 0)',
-            duration: direction ? 0.6 : 0.72,
-            stagger: direction ? 0.05 : 0.07,
-            ease: 'power4.out',
-            clearProps: stageIndex === 0 ? 'transform,opacity,clipPath' : undefined,
-          }
-        );
+        revealTimeline.fromTo(reveals, from, {
+          ...to,
+          ease: 'power4.out',
+          clearProps: stageIndex === 0 ? 'transform,opacity,clipPath' : undefined,
+        });
 
         if (rule) {
           revealTimeline.fromTo(
@@ -419,19 +408,23 @@ export const ProjectImmersive: React.FC<ProjectImmersiveProps> = ({
             type="button"
             onClick={() => handleNavigate('prev')}
             aria-label={prevTitle ? `上一个案例：${prevTitle}` : '上一个案例'}
-            className="group absolute bottom-12 left-6 z-30 flex min-h-11 items-center gap-1.5 text-sm text-white focus-visible:outline focus-visible:outline-1 focus-visible:outline-offset-4 focus-visible:outline-white sm:left-10 lg:left-16"
+            className="group absolute bottom-12 left-6 z-30 flex min-h-11 items-center gap-1.5 text-sm text-white focus-visible:outline-none sm:left-10 lg:left-16"
           >
-            <ChevronLeft className="h-5 w-5 transition-transform duration-200 group-hover:-translate-x-0.5" aria-hidden="true" />
-            <span>上一个</span>
+            <ChevronLeft className="h-5 w-5 transition-transform duration-300 ease-out group-hover:-translate-x-1 group-focus-visible:-translate-x-1" aria-hidden="true" />
+            <span className="relative after:absolute after:-bottom-1 after:left-0 after:h-px after:w-full after:origin-left after:scale-x-0 after:bg-current after:transition-transform after:duration-300 after:ease-out group-hover:after:scale-x-100 group-focus-visible:after:scale-x-100">
+              上一个
+            </span>
           </button>
           <button
             type="button"
             onClick={() => handleNavigate('next')}
             aria-label={nextTitle ? `下一个案例：${nextTitle}` : '下一个案例'}
-            className="group absolute bottom-12 right-6 z-30 flex min-h-11 items-center gap-1.5 text-sm text-white focus-visible:outline focus-visible:outline-1 focus-visible:outline-offset-4 focus-visible:outline-white sm:right-10 lg:right-16"
+            className="group absolute bottom-12 right-6 z-30 flex min-h-11 items-center gap-1.5 text-sm text-white focus-visible:outline-none sm:right-10 lg:right-16"
           >
-            <span>下一个</span>
-            <ChevronRight className="h-5 w-5 transition-transform duration-200 group-hover:translate-x-0.5" aria-hidden="true" />
+            <span className="relative after:absolute after:-bottom-1 after:left-0 after:h-px after:w-full after:origin-left after:scale-x-0 after:bg-current after:transition-transform after:duration-300 after:ease-out group-hover:after:scale-x-100 group-focus-visible:after:scale-x-100">
+              下一个
+            </span>
+            <ChevronRight className="h-5 w-5 transition-transform duration-300 ease-out group-hover:translate-x-1 group-focus-visible:translate-x-1" aria-hidden="true" />
           </button>
         </>
       )}
@@ -441,11 +434,9 @@ export const ProjectImmersive: React.FC<ProjectImmersiveProps> = ({
         type="button"
         onClick={requestClose}
         aria-label="关闭案例"
-        className="group absolute bottom-12 left-1/2 z-30 flex -translate-x-1/2 items-center rounded-full bg-white p-[2px] text-sm text-[#0E7C3D] shadow-[0_4px_16px_rgba(0,0,0,0.18)] transition-colors hover:bg-white/90 focus-visible:outline focus-visible:outline-1 focus-visible:outline-offset-2 focus-visible:outline-white"
+        title="关闭案例"
+        className="group absolute bottom-12 left-1/2 z-30 flex -translate-x-1/2 items-center rounded-full bg-white p-[2px] before:absolute before:-inset-1 before:content-[''] text-sm text-[#0E7C3D] shadow-[0_4px_16px_rgba(0,0,0,0.18)] transition-colors hover:bg-white/90 focus-visible:outline focus-visible:outline-1 focus-visible:outline-offset-2 focus-visible:outline-white"
       >
-        <span className="max-w-0 overflow-hidden whitespace-nowrap pl-0 opacity-0 transition-[max-width,opacity,padding] duration-300 ease-out group-hover:max-w-[6rem] group-hover:pl-3.5 group-hover:pr-2 group-hover:opacity-100 group-focus-visible:max-w-[6rem] group-focus-visible:pl-3.5 group-focus-visible:pr-2 group-focus-visible:opacity-100">
-          关闭案例
-        </span>
         <span className="flex h-8 w-8 items-center justify-center rounded-full bg-[#0E7C3D] text-white transition-transform duration-200 group-hover:rotate-90">
           <X className="h-4 w-4" aria-hidden="true" />
         </span>

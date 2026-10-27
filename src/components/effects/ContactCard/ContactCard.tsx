@@ -1,6 +1,7 @@
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import ProfileCard from './ProfileCard';
 import { isReducedMotion } from '../../../utils/gsapSetup';
+import { getModalOrigin, playModalClose, playModalOpen, type ModalOrigin } from '../../../utils/modalMotion';
 import './ContactCard.css';
 
 // ===== LEO 水印参数（改这三个数就行）=====
@@ -135,6 +136,23 @@ export interface ContactModalProps extends ContactCardProps {
 // 只靠 overflow:hidden 挡不住，跟简历弹窗同样用 body fixed 方式锁）。
 export function ContactModal({ isOpen, onClose, closeLabel = '关闭', ...card }: ContactModalProps) {
   const dialogRef = useRef<HTMLDivElement>(null);
+  const backdropRef = useRef<HTMLDivElement>(null);
+  const originRef = useRef<ModalOrigin>(null);
+  const closingRef = useRef(false);
+
+  // 打开：从点开它的按钮处长出来；关闭：先收回去，再真正卸载。
+  useLayoutEffect(() => {
+    if (!isOpen) return;
+    closingRef.current = false;
+    originRef.current = getModalOrigin();
+    playModalOpen({ panel: dialogRef.current, backdrop: backdropRef.current }, originRef.current);
+  }, [isOpen]);
+
+  const requestClose = useCallback(() => {
+    if (closingRef.current) return;
+    closingRef.current = true;
+    playModalClose({ panel: dialogRef.current, backdrop: backdropRef.current }, originRef.current, onClose);
+  }, [onClose]);
 
   useEffect(() => {
     if (!isOpen) return;
@@ -159,7 +177,7 @@ export function ContactModal({ isOpen, onClose, closeLabel = '关闭', ...card }
     const previouslyFocused = document.activeElement as HTMLElement | null;
     const onKey = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
-        onClose();
+        requestClose();
         return;
       }
       if (e.key !== 'Tab') return;
@@ -206,13 +224,13 @@ export function ContactModal({ isOpen, onClose, closeLabel = '关闭', ...card }
       window.scrollTo(0, scrollY);
       previouslyFocused?.focus?.();
     };
-  }, [isOpen, onClose]);
+  }, [isOpen, requestClose]);
 
   if (!isOpen) return null;
 
   return (
     <div className="contact-modal-root">
-      <div className="contact-modal-backdrop" onClick={onClose} />
+      <div ref={backdropRef} className="contact-modal-backdrop" onClick={requestClose} />
       <div
         ref={dialogRef}
         role="dialog"
@@ -221,7 +239,7 @@ export function ContactModal({ isOpen, onClose, closeLabel = '关闭', ...card }
         tabIndex={-1}
         className="contact-modal-panel"
       >
-        <button type="button" onClick={onClose} aria-label={closeLabel} className="contact-modal-close">
+        <button type="button" onClick={requestClose} aria-label={closeLabel} className="contact-modal-close">
           ×
         </button>
         <ContactCard {...card} />

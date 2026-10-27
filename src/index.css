@@ -398,6 +398,29 @@
   will-change: transform, opacity;
 }
 
+/* 汇合完成时，汇合点扩散的一圈细环：外层由 JS 跟着汇合点定位，内层环只做缩放和淡出。 */
+.method-trace-ripple {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 1;
+  width: 0;
+  height: 0;
+  pointer-events: none;
+}
+
+.method-trace-ripple-ring {
+  position: absolute;
+  top: -22px;
+  left: -22px;
+  width: 44px;
+  height: 44px;
+  border: 1px solid #34D378;
+  border-radius: 50%;
+  opacity: 0;
+  will-change: transform, opacity;
+}
+
 .method-trace-outcome {
   position: absolute;
   top: 50%;
@@ -810,17 +833,11 @@
   }
 }
 
-/* 简历弹窗：遮罩淡入，纸面从下方轻轻升起（只在打开时，指数缓出；减少动效下只保留淡入）。 */
+/* 简历弹窗：遮罩淡入；纸面的展开 / 收回由 JS（utils/modalMotion.ts）从点开它的按钮处做，
+   这里不再给纸面加 CSS 动画，免得两套动画抢同一个 transform。减少动效下纸面只做淡入。 */
 @keyframes resumeOverlayIn {
   from {
     opacity: 0;
-  }
-}
-
-@keyframes resumeSheetIn {
-  from {
-    opacity: 0;
-    transform: translateY(14px) scale(0.985);
   }
 }
 
@@ -828,14 +845,9 @@
   animation: resumeOverlayIn 220ms cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
-.resume-overlay-in .resume-print-sheet {
-  animation: resumeSheetIn 420ms cubic-bezier(0.16, 1, 0.3, 1) 40ms both;
-}
-
 @media (prefers-reduced-motion: reduce) {
   .resume-overlay-in .resume-print-sheet {
-    animation-name: resumeOverlayIn;
-    animation-duration: 220ms;
+    animation: resumeOverlayIn 220ms cubic-bezier(0.16, 1, 0.3, 1) both;
   }
 }
 

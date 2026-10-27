@@ -1,16 +1,35 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { WORK_DATA } from '../../data/portfolioData';
-import { X, Printer, Check, AlertCircle, Copy, Download, ExternalLink, Mail } from 'lucide-react';
+import { X, Printer, Check, AlertCircle, Copy, Download } from 'lucide-react';
 import { copyText } from '../../utils/clipboard';
+import { getModalOrigin, playModalClose, playModalOpen, type ModalOrigin } from '../../utils/modalMotion';
 
 interface WorkResumeModalProps {
   isOpen: boolean;
   onClose: () => void;
 }
 
-export const WorkResumeModal: React.FC<WorkResumeModalProps> = ({ isOpen, onClose }) => {
+export const WorkResumeModal: React.FC<WorkResumeModalProps> = ({ isOpen, onClose: onCloseProp }) => {
   const [copyStatus, setCopyStatus] = useState<'idle' | 'success' | 'error'>('idle');
   const dialogRef = useRef<HTMLDivElement>(null);
+  const overlayRef = useRef<HTMLDivElement>(null);
+  const originRef = useRef<ModalOrigin>(null);
+  const closingRef = useRef(false);
+
+  // 打开：简历从点开它的按钮处长出来；关闭：先收回去，再真正卸载（遮罩一起淡出）。
+  useLayoutEffect(() => {
+    if (!isOpen) return;
+    closingRef.current = false;
+    originRef.current = getModalOrigin();
+    playModalOpen({ panel: dialogRef.current }, originRef.current);
+  }, [isOpen]);
+
+  const onClose = useCallback(() => {
+    if (closingRef.current) return;
+    closingRef.current = true;
+    const overlay = overlayRef.current;
+    playModalClose({ panel: dialogRef.current, backdrop: overlay }, originRef.current, onCloseProp);
+  }, [onCloseProp]);
   const previouslyFocusedRef = useRef<HTMLElement | null>(null);
   const copyResetTimerRef = useRef<number | null>(null);
 
@@ -141,6 +160,7 @@ export const WorkResumeModal: React.FC<WorkResumeModalProps> = ({ isOpen, onClos
 
   return (
     <div
+      ref={overlayRef}
       className="resume-print-root fixed inset-0 z-[120] overflow-y-auto bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 sm:p-6 resume-overlay-in"
       onMouseDown={(event) => {
         if (event.target === event.currentTarget) onClose();

@@ -4,7 +4,7 @@ import * as THREE from 'three';
 import { Line2 } from 'three/examples/jsm/lines/Line2.js';
 import { LineGeometry } from 'three/examples/jsm/lines/LineGeometry.js';
 import { LineMaterial } from 'three/examples/jsm/lines/LineMaterial.js';
-import { isReducedMotion, ScrollTrigger } from '../../utils/gsapSetup';
+import { gsap, isReducedMotion, ScrollTrigger } from '../../utils/gsapSetup';
 import { ScrollCue } from './PixelCover';
 import {
   METHOD_ENTER_END,
@@ -204,6 +204,8 @@ const WorkMethodTraceDesktop: React.FC = () => {
   const stickyRef = useRef<HTMLDivElement>(null);
   const canvasHostRef = useRef<HTMLDivElement>(null);
   const labelRefs = useRef<Array<HTMLSpanElement | null>>([]);
+  const rippleRef = useRef<HTMLSpanElement>(null);
+  const rippleRingRef = useRef<HTMLSpanElement>(null);
   const outcomeRef = useRef<HTMLDivElement>(null);
   const outcomeLinkRef = useRef<HTMLAnchorElement>(null);
   const cueWrapRef = useRef<HTMLDivElement>(null);
@@ -358,6 +360,18 @@ const WorkMethodTraceDesktop: React.FC = () => {
     const worldPosition = new THREE.Vector3();
     const textPosition = new THREE.Vector3();
     const projectedPosition = new THREE.Vector3();
+    const dotProjected = new THREE.Vector3();
+    // 汇合完成的那一下：汇合点扩散一圈细环（只响一次；往回滚到汇合前再下滑会重新响）。
+    let rippleFired = false;
+    const fireRipple = () => {
+      const ring = rippleRingRef.current;
+      if (!ring || isReducedMotion()) return;
+      gsap.fromTo(
+        ring,
+        { scale: 0.25, opacity: 0.85 },
+        { scale: 3.4, opacity: 0, duration: 1.2, ease: 'power3.out', overwrite: true }
+      );
+    };
 
     const updateCamera = () => {
       camera.aspect = width / height;
@@ -481,6 +495,22 @@ const WorkMethodTraceDesktop: React.FC = () => {
 
           label.style.opacity = String(clamp(labelOpacity));
           label.style.transform = `translate3d(${screenX}px, ${screenY}px, 0) translate(-50%, -136%)`;
+
+          if (definition.highlighted) {
+            const ripple = rippleRef.current;
+            if (ripple) {
+              dotProjected.copy(worldPosition).project(camera);
+              const dotX = (dotProjected.x * 0.5 + 0.5) * width;
+              const dotY = (-dotProjected.y * 0.5 + 0.5) * height;
+              ripple.style.transform = `translate3d(${dotX}px, ${dotY}px, 0)`;
+            }
+            if (fuseProgress >= 1 && !rippleFired) {
+              rippleFired = true;
+              fireRipple();
+            } else if (fuseProgress < 0.9) {
+              rippleFired = false;
+            }
+          }
         }
       });
 
@@ -743,6 +773,10 @@ const WorkMethodTraceDesktop: React.FC = () => {
               </span>
             );
           })}
+
+          <span ref={rippleRef} className="method-trace-ripple" aria-hidden="true">
+            <span ref={rippleRingRef} className="method-trace-ripple-ring" />
+          </span>
         </div>
 
         <div ref={outcomeRef} className="method-trace-outcome">
