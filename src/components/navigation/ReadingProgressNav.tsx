@@ -202,7 +202,7 @@ export const ReadingProgressNav: React.FC<ReadingProgressNavProps> = ({ currentM
                 <button
                   onClick={() => scrollToSection(sec.id)}
                   aria-label={`跳转到${sec.label}`}
-                  className={`flex h-6 w-6 items-center justify-center focus:outline-none focus-visible:ring-2 rounded-full transition-transform ${
+                  className={`relative flex h-6 w-6 items-center justify-center before:absolute before:-inset-x-4 before:-inset-y-[3px] before:content-[''] focus:outline-none focus-visible:ring-2 rounded-full transition-transform ${
                     currentMode === 'life' ? 'focus-visible:ring-[#4F8CFF]' : 'focus-visible:ring-[#34D378]'
                   }`}
                 >

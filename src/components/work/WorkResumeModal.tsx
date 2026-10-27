@@ -26,11 +26,15 @@ export const WorkResumeModal: React.FC<WorkResumeModalProps> = ({ isOpen, onClos
     const prevPosition = body.style.position;
     const prevTop = body.style.top;
     const prevWidth = body.style.width;
+    const prevPaddingRight = body.style.paddingRight;
+    // 锁滚动后页面滚动条消失、主页整体右移；用右内边距补上滚动条宽度，打开瞬间主页不跳动。
+    const scrollbarWidth = window.innerWidth - document.documentElement.clientWidth;
 
     body.style.overflow = 'hidden';
     body.style.position = 'fixed';
     body.style.top = `-${scrollY}px`;
     body.style.width = '100%';
+    if (scrollbarWidth > 0) body.style.paddingRight = `${scrollbarWidth}px`;
 
     const focusTimer = window.setTimeout(() => {
       const target = dialogRef.current?.querySelector<HTMLElement>(
@@ -45,6 +49,7 @@ export const WorkResumeModal: React.FC<WorkResumeModalProps> = ({ isOpen, onClos
       body.style.position = prevPosition;
       body.style.top = prevTop;
       body.style.width = prevWidth;
+      body.style.paddingRight = prevPaddingRight;
       window.scrollTo(0, scrollY);
       previouslyFocusedRef.current?.focus?.();
     };

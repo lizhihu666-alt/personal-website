@@ -145,15 +145,54 @@ export function ContactModal({ isOpen, onClose, closeLabel = '关闭', ...card }
       overflow: body.style.overflow,
       position: body.style.position,
       top: body.style.top,
-      width: body.style.width
+      width: body.style.width,
+      paddingRight: body.style.paddingRight
     };
+    // 锁滚动后页面滚动条消失、主页整体右移；用右内边距补上滚动条宽度，打开瞬间主页不跳动。
+    const scrollbarWidth = window.innerWidth - document.documentElement.clientWidth;
     body.style.overflow = 'hidden';
     body.style.position = 'fixed';
     body.style.top = `-${scrollY}px`;
     body.style.width = '100%';
+    if (scrollbarWidth > 0) body.style.paddingRight = `${scrollbarWidth}px`;
 
     const previouslyFocused = document.activeElement as HTMLElement | null;
-    const onKey = (e: KeyboardEvent) => e.key === 'Escape' && onClose();
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        onClose();
+        return;
+      }
+      if (e.key !== 'Tab') return;
+
+      // 焦点陷阱：Tab 只在弹窗内的可聚焦元素之间循环，不跑到后面的页面里。
+      const dialog = dialogRef.current;
+      if (!dialog) return;
+      const candidates: HTMLElement[] = Array.from(
+        dialog.querySelectorAll(
+          'button:not([disabled]), a[href], input:not([disabled]), textarea:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'
+        )
+      );
+      // 名片翻面时背面的按钮是 visibility:hidden，聚焦不了，要排除掉，不然循环会卡在它上面。
+      const focusable = candidates.filter(
+        (el) => el.getClientRects().length > 0 && getComputedStyle(el).visibility !== 'hidden'
+      );
+
+      if (focusable.length === 0) {
+        e.preventDefault();
+        dialog.focus();
+        return;
+      }
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      const active = document.activeElement;
+      if (e.shiftKey && (active === first || active === dialog)) {
+        e.preventDefault();
+        last.focus();
+      } else if (!e.shiftKey && active === last) {
+        e.preventDefault();
+        first.focus();
+      }
+    };
     document.addEventListener('keydown', onKey);
     dialogRef.current?.focus();
 
@@ -163,6 +202,7 @@ export function ContactModal({ isOpen, onClose, closeLabel = '关闭', ...card }
       body.style.position = prev.position;
       body.style.top = prev.top;
       body.style.width = prev.width;
+      body.style.paddingRight = prev.paddingRight;
       window.scrollTo(0, scrollY);
       previouslyFocused?.focus?.();
     };

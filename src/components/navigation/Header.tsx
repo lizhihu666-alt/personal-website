@@ -131,7 +131,7 @@ export const Header: React.FC<HeaderProps> = ({
             <button
               id="nav-brand-logo"
               onClick={() => onSelectMode('home')}
-              className="group flex items-center gap-2 text-left focus:outline-none py-1 min-h-11 sm:min-h-0 shrink-0"
+              className="group flex items-center gap-2 text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-[#34D378] focus-visible:ring-offset-4 focus-visible:ring-offset-[#0A0B0D] rounded-sm py-1 min-h-11 sm:min-h-0 shrink-0"
               aria-label="回到首页"
             >
               <span
@@ -192,7 +192,7 @@ export const Header: React.FC<HeaderProps> = ({
                     <button
                       id="switcher-btn-work"
                       onClick={() => handleMenuModeSwitch('work')}
-                      className={`relative z-10 flex-1 px-2.5 py-2 min-h-11 rounded-full text-sm font-medium transition-colors duration-200 flex items-center justify-center gap-1 focus:outline-none whitespace-nowrap ${
+                      className={`relative z-10 flex-1 px-2.5 py-2 min-h-11 rounded-full text-sm font-medium transition-colors duration-200 flex items-center justify-center gap-1 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#0A0B0D] whitespace-nowrap ${
                         currentMode === 'work' ? 'text-white font-semibold' : 'text-[#4B5563] hover:text-[#0A0B0D]'
                       }`}
                     >
@@ -203,7 +203,7 @@ export const Header: React.FC<HeaderProps> = ({
                     <button
                       id="switcher-btn-life"
                       onClick={() => handleMenuModeSwitch('life')}
-                      className={`relative z-10 flex-1 px-2.5 py-2 min-h-11 rounded-full text-sm font-medium transition-colors duration-200 flex items-center justify-center gap-1 focus:outline-none whitespace-nowrap ${
+                      className={`relative z-10 flex-1 px-2.5 py-2 min-h-11 rounded-full text-sm font-medium transition-colors duration-200 flex items-center justify-center gap-1 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#0A0B0D] whitespace-nowrap ${
                         currentMode === 'life' ? 'text-white font-semibold' : 'text-[#4B5563] hover:text-[#0A0B0D]'
                       }`}
                     >

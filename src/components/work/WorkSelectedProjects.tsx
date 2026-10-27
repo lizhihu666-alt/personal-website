@@ -25,7 +25,7 @@ export const WorkSelectedProjects: React.FC = () => {
   // 滚到底后被方块盖成下一个板块（经历，浅色）的颜色。
   usePixelCover(pinRef, coverRef, '#F3F5F8', undefined, 5);
 
-  const openProject = (project: ProjectCaseStudy, trigger: HTMLButtonElement) => {
+  const getOrigin = (trigger: HTMLButtonElement): ActiveProject['origin'] => {
     const rect = trigger.getBoundingClientRect();
     const viewportWidth = document.documentElement.clientWidth;
     const viewportHeight = window.innerHeight;
@@ -34,18 +34,33 @@ export const WorkSelectedProjects: React.FC = () => {
     const right = Math.max(0, viewportWidth - Math.max(rect.right, 0));
     const bottom = Math.max(0, viewportHeight - Math.max(rect.bottom, 0));
 
+    return {
+      x: Math.min(viewportWidth, left + rect.width / 2),
+      y: Math.min(viewportHeight, top + rect.height / 2),
+      top,
+      right,
+      bottom,
+      left,
+    };
+  };
+
+  const openProject = (project: ProjectCaseStudy, trigger: HTMLButtonElement) => {
+    setActiveProject({ project, origin: getOrigin(trigger) });
+  };
+
+  // 案例之间循环切换；关闭时的收回动画要回到「当前这个案例」的卡片位置，所以同步更新 origin。
+  const navigateProject = (direction: 'prev' | 'next') => {
+    if (!activeProject) return;
+    const index = projects.findIndex((p) => p.id === activeProject.project.id);
+    const nextIndex = (index + (direction === 'next' ? 1 : -1) + projects.length) % projects.length;
+    const trigger = containerRef.current?.querySelectorAll<HTMLButtonElement>('.career-track-list button')[nextIndex];
     setActiveProject({
-      project,
-      origin: {
-        x: Math.min(viewportWidth, left + rect.width / 2),
-        y: Math.min(viewportHeight, top + rect.height / 2),
-        top,
-        right,
-        bottom,
-        left,
-      },
+      project: projects[nextIndex],
+      origin: trigger ? getOrigin(trigger) : activeProject.origin,
     });
   };
+
+  const activeIndex = activeProject ? projects.findIndex((p) => p.id === activeProject.project.id) : -1;
 
   return (
     <section
@@ -136,6 +151,9 @@ export const WorkSelectedProjects: React.FC = () => {
           project={activeProject.project}
           origin={activeProject.origin}
           onClose={() => setActiveProject(null)}
+          onNavigate={navigateProject}
+          prevTitle={projects[(activeIndex - 1 + projects.length) % projects.length]?.title}
+          nextTitle={projects[(activeIndex + 1) % projects.length]?.title}
         />
       )}
     </section>

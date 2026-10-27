@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useId, useLayoutEffect, useRef, useState } from 'react';
-import { X } from 'lucide-react';
+import { ChevronLeft, ChevronRight, X } from 'lucide-react';
 import { ProjectCaseStudy } from '../../types';
 import { gsap, isReducedMotion, ScrollTrigger } from '../../utils/gsapSetup';
 import { ProjectSystemField } from './ProjectSystemField';
@@ -15,13 +15,85 @@ interface ProjectImmersiveProps {
     left: number;
   };
   onClose: () => void;
+  // 在案例之间直接切换（循环）：传了才显示底部的「上一个 / 下一个」，也支持左右方向键。
+  onNavigate?: (direction: 'prev' | 'next') => void;
+  prevTitle?: string;
+  nextTitle?: string;
 }
+
+// 指标数字：案例入场后从 0 数到目标值（和成果板块的数字同一种语言）。
+// 屏幕上的数字由 effect 直接写进 DOM，不交给 React 管理文本节点；读屏读旁边的 sr-only 终值。
+// 减少动态效果时直接显示终值。
+const COUNT_PATTERN = /^(\D*)(\d+(?:\.\d+)?)(\D*)$/;
+
+const CountUpValue: React.FC<{ value: string }> = ({ value }) => {
+  const displayRef = useRef<HTMLSpanElement>(null);
+
+  useLayoutEffect(() => {
+    const display = displayRef.current;
+    if (!display) return;
+    display.textContent = value;
+
+    const match = value.match(COUNT_PATTERN);
+    if (!match || isReducedMotion()) return;
+
+    const [, prefix, digits, suffix] = match;
+    const target = parseFloat(digits);
+    const decimals = (digits.split('.')[1] ?? '').length;
+    const counter = { current: 0 };
+
+    // 先锁住外层宽度，数字位数变化时不会把旁边的指标推来推去。
+    const wrapper = display.parentElement?.parentElement;
+    const lockedWidth = wrapper ? wrapper.getBoundingClientRect().width : 0;
+    if (wrapper && lockedWidth > 0) wrapper.style.minWidth = `${lockedWidth}px`;
+
+    display.textContent = `${prefix}${(0).toFixed(decimals)}${suffix}`;
+    const tween = gsap.to(counter, {
+      current: target,
+      duration: 1,
+      delay: 0.4,
+      ease: 'power3.out',
+      onUpdate: () => {
+        display.textContent = `${prefix}${counter.current.toFixed(decimals)}${suffix}`;
+      },
+      onComplete: () => {
+        display.textContent = value;
+      },
+    });
+
+    return () => {
+      tween.kill();
+      display.textContent = value;
+      if (wrapper) wrapper.style.minWidth = '';
+    };
+  }, [value]);
+
+  return (
+    <>
+      <span ref={displayRef} aria-hidden="true" />
+      <span className="sr-only">{value}</span>
+    </>
+  );
+};
 
 export const ProjectImmersive: React.FC<ProjectImmersiveProps> = ({
   project,
   origin,
   onClose,
+  onNavigate,
+  prevTitle,
+  nextTitle,
 }) => {
+  const onNavigateRef = useRef(onNavigate);
+  onNavigateRef.current = onNavigate;
+  // 切换方向：下一个 = 1，上一个 = -1，首次打开 = 0。内容从切换的那一侧进场，和你按的方向一致。
+  const directionRef = useRef(0);
+  const handleNavigate = useCallback((direction: 'prev' | 'next') => {
+    directionRef.current = direction === 'next' ? 1 : -1;
+    onNavigateRef.current?.(direction);
+  }, []);
+  // 第一次打开才从卡片位置展开；之后在案例间切换不再重放展开动画，只重新播内容入场。
+  const hasOpenedRef = useRef(false);
   const rootRef = useRef<HTMLDivElement>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
   const closeButtonRef = useRef<HTMLButtonElement>(null);
@@ -68,7 +140,10 @@ export const ProjectImmersive: React.FC<ProjectImmersiveProps> = ({
 
     scroller.scrollTop = 0;
 
-    if (!isReducedMotion()) {
+    const isFirstOpen = !hasOpenedRef.current;
+    hasOpenedRef.current = true;
+
+    if (!isReducedMotion() && isFirstOpen) {
       const openingClip = `inset(${origin.top}px ${origin.right}px ${origin.bottom}px ${origin.left}px round 12px)`;
       const settledClip = 'inset(0px 0px 0px 0px round 0px)';
 
@@ -100,15 +175,27 @@ export const ProjectImmersive: React.FC<ProjectImmersiveProps> = ({
           },
         });
 
+        const direction = directionRef.current;
+        // 案例间切换：内容带着一道横向遮罩，从切换的那一侧划入（和方法板块「从左到右划出」同一种语言）；
+        // 首次打开仍是原来的上浮入场。
+        const from = direction
+          ? {
+              x: direction * 44,
+              opacity: 0,
+              clipPath: direction > 0 ? 'inset(0 0 0 60%)' : 'inset(0 60% 0 0)',
+            }
+          : { y: 30, opacity: 0, clipPath: 'inset(0 0 26% 0)' };
+
         revealTimeline.fromTo(
           reveals,
-          { y: 30, opacity: 0, clipPath: 'inset(0 0 26% 0)' },
+          from,
           {
+            x: 0,
             y: 0,
             opacity: 1,
             clipPath: 'inset(0 0 0% 0)',
-            duration: 0.72,
-            stagger: 0.07,
+            duration: direction ? 0.6 : 0.72,
+            stagger: direction ? 0.05 : 0.07,
             ease: 'power4.out',
             clearProps: stageIndex === 0 ? 'transform,opacity,clipPath' : undefined,
           }
@@ -163,6 +250,12 @@ export const ProjectImmersive: React.FC<ProjectImmersiveProps> = ({
         return;
       }
 
+      if ((event.key === 'ArrowLeft' || event.key === 'ArrowRight') && onNavigateRef.current) {
+        event.preventDefault();
+        handleNavigate(event.key === 'ArrowLeft' ? 'prev' : 'next');
+        return;
+      }
+
       if (event.key !== 'Tab') return;
 
       const focusableElements = getFocusableElements();
@@ -194,7 +287,7 @@ export const ProjectImmersive: React.FC<ProjectImmersiveProps> = ({
       window.cancelAnimationFrame(focusFrame);
       previousActiveElement?.focus();
     };
-  }, [requestClose]);
+  }, [requestClose, handleNavigate]);
 
   return (
     <div
@@ -245,8 +338,8 @@ export const ProjectImmersive: React.FC<ProjectImmersiveProps> = ({
                 <div className="project-stage-reveal mt-7 flex flex-wrap gap-x-10 gap-y-4">
                   {project.metrics.map((metric) => (
                     <div key={metric.label}>
-                      <div className="type-number text-[3.6em] font-semibold leading-none text-work-proof">
-                        {metric.value}
+                      <div className="type-number text-[3.6em] font-semibold leading-none text-[#7CEBB0]">
+                        <CountUpValue value={metric.value} />
                       </div>
                       <div className="mt-2 text-[0.95em] text-white">{metric.label}</div>
                     </div>
@@ -319,6 +412,29 @@ export const ProjectImmersive: React.FC<ProjectImmersiveProps> = ({
           <span className="absolute bottom-0 left-0 h-0.5 w-full rounded-sm bg-current" />
         </span>
       </button>
+
+      {onNavigate && (
+        <>
+          <button
+            type="button"
+            onClick={() => handleNavigate('prev')}
+            aria-label={prevTitle ? `上一个案例：${prevTitle}` : '上一个案例'}
+            className="group absolute bottom-12 left-6 z-30 flex min-h-11 items-center gap-1.5 text-sm text-white focus-visible:outline focus-visible:outline-1 focus-visible:outline-offset-4 focus-visible:outline-white sm:left-10 lg:left-16"
+          >
+            <ChevronLeft className="h-5 w-5 transition-transform duration-200 group-hover:-translate-x-0.5" aria-hidden="true" />
+            <span>上一个</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => handleNavigate('next')}
+            aria-label={nextTitle ? `下一个案例：${nextTitle}` : '下一个案例'}
+            className="group absolute bottom-12 right-6 z-30 flex min-h-11 items-center gap-1.5 text-sm text-white focus-visible:outline focus-visible:outline-1 focus-visible:outline-offset-4 focus-visible:outline-white sm:right-10 lg:right-16"
+          >
+            <span>下一个</span>
+            <ChevronRight className="h-5 w-5 transition-transform duration-200 group-hover:translate-x-0.5" aria-hidden="true" />
+          </button>
+        </>
+      )}
 
       <button
         ref={closeButtonRef}
