@@ -128,7 +128,7 @@ export const WorkImpact: React.FC = () => {
 
   const metrics = [
     {
-      num: '30%',
+      num: '40%',
       title: '品牌上线周期缩短',
       context: '入驻 SOP + 招商 Pipeline，6 个月内平均缩短',
     },

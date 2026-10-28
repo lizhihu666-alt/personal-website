@@ -21,6 +21,12 @@ interface ProjectImmersiveProps {
   nextTitle?: string;
 }
 
+// 案例页正文的基准字号；电脑宽度下内容太多放不进一屏时，由 fit 逻辑在它的基础上逐步收小（见组件内）。
+const BASE_FONT_SIZE = 'clamp(14px, min(2.4vh, 1.55vw), 24px)';
+const MIN_FONT_SIZE = 12;
+// 一屏的可用高度要扣掉：白色顶栏 64、正文上内边距 24、底部给关闭按钮和上一个/下一个留的 96。
+const RESERVED_HEIGHT = 64 + 24 + 96;
+
 // 指标数字：案例入场后从 0 数到目标值（和成果板块的数字同一种语言）。
 // 屏幕上的数字由 effect 直接写进 DOM，不交给 React 管理文本节点；读屏读旁边的 sr-only 终值。
 // 减少动态效果时直接显示终值。
@@ -96,6 +102,7 @@ export const ProjectImmersive: React.FC<ProjectImmersiveProps> = ({
   const hasOpenedRef = useRef(false);
   const rootRef = useRef<HTMLDivElement>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
+  const contentRef = useRef<HTMLDivElement>(null);
   const closeButtonRef = useRef<HTMLButtonElement>(null);
   const closingRef = useRef(false);
   const [isClosing, setIsClosing] = useState(false);
@@ -131,6 +138,31 @@ export const ProjectImmersive: React.FC<ProjectImmersiveProps> = ({
       isReducedMotion() ? 50 : 340
     );
   }, [requestClose]);
+
+  // 电脑宽度下案例要一屏放下：先用基准字号，装不下就一点点收小（最小 12px），保证不压到底部按钮。
+  // 手机宽度是自然往下滚的，不收。切换案例、改变窗口大小、字体加载完都要重算。
+  useLayoutEffect(() => {
+    const content = contentRef.current;
+    const scroller = scrollRef.current;
+    if (!content || !scroller) return;
+
+    const fit = () => {
+      content.style.fontSize = BASE_FONT_SIZE;
+      if (window.innerWidth < 1024) return;
+
+      const available = scroller.clientHeight - RESERVED_HEIGHT;
+      let size = parseFloat(getComputedStyle(content).fontSize);
+      while (content.getBoundingClientRect().height > available && size > MIN_FONT_SIZE) {
+        size -= 0.5;
+        content.style.fontSize = `${size}px`;
+      }
+    };
+
+    fit();
+    window.addEventListener('resize', fit);
+    document.fonts?.ready.then(fit);
+    return () => window.removeEventListener('resize', fit);
+  }, [project.id]);
 
   useLayoutEffect(() => {
     const root = rootRef.current;
@@ -308,8 +340,9 @@ export const ProjectImmersive: React.FC<ProjectImmersiveProps> = ({
 
         <section className="project-immersive-stage flex min-h-[calc(100dvh-4rem)] items-center px-6 pb-24 pt-6 sm:px-10 lg:px-16">
           <div
+            ref={contentRef}
             className="project-stage-content mx-auto grid w-full max-w-7xl grid-cols-1 gap-8 lg:grid-cols-12 lg:gap-14"
-            style={{ fontSize: 'clamp(14px, min(2.4vh, 1.55vw), 24px)' }}
+            style={{ fontSize: BASE_FONT_SIZE }}
           >
             <div className="lg:col-span-4">
               <h2
@@ -353,8 +386,10 @@ export const ProjectImmersive: React.FC<ProjectImmersiveProps> = ({
                   <h3 className="text-[0.95em] font-semibold text-white">情境</h3>
                 </div>
                 <div className="text-[1em] leading-[1.75] text-white">
-                  <p>{project.context}</p>
-                  <p className="mt-[0.4em] text-white">{project.problem}</p>
+                  <p>
+                    {project.context}
+                    {project.problem}
+                  </p>
                 </div>
               </div>
               <div className="project-stage-reveal grid grid-cols-[3.4em_1fr] gap-3 sm:grid-cols-[4.5em_1fr] sm:gap-4 border-t border-white/25 py-[0.75em]">
