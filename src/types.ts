@@ -27,10 +27,28 @@ export interface ProjectCaseStudy {
   problem: string;
   myRole: string;
   whatIDid: string[];
+  // 案例页「行动」里的配图：缩略图显示在对应那条行动的右侧，点击放大并可在同一条行动的配图间切换。
+  // 不写 action 时，第 N 张图对应第 N 条行动；写了 action（从 0 开始的行动序号），同一条行动可以挂多张图。
+  images?: ProjectImage[];
+  // 行动旁边的外链（比如已上线的网站）：显示在对应那条行动的文字末尾，在大图预览里也会带上。
+  links?: ProjectLink[];
   system?: string;
   result: string;
   metrics?: ProjectMetric[];
   whatILearned: string;
+}
+
+export interface ProjectLink {
+  action: number;
+  href: string;
+  label: string;
+}
+
+export interface ProjectImage {
+  src: string;
+  alt: string;
+  caption?: string;
+  action?: number;
 }
 
 export interface CapabilityItem {

@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useId, useLayoutEffect, useRef, useState } from 'react';
-import { ChevronLeft, ChevronRight, X } from 'lucide-react';
-import { ProjectCaseStudy } from '../../types';
+import { ArrowUpRight, ChevronLeft, ChevronRight, Maximize2, X } from 'lucide-react';
+import { ProjectImageLightbox } from './ProjectImageLightbox';
+import { ProjectCaseStudy, ProjectImage } from '../../types';
 import { gsap, isReducedMotion, ScrollTrigger } from '../../utils/gsapSetup';
 import { ProjectSystemField } from './ProjectSystemField';
 
@@ -106,6 +107,16 @@ export const ProjectImmersive: React.FC<ProjectImmersiveProps> = ({
   const closeButtonRef = useRef<HTMLButtonElement>(null);
   const closingRef = useRef(false);
   const [isClosing, setIsClosing] = useState(false);
+  // 配图按「对应的行动序号」分组：不写 action 的图按它在数组里的位置对应第 N 条行动。
+  const imagesByAction = new Map<number, ProjectImage[]>();
+  project.images?.forEach((image, position) => {
+    const action = image.action ?? position;
+    imagesByAction.set(action, [...(imagesByAction.get(action) ?? []), image]);
+  });
+  // 当前放大的是哪条行动的第几张图；切换案例时收起。
+  const [lightbox, setLightbox] = useState<{ action: number; index: number } | null>(null);
+  useEffect(() => setLightbox(null), [project.id]);
+  const lightboxImages = lightbox ? imagesByAction.get(lightbox.action) : undefined;
   const headingId = useId();
 
   const requestClose = useCallback(() => {
@@ -403,12 +414,68 @@ export const ProjectImmersive: React.FC<ProjectImmersiveProps> = ({
                   <h3 className="text-[0.95em] font-semibold text-white">行动</h3>
                 </div>
                 <ul className="space-y-[0.6em]">
-                  {project.whatIDid.map((action) => (
-                    <li key={action} className="relative pl-4 text-[1em] leading-[1.75] text-white">
-                      <span className="absolute left-0 top-[0.8em] h-1.5 w-1.5 rounded-full bg-white" />
-                      {action}
-                    </li>
-                  ))}
+                  {project.whatIDid.map((action, actionIndex) => {
+                    const group = imagesByAction.get(actionIndex);
+                    const image = group?.[0];
+                    const link = project.links?.find((item) => item.action === actionIndex);
+
+                    return (
+                      <li
+                        key={action}
+                        className={`relative pl-4 text-[1em] leading-[1.75] text-white ${
+                          image ? 'flex items-start gap-[1em]' : ''
+                        }`}
+                      >
+                        <span className="absolute left-0 top-[0.8em] h-1.5 w-1.5 rounded-full bg-white" />
+                        <span className={image ? 'min-w-0 flex-1' : undefined}>
+                          {action}
+                          {link && (
+                            <a
+                              href={link.href}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              aria-label={`${link.label}（在新窗口打开）`}
+                              className="ml-[0.6em] inline-flex items-center gap-[0.15em] whitespace-nowrap font-medium underline decoration-white/50 underline-offset-[0.22em] transition-[text-decoration-color] duration-200 hover:decoration-white focus-visible:decoration-white focus-visible:outline-none"
+                            >
+                              {link.label}
+                              <ArrowUpRight className="h-[1.05em] w-[1.05em]" aria-hidden="true" />
+                            </a>
+                          )}
+                        </span>
+                        {image && (
+                          <button
+                            type="button"
+                            onClick={() => setLightbox({ action: actionIndex, index: 0 })}
+                            aria-haspopup="dialog"
+                            aria-label={`查看大图：${image.caption ?? image.alt}${group && group.length > 1 ? `（共 ${group.length} 张）` : ''}`}
+                            className="group/thumb relative mt-[0.35em] h-[3.4em] w-[5.6em] shrink-0 overflow-hidden rounded-md border border-white/50 bg-black/10 transition-[border-color,transform] duration-200 hover:border-white focus-visible:border-white focus-visible:outline-none active:scale-95"
+                          >
+                            <img
+                              src={image.src}
+                              alt=""
+                              loading="lazy"
+                              decoding="async"
+                              className="h-full w-full object-cover object-top transition-transform duration-300 ease-out group-hover/thumb:scale-110 group-focus-visible/thumb:scale-110"
+                            />
+                            <span
+                              aria-hidden="true"
+                              className="absolute inset-0 flex items-center justify-center bg-[#0E7C3D]/55 opacity-0 transition-opacity duration-200 group-hover/thumb:opacity-100 group-focus-visible/thumb:opacity-100"
+                            >
+                              <Maximize2 className="h-[1.3em] w-[1.3em]" />
+                            </span>
+                            {group && group.length > 1 && (
+                              <span
+                                aria-hidden="true"
+                                className="absolute bottom-0 right-0 rounded-tl-md bg-[#0E7C3D] px-[0.45em] py-[0.1em] text-[0.7em] font-medium leading-none text-white"
+                              >
+                                {group.length} 张
+                              </span>
+                            )}
+                          </button>
+                        )}
+                      </li>
+                    );
+                  })}
                 </ul>
               </div>
               <div className="project-stage-reveal grid grid-cols-[3.4em_1fr] gap-3 sm:grid-cols-[4.5em_1fr] sm:gap-4 border-t border-white/25 py-[0.75em]">
@@ -476,6 +543,16 @@ export const ProjectImmersive: React.FC<ProjectImmersiveProps> = ({
           <X className="h-4 w-4" aria-hidden="true" />
         </span>
       </button>
+
+      {lightbox && lightboxImages && (
+        <ProjectImageLightbox
+          images={lightboxImages}
+          link={project.links?.find((item) => item.action === lightbox.action)}
+          index={lightbox.index}
+          onIndexChange={(index) => setLightbox({ action: lightbox.action, index })}
+          onClose={() => setLightbox(null)}
+        />
+      )}
     </div>
   );
 };

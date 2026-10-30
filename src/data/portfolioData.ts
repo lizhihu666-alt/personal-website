@@ -144,6 +144,29 @@ export const WORK_DATA = {
         "品牌入驻自助网站 + AI 顾问：把招商 SOP 与脱敏后的真实群问答整理为 8 大模块、57 条 Q&A 的知识库，接入 RAG 搭建问答助手并上线；",
         "商家中心运营辅助插件：一键巡检商品/价格/订单，自动聚合当日待办，并接入 API 支持商品文案一键优化。",
       ],
+      // 配图（图片在 public/projects/ai-tools/）：action 是对应行动的序号（0 起），同一条行动可以挂多张图。
+      // 外链：显示在对应行动的末尾，在大图预览里也会带上。
+      links: [{ action: 1, href: "https://jf-onboarding-ten.vercel.app/", label: "访问网站" }],
+      images: [
+        { action: 0, src: "/projects/ai-tools/fms-1-generate.png", alt: "FMS 付款助手：按品牌或 Vendor、结算月份生成账单", caption: "生成账单：选好品牌或 Vendor、店铺和结算月份，一次生成多张账单" },
+        { action: 0, src: "/projects/ai-tools/fms-2-supplement.png", alt: "FMS 付款助手：补充基础数据", caption: "补充数据：识别缺失的基础数据，生成导入文件，复查后导入 FMS" },
+        { action: 0, src: "/projects/ai-tools/fms-3-verify.webp", alt: "FMS 付款助手：账单状态验证与对账表", caption: "账单状态验证：核对各账单状态，需要对账时下载清洗后的对账表" },
+        { action: 0, src: "/projects/ai-tools/fms-4-invoice.png", alt: "FMS 付款助手：上传发票并请款", caption: "上传发票并请款：多张账单合并请款，插件只保存草稿，由人工在 FMS 核查提交" },
+        { action: 0, src: "/projects/ai-tools/fms-5-progress.webp", alt: "FMS 付款助手：付款进度概况", caption: "付款进度：逾期、关注、正常、待出账的账单概况，以及需要处理的清单" },
+        { action: 0, src: "/projects/ai-tools/fms-6-urge.webp", alt: "付款进度跟踪表：催办清单", caption: "催办清单：按卡点的人分组，一键复制催办话术，由本人发给对方" },
+        { action: 0, src: "/projects/ai-tools/fms-7-matrix.webp", alt: "付款进度跟踪表：进度矩阵", caption: "进度矩阵：品牌 × 月份的付款状态，颜色代表风险，点击格子查看明细" },
+        // 第 2 条行动「品牌入驻自助网站 + AI 顾问」的 6 张截图。
+        { action: 1, src: "/projects/ai-tools/jf-1-landing.webp", alt: "品牌入驻指南网站首页", caption: "品牌入驻指南首页：一键开始对接流程" },
+        { action: 1, src: "/projects/ai-tools/jf-2-flow.png", alt: "品牌入驻指南：入驻流程页", caption: "入驻流程：按美国 / 欧洲市场、直发 / 寄售模式，分步骤指引合同签署等环节" },
+        { action: 1, src: "/projects/ai-tools/jf-3-guide.png", alt: "品牌入驻指南：商家中心实操指引", caption: "商家中心实操指引：开通账号、产品 / 价格 / 库存上传、订单查看、物流回传" },
+        { action: 1, src: "/projects/ai-tools/jf-4-api.png", alt: "品牌入驻指南：API 文档", caption: "API 文档：商户 API 的环境、身份认证、库存、履约单、物流商、退款等接口说明" },
+        { action: 1, src: "/projects/ai-tools/jf-5-faq.png", alt: "品牌入驻指南：常见问题", caption: "常见问题：按主题整理品牌入驻与运营中的高频疑问" },
+        { action: 1, src: "/projects/ai-tools/jf-6-advisor.png", alt: "品牌入驻指南：AI 顾问对话窗口", caption: "入驻 AI 顾问：随时解答合作流程、合规资质、表格规范与系统对接问题" },
+        // 第 3 条行动「商家中心运营辅助插件」的 3 张截图（均为演示数据）。
+        { action: 2, src: "/projects/ai-tools/eh-1-patrol.webp", alt: "EH Assistant：待办巡检", caption: "待办巡检：一键巡检 Catalogue、Pricing、Order，按商家汇总当日待办，可搜索、导出 CSV、复制" },
+        { action: 2, src: "/projects/ai-tools/eh-2-review.png", alt: "EH Assistant：商品审核", caption: "商品审核：检查标题规范、拼写、Description、价格字段一致性与图片背景，结果仅作提示，由运营最终判断" },
+        { action: 2, src: "/projects/ai-tools/eh-3-optimize.png", alt: "EH Assistant：一键优化 Title / Description", caption: "一键优化：按品类规范调用 AI 生成建议文案，可复制或一键填入编辑框，仍需人工确认后保存" },
+      ],
       system: "三个独立上线的工具：财务结算插件、品牌入驻 AI 顾问、商家中心运营辅助插件。",
       result: "商品上架时间缩短 60%，新品牌 3 天内上架；运营从“每群必答”转为“只处理复杂问题”，为承接 20+ 新品牌提供自助化基础。",
       metrics: [
