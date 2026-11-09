@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { ArrowUpRight, ChevronLeft, ChevronRight, X } from 'lucide-react';
 import { ProjectImage, ProjectLink } from '../../types';
 import { gsap, isReducedMotion } from '../../utils/gsapSetup';
@@ -26,7 +26,36 @@ export const ProjectImageLightbox: React.FC<ProjectImageLightboxProps> = ({
   const stateRef = useRef({ index, count: images.length, onIndexChange, onClose });
   stateRef.current = { index, count: images.length, onIndexChange, onClose };
 
-  const image = images[index];
+  // 翻页时，新图还没加载好就直接换 src，图片框会先塌成一条细线、加载完再撑开，看起来像一条浅线在往上跳。
+  // 所以：先在后台把新图加载并解码，好了再换；换之前继续显示上一张。打开时也顺手把这一组其余的图预加载。
+  const [shown, setShown] = useState(index);
+  useEffect(() => {
+    images.forEach((item) => {
+      const preload = new Image();
+      preload.src = item.src;
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+  useEffect(() => {
+    if (index === shown) return;
+    let cancelled = false;
+    const next = new Image();
+    next.src = images[index].src;
+    const done = () => {
+      if (!cancelled) setShown(index);
+    };
+    if (typeof next.decode === 'function') next.decode().then(done, done);
+    else {
+      next.onload = done;
+      next.onerror = done;
+    }
+    return () => {
+      cancelled = true;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [index]);
+
+  const image = images[shown] ?? images[index];
   const hasMany = images.length > 1;
 
   useEffect(() => {
@@ -117,7 +146,7 @@ export const ProjectImageLightbox: React.FC<ProjectImageLightboxProps> = ({
           {image.caption}
           {hasMany && (
             <span className="ml-3 tabular-nums text-white/70" aria-hidden="true">
-              {index + 1} / {images.length}
+              {shown + 1} / {images.length}
             </span>
           )}
         </figcaption>
