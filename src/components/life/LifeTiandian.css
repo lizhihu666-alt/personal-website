@@ -1,0 +1,459 @@
+/* 生活页「小甜点」：照片可以摸，「在外 / 在家」是决定它脾气的开关。 */
+
+/* ── 照片 ── */
+
+.tiandian-photo {
+  position: relative;
+  display: block;
+  width: 100%;
+  aspect-ratio: 4 / 5;
+  padding: 0;
+  border: 0;
+  border-radius: 1rem;
+  background: #161616;
+  /* 在外：不让摸，鼠标直接变成禁止 */
+  cursor: not-allowed;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+  will-change: transform;
+}
+
+.tiandian-photo[data-mood='home'] {
+  cursor: grab;
+}
+
+.tiandian-photo[data-mood='home']:active {
+  cursor: grabbing;
+}
+
+.tiandian-photo:focus-visible {
+  outline: 2px solid var(--life-accent);
+  outline-offset: 4px;
+}
+
+/* 照片本体：裁在圆角里；摇头、蹭一下的动画都做在这一层，所以略微放大一点，晃动时不露边 */
+.tiandian-photo-inner {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  border-radius: inherit;
+}
+
+.tiandian-photo-inner img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 50% 35%;
+  transform: scale(1.06);
+  user-select: none;
+  /* 在外：冷一点、淡一点 */
+  filter: saturate(0.72) brightness(0.9);
+  transition:
+    filter 0.7s cubic-bezier(0.22, 1, 0.36, 1),
+    transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.tiandian-photo[data-mood='home'] .tiandian-photo-inner img {
+  filter: saturate(1.08) brightness(1.02);
+  transform: scale(1.1);
+}
+
+/* 在家：照片外面多一圈细细的暖色描边（只是一条线，不做大面积发光） */
+.tiandian-photo::after {
+  content: '';
+  position: absolute;
+  inset: -5px;
+  border-radius: calc(1rem + 5px);
+  border: 1px solid var(--life-accent);
+  opacity: 0;
+  transform: scale(0.98);
+  transition:
+    opacity 0.5s ease,
+    transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+  pointer-events: none;
+}
+
+.tiandian-photo[data-mood='home']::after {
+  opacity: 0.55;
+  transform: scale(1);
+}
+
+/* 左下角提示 */
+.tiandian-hint {
+  position: absolute;
+  left: 0.875rem;
+  bottom: 0.875rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  max-width: calc(100% - 1.75rem);
+  padding: 0.45rem 0.75rem;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(11, 11, 11, 0.72);
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+  color: #f5f4f2;
+  font-size: 0.8125rem;
+  line-height: 1.2;
+  text-align: left;
+  transition:
+    color 0.4s ease,
+    border-color 0.4s ease;
+}
+
+.tiandian-photo[data-mood='home'] .tiandian-hint {
+  color: var(--life-accent);
+  border-color: color-mix(in srgb, var(--life-accent) 45%, transparent);
+}
+
+.tiandian-hint-text {
+  animation: tiandian-swap 0.35s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes tiandian-swap {
+  from {
+    opacity: 0;
+    transform: translateY(5px);
+  }
+}
+
+/* 「不让摸」气泡：在小甜点头顶右上方蹦出来 */
+.tiandian-bubble {
+  position: absolute;
+  right: 7%;
+  top: 27%;
+  padding: 0.5rem 0.85rem;
+  border-radius: 1rem 1rem 1rem 0.25rem;
+  background: #f5f4f2;
+  color: #0b0b0b;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  line-height: 1;
+  white-space: nowrap;
+  transform-origin: 0% 100%;
+  animation: tiandian-bubble 1.3s cubic-bezier(0.22, 1, 0.36, 1) both;
+  pointer-events: none;
+}
+
+@keyframes tiandian-bubble {
+  0% {
+    opacity: 0;
+    transform: scale(0.4) rotate(-8deg);
+  }
+  14% {
+    opacity: 1;
+    transform: scale(1.08) rotate(2deg);
+  }
+  22% {
+    transform: scale(1) rotate(0deg);
+  }
+  80% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(0.96) translateY(-6px);
+  }
+}
+
+/* 爱心：从点击的位置往上飘，带一点随机的左右偏移和旋转 */
+.tiandian-heart {
+  position: absolute;
+  display: block;
+  color: var(--life-accent);
+  opacity: 0;
+  transform: translate(-50%, -50%);
+  animation: tiandian-heart 1s cubic-bezier(0.22, 1, 0.36, 1) both;
+  pointer-events: none;
+}
+
+.tiandian-heart svg {
+  display: block;
+  filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.45));
+}
+
+@keyframes tiandian-heart {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.3);
+  }
+  18% {
+    opacity: 1;
+    transform: translate(-50%, -70%) scale(1.15);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(calc(-50% + var(--dx)), calc(-50% - 110px)) scale(0.9) rotate(var(--rot));
+  }
+}
+
+/* ── 名字：切到「在家」时三个字挨个蹦一下 ── */
+
+.tiandian-name > span {
+  display: inline-block;
+}
+
+.tiandian-name[data-mood='home'] > span {
+  animation: tiandian-hop 0.55s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+@keyframes tiandian-hop {
+  0% {
+    transform: translateY(0);
+  }
+  40% {
+    transform: translateY(-0.28em) rotate(-4deg);
+  }
+  100% {
+    transform: translateY(0);
+  }
+}
+
+/* ── 两副面孔开关：高亮滑块在两半之间滑动 ── */
+
+.tiandian-moods {
+  position: relative;
+  display: grid;
+  grid-auto-rows: 1fr;
+  padding: 5px;
+  border-radius: 1.125rem;
+  border: 1px solid #2a2a2a;
+  background: #0f0f0f;
+}
+
+@media (min-width: 640px) {
+  .tiandian-moods {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+/* 滑块：手机上下滑，电脑左右滑；在外是中性灰，在家是暖色 */
+.tiandian-moods-thumb {
+  position: absolute;
+  top: 5px;
+  left: 5px;
+  width: calc(100% - 10px);
+  height: calc(50% - 5px);
+  border-radius: 0.8125rem;
+  border: 1px solid #3a3a3a;
+  background: #1e1e1e;
+  box-shadow: 0 8px 20px -12px rgba(0, 0, 0, 0.9);
+  transition:
+    transform 0.55s cubic-bezier(0.34, 1.3, 0.64, 1),
+    background-color 0.45s ease,
+    border-color 0.45s ease;
+}
+
+.tiandian-moods[data-mood='home'] .tiandian-moods-thumb {
+  transform: translateY(100%);
+  border-color: color-mix(in srgb, var(--life-accent) 55%, transparent);
+  background: color-mix(in srgb, var(--life-accent) 16%, #141414);
+}
+
+@media (min-width: 640px) {
+  .tiandian-moods-thumb {
+    width: calc(50% - 5px);
+    height: calc(100% - 10px);
+  }
+  .tiandian-moods[data-mood='home'] .tiandian-moods-thumb {
+    transform: translateX(100%);
+  }
+}
+
+/* 滑块朝另一半那一侧的小把手：一看就是「可以拨过去」的东西 */
+.tiandian-moods-thumb::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  bottom: 6px;
+  width: 22px;
+  height: 3px;
+  margin-left: -11px;
+  border-radius: 999px;
+  background: #5a5754;
+  transition:
+    background-color 0.45s ease,
+    top 0.45s ease,
+    bottom 0.45s ease,
+    left 0.45s ease,
+    right 0.45s ease;
+}
+
+.tiandian-moods[data-mood='home'] .tiandian-moods-thumb::after {
+  top: 6px;
+  bottom: auto;
+  background: color-mix(in srgb, var(--life-accent) 75%, transparent);
+}
+
+@media (min-width: 640px) {
+  .tiandian-moods-thumb::after {
+    left: auto;
+    right: 6px;
+    top: 50%;
+    bottom: auto;
+    width: 3px;
+    height: 22px;
+    margin: -11px 0 0;
+  }
+  .tiandian-moods[data-mood='home'] .tiandian-moods-thumb::after {
+    left: 6px;
+    right: auto;
+    top: 50%;
+  }
+}
+
+/* 悬停在没选中的那一半：滑块被「拉」过去一点，松开就弹回，点了才真的滑过去 */
+@media (min-width: 640px) and (hover: hover) {
+  .tiandian-moods[data-mood='outside']:has(.tiandian-mood--home:hover) .tiandian-moods-thumb {
+    transform: translateX(14px);
+  }
+  .tiandian-moods[data-mood='home']:has(.tiandian-mood--outside:hover) .tiandian-moods-thumb {
+    transform: translateX(calc(100% - 14px));
+  }
+}
+
+/* 还没拨过：滑块隔几秒朝另一边探一下头 */
+.tiandian-moods[data-nudge='true'] .tiandian-moods-thumb {
+  animation: tiandian-peek-y 3.2s cubic-bezier(0.34, 1.56, 0.64, 1) 1.2s infinite;
+}
+
+@keyframes tiandian-peek-y {
+  0%,
+  72%,
+  100% {
+    transform: translateY(0);
+  }
+  80% {
+    transform: translateY(12px);
+  }
+  88% {
+    transform: translateY(-2px);
+  }
+}
+
+@media (min-width: 640px) {
+  .tiandian-moods[data-nudge='true'] .tiandian-moods-thumb {
+    animation-name: tiandian-peek-x;
+  }
+  /* 悬停时停掉探头，让「被拉过去」生效 */
+  .tiandian-moods[data-nudge='true']:has(.tiandian-mood--home:hover) .tiandian-moods-thumb {
+    animation: none;
+  }
+}
+
+@keyframes tiandian-peek-x {
+  0%,
+  72%,
+  100% {
+    transform: translateX(0);
+  }
+  80% {
+    transform: translateX(16px);
+  }
+  88% {
+    transform: translateX(-3px);
+  }
+}
+
+.tiandian-mood {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 0.75rem;
+  padding: 1.25rem 1.375rem 1.375rem;
+  border: 0;
+  border-radius: 0.8125rem;
+  background: transparent;
+  text-align: left;
+  cursor: pointer;
+}
+
+.tiandian-mood[aria-checked='true'] {
+  cursor: default;
+}
+
+.tiandian-mood:focus-visible {
+  outline: 2px solid var(--life-accent);
+  outline-offset: 2px;
+}
+
+.tiandian-mood-head {
+  display: flex;
+  align-items: center;
+  font-size: 0.875rem;
+  color: #8a8784;
+  transition: color 0.35s ease;
+}
+
+.tiandian-mood-what {
+  font-size: 1.25rem;
+  font-weight: 600;
+  line-height: 1.375;
+  color: #6b6865;
+  transition:
+    color 0.35s ease,
+    transform 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@media (min-width: 640px) {
+  .tiandian-mood-what {
+    font-size: 1.5rem;
+  }
+}
+
+.tiandian-mood:not([aria-checked='true']):hover .tiandian-mood-what {
+  color: #d2ceca;
+  transform: translateX(3px);
+}
+
+/* 选中的那一半 */
+.tiandian-mood[aria-checked='true'] .tiandian-mood-what {
+  color: #f5f4f2;
+}
+
+.tiandian-mood--outside[aria-checked='true'] .tiandian-mood-head {
+  color: #d2ceca;
+}
+
+.tiandian-mood--home[aria-checked='true'] .tiandian-mood-head {
+  color: var(--life-accent);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tiandian-photo-inner img,
+  .tiandian-photo::after,
+  .tiandian-mood-what,
+  .tiandian-moods-thumb {
+    transition: none;
+  }
+  .tiandian-moods-thumb::after {
+    transition: none;
+  }
+  .tiandian-moods[data-nudge='true'] .tiandian-moods-thumb {
+    animation: none;
+  }
+  .tiandian-hint-text,
+  .tiandian-name[data-mood='home'] > span {
+    animation: none;
+  }
+  .tiandian-bubble {
+    animation: tiandian-bubble-fade 1.3s linear both;
+  }
+  .tiandian-heart {
+    display: none;
+  }
+}
+
+@keyframes tiandian-bubble-fade {
+  0%,
+  85% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
