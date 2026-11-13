@@ -1,10 +1,4 @@
-/* 生活页「施工中」占位页：蓝色主题，跟生活模式的强调色（#4F8CFF）一致。 */
-
-.life-soon-glow {
-  background:
-    radial-gradient(60% 50% at 50% 0%, rgba(79, 140, 255, 0.16) 0%, transparent 70%),
-    radial-gradient(40% 35% at 85% 70%, rgba(47, 111, 237, 0.1) 0%, transparent 70%);
-}
+/* 生活页「施工中」占位页：中性黑底，强调色只做强调色，不大面积铺色，免得像加了一层滤镜。 */
 
 /* 进度条永远卡在 99%：条上有一道会扫过的亮光，装作"在努力" */
 .life-soon-bar-fill {

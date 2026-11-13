@@ -1,0 +1,362 @@
+/* 旅行地图：点阵底图 + 航线 + 光点 + 标签。强调色走 var(--life-accent)，底图点阵是低透明度的暖白。 */
+
+.travel-dots {
+  opacity: 0.32;
+  /* 上下渐隐，地图像浮在页面里，而不是一个框 */
+  -webkit-mask-image: linear-gradient(to bottom, transparent, #000 12%, #000 88%, transparent);
+  mask-image: linear-gradient(to bottom, transparent, #000 12%, #000 88%, transparent);
+}
+
+/* 每个点（家、城市）都以自己的坐标为中心定位 */
+.travel-point {
+  position: absolute;
+  z-index: 2;
+  width: 1.75rem;
+  height: 1.75rem;
+  margin: -0.875rem 0 0 -0.875rem;
+  display: grid;
+  place-items: center;
+  border: 0;
+  padding: 0;
+  background: transparent;
+  cursor: pointer;
+  transition: opacity 0.4s ease;
+}
+
+.travel-point[data-dim='true'] {
+  opacity: 0.25;
+}
+
+.travel-point:focus-visible {
+  outline: 2px solid var(--life-accent);
+  outline-offset: 2px;
+  border-radius: 999px;
+}
+
+.travel-dot {
+  grid-area: 1 / 1;
+  width: 5px;
+  height: 5px;
+  border-radius: 999px;
+  background: var(--life-accent);
+  box-shadow: 0 0 0 1.5px rgba(11, 11, 11, 0.9), 0 0 8px 1px color-mix(in srgb, var(--life-accent) 55%, transparent);
+  transition: transform 0.25s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.travel-point:hover .travel-dot,
+.travel-point[data-selected='true'] .travel-dot {
+  transform: scale(1.7);
+}
+
+.travel-dot--home {
+  width: 7px;
+  height: 7px;
+  background: #fff3d6;
+  box-shadow: 0 0 0 2px rgba(11, 11, 11, 0.9), 0 0 12px 2px color-mix(in srgb, var(--life-accent) 70%, transparent);
+}
+
+.travel-point--home {
+  cursor: default;
+  z-index: 3;
+}
+
+.travel-pulse {
+  grid-area: 1 / 1;
+  width: 6px;
+  height: 6px;
+  border-radius: 999px;
+  border: 1px solid var(--life-accent);
+  animation: travel-pulse 2.2s cubic-bezier(0.22, 1, 0.36, 1) infinite;
+  pointer-events: none;
+}
+
+@keyframes travel-pulse {
+  from {
+    transform: scale(1);
+    opacity: 0.9;
+  }
+  to {
+    transform: scale(4.2);
+    opacity: 0;
+  }
+}
+
+/* 标签：小药丸，挂在点的上 / 左 / 右 */
+.travel-label {
+  position: absolute;
+  z-index: 4;
+  white-space: nowrap;
+  border-radius: 999px;
+  border: 1px solid #2e2e2e;
+  background: rgba(14, 14, 14, 0.92);
+  color: #f5f4f2;
+  font-size: 0.75rem;
+  line-height: 1;
+  padding: 0.4rem 0.6rem;
+  box-shadow: 0 6px 18px -8px rgba(0, 0, 0, 0.8);
+}
+
+.travel-point .travel-label {
+  left: 50%;
+  top: 50%;
+}
+
+.travel-label--top {
+  transform: translate(-50%, calc(-100% - 0.7rem));
+}
+
+.travel-label--bottom {
+  transform: translate(-50%, 0.7rem);
+}
+
+.travel-label--left {
+  transform: translate(calc(-100% - 0.7rem), -50%);
+}
+
+.travel-label--right {
+  transform: translate(0.7rem, -50%);
+}
+
+.travel-label--home {
+  color: var(--life-on-accent);
+  background: var(--life-accent);
+  border-color: var(--life-accent);
+  font-weight: 600;
+}
+
+.travel-label--city {
+  border-color: color-mix(in srgb, var(--life-accent) 60%, transparent);
+  color: var(--life-accent);
+  font-weight: 600;
+}
+
+/* 国家标签本身就是按钮 */
+.travel-label--country {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  cursor: pointer;
+  transition:
+    border-color 0.2s ease,
+    color 0.2s ease,
+    opacity 0.4s ease;
+}
+
+.travel-label--country.travel-label--top {
+  transform: translate(-50%, calc(-100% - 0.9rem));
+}
+
+.travel-label--country.travel-label--left {
+  transform: translate(calc(-100% - 0.9rem), -50%);
+}
+
+.travel-label--country.travel-label--bottom {
+  transform: translate(-50%, 0.9rem);
+}
+
+.travel-label--country:hover,
+.travel-label--country:focus-visible,
+.travel-label--country[data-active='true'] {
+  border-color: var(--life-accent);
+  color: var(--life-accent);
+  outline: none;
+}
+
+.travel-label--country[data-dim='true'] {
+  opacity: 0.35;
+}
+
+.travel-label-count {
+  color: #8a8784;
+  font-variant-numeric: tabular-nums;
+}
+
+.travel-label--country[data-active='true'] .travel-label-count {
+  color: color-mix(in srgb, var(--life-accent) 75%, transparent);
+}
+
+/* 换国家时，城市列表和照片卡轻轻淡入 */
+.travel-cities,
+.travel-card {
+  animation: travel-fade 0.4s ease both;
+}
+
+@keyframes travel-fade {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+}
+
+@media (max-width: 640px) {
+  .travel-label {
+    font-size: 0.6875rem;
+    padding: 0.3rem 0.5rem;
+  }
+  .travel-dot {
+    width: 4px;
+    height: 4px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .travel-pulse,
+  .travel-cities,
+  .travel-card,
+  .travel-layer,
+  .travel-point--detail {
+    animation: none;
+  }
+  .travel-pulse {
+    opacity: 0.5;
+    transform: scale(2);
+  }
+}
+
+/* ── 放大到国家 ── */
+
+.travel-layer {
+  position: absolute;
+  inset: 0;
+}
+
+/* 世界层：放大时朝这个国家推近、淡出（transform-origin 由组件按国家坐标设置） */
+.travel-layer--world {
+  transition:
+    transform 0.8s cubic-bezier(0.65, 0, 0.35, 1),
+    opacity 0.55s ease;
+}
+
+.travel-stage[data-zoomed='true'] .travel-layer--world {
+  transform: scale(3.2);
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* 国家层：稍后一点淡入，从略小放到正常，像镜头推进后落定 */
+.travel-layer--detail {
+  animation: travel-zoom-in 0.75s cubic-bezier(0.22, 1, 0.36, 1) 0.18s both;
+}
+
+@keyframes travel-zoom-in {
+  from {
+    opacity: 0;
+    transform: scale(0.82);
+  }
+}
+
+.travel-dots--detail {
+  opacity: 1;
+}
+
+/* 国家里的城市：小一点的点击区（日本几个城市挨得很近），名字只在悬停 / 选中时出现 */
+.travel-point--detail {
+  width: 1.25rem;
+  height: 1.25rem;
+  margin: -0.625rem 0 0 -0.625rem;
+  animation: travel-pop 0.45s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+@keyframes travel-pop {
+  from {
+    opacity: 0;
+    transform: scale(0.3);
+  }
+}
+
+.travel-point--detail .travel-dot {
+  width: 7px;
+  height: 7px;
+}
+
+.travel-point--detail .travel-label {
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease;
+}
+
+.travel-point--detail:hover,
+.travel-point--detail:focus-visible,
+.travel-point--detail[data-selected='true'] {
+  z-index: 5;
+}
+
+.travel-point--detail:hover .travel-label,
+.travel-point--detail:focus-visible .travel-label,
+.travel-point--detail[data-selected='true'] .travel-label {
+  opacity: 1;
+}
+
+.travel-detail-head {
+  position: absolute;
+  top: 0.25rem;
+  left: 0;
+  z-index: 6;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.travel-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  min-height: 2.25rem;
+  padding: 0 0.85rem;
+  border-radius: 999px;
+  border: 1px solid #333;
+  background: rgba(14, 14, 14, 0.92);
+  color: #f5f4f2;
+  font-size: 0.8125rem;
+  cursor: pointer;
+  transition:
+    border-color 0.2s ease,
+    color 0.2s ease;
+}
+
+.travel-back:hover,
+.travel-back:focus-visible {
+  border-color: var(--life-accent);
+  color: var(--life-accent);
+  outline: none;
+}
+
+.travel-back svg {
+  transition: transform 0.2s ease;
+}
+
+.travel-back:hover svg {
+  transform: translateX(-2px);
+}
+
+.travel-detail-title {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.4rem;
+  color: #f5f4f2;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+@media (max-width: 640px) {
+  .travel-point--detail .travel-dot {
+    width: 5px;
+    height: 5px;
+  }
+  .travel-detail-head {
+    top: -0.5rem;
+  }
+  .travel-back {
+    min-height: 2rem;
+    padding: 0 0.7rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .travel-layer--world {
+    transition: opacity 0.2s ease;
+  }
+  .travel-stage[data-zoomed='true'] .travel-layer--world {
+    transform: none;
+  }
+}

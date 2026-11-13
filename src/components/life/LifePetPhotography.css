@@ -1,0 +1,115 @@
+/* 生活页「摄影」模块的照片带。
+   手机：横向滑动的相册，每张完整的 2:3。
+   电脑：手风琴，当前这张展开（约占一半宽度，正好是完整的 2:3），其余收成窄色带。 */
+
+.pet-strip {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.pet-panel {
+  position: relative;
+  overflow: hidden;
+  padding: 0;
+  border-radius: 1rem;
+  background: #161616;
+  cursor: pointer;
+}
+
+.pet-panel img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  user-select: none;
+}
+
+.pet-panel:focus-visible {
+  outline: 2px solid var(--life-accent);
+  outline-offset: 3px;
+}
+
+.pet-progress {
+  display: none;
+}
+
+@media (max-width: 767px) {
+  .pet-strip {
+    margin-inline: -1.5rem;
+    padding-inline: 1.5rem;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    scroll-padding-inline: 1.5rem;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .pet-strip::-webkit-scrollbar {
+    display: none;
+  }
+
+  .pet-panel {
+    flex: 0 0 68vw;
+    max-width: 18rem;
+    aspect-ratio: 2 / 3;
+    scroll-snap-align: start;
+    cursor: default;
+  }
+}
+
+@media (min-width: 768px) {
+  .pet-strip {
+    /* 展开的那张约占一半宽度，高度取它的 1.5 倍，所以整条是 4:3。 */
+    aspect-ratio: 4 / 3;
+    max-height: 37.5rem;
+  }
+
+  .pet-panel {
+    flex: 1 1 0;
+    min-width: 0;
+    transition: flex-grow 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  .pet-panel[data-active='true'] {
+    flex-grow: 5;
+  }
+
+  .pet-panel img {
+    filter: brightness(0.6) saturate(0.85);
+    transition: filter 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  .pet-panel[data-active='true'] img {
+    filter: none;
+  }
+
+  .pet-progress {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: 1rem;
+  }
+
+  .pet-progress span {
+    flex: 1 1 0;
+    height: 3px;
+    border-radius: 999px;
+    background: #262626;
+    transition:
+      flex-grow 0.6s cubic-bezier(0.22, 1, 0.36, 1),
+      background-color 0.3s ease;
+  }
+
+  .pet-progress span[data-active='true'] {
+    flex-grow: 5;
+    background: var(--pet-color);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pet-panel,
+  .pet-panel img,
+  .pet-progress span {
+    transition: none;
+  }
+}

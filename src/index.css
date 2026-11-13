@@ -38,11 +38,12 @@
     --work-surface: #0A0B0D;
     --work-border: #232A33;
 
-    /* Life 页沿用同一支绿，深色底上统一用提亮版，保证小字看得清 */
-    --life-primary: #0E7C3D;
-    --life-accent: #34D378;
-    --life-surface: #0D1014;
-    --life-border: #232A33;
+    /* 生活页强调色：只改 --life-accent / --life-on-accent，其余由它们派生（见 src/utils/lifePalette.ts） */
+    --life-accent: #FFC83D;
+    --life-on-accent: #1A1200;
+    --life-accent-hi: color-mix(in oklab, var(--life-accent) 80%, white);
+    --life-accent-deep: color-mix(in oklab, var(--life-accent) 86%, black);
+    --life-accent-ink: color-mix(in oklab, var(--life-accent) 52%, black);
   }
 
   body {

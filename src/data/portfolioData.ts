@@ -277,6 +277,140 @@ export const WORK_DATA = {
   },
 };
 
+// 生活页「摄影」模块：下班后的爱好——给毛孩子拍肖像。
+// 这个网站的读者主要是招聘方，所以这里只当爱好来讲：不放品牌名、不写「上门」这类服务定位、不放外链，
+// 免得看起来像在经营副业。图片在 public/photos/pet/，以后换无水印原图时同名替换即可。
+export const PET_PHOTOGRAPHY = {
+  headline: "为毛孩子，认真拍一张肖像",
+  intro: "业余时间，我喜欢给毛孩子拍肖像。在它最熟悉的地方，拍一张认真的照片。",
+  timeMachine: ["一只狗的一生，大约只有十几个春天。"],
+  // 顺序按背景色排成 蓝 / 红 / 黄 / 蓝 / 红 / 黄，和下方的三色进度条一一对应。
+  photos: [
+    { src: "/photos/pet/cover.jpg", width: 1638, height: 2048, alt: "系着红色条纹领带、脖子上挂着耳机的柴犬，蓝色背景" },
+    { src: "/photos/pet/work-01.jpg", width: 1365, height: 2048, alt: "张嘴吐着舌头、系着领带的边境牧羊犬，红色背景" },
+    { src: "/photos/pet/work-06.jpg", width: 1365, height: 2048, alt: "戴着灰色鲨鱼帽的白色小狗，黄色背景" },
+    { src: "/photos/pet/work-07.jpg", width: 1365, height: 2048, alt: "戴着圆框眼镜、吐着舌头的边境牧羊犬，蓝色背景" },
+    { src: "/photos/pet/work-03.jpg", width: 1365, height: 2048, alt: "系着蓝色三角巾的黑色卷毛小狗，把爪子搭在主人手上，红色背景" },
+    { src: "/photos/pet/work-04.jpg", width: 1365, height: 2048, alt: "从箱子后面探出头、望向一旁的长毛猫，黄色背景" },
+  ],
+};
+
+// 生活页「小甜点」：我的柴犬。照片在 public/photos/pet/（已去掉水印）。年龄是写死的，过生日记得改。
+export const TIANDIAN = {
+  name: "小甜点",
+  facts: [
+    { label: "品种", value: "柴犬" },
+    { label: "性别", value: "男生" },
+    { label: "星座", value: "天秤座" },
+    { label: "年龄", value: "1 岁" },
+  ],
+  // 在外和在家是两副面孔。
+  moods: [
+    { where: "在外", what: "高冷，不让人摸" },
+    { where: "在家", what: "小暖男" },
+  ],
+  together: { src: "/photos/pet/tiandian-with-leo.jpg", width: 1333, height: 2000, alt: "Leo 抱着小甜点的合影，灰色背景" },
+};
+
+// 生活页「旅行」：去过的国家和城市，lat/lon 是城市坐标。
+// 每个城市的照片补进 photos 即可（路径放 public/photos/travel/），没有照片的城市只显示名字和地图上的点。
+export interface TravelPhoto {
+  src: string;
+  width: number;
+  height: number;
+  alt: string;
+}
+export interface TravelCity {
+  id: string;
+  name: string;
+  lat: number;
+  lon: number;
+  photos?: TravelPhoto[];
+}
+export interface TravelCountry {
+  id: string;
+  name: string;
+  // 航线的终点、国家标签挂的位置
+  anchor: [number, number]; // [lon, lat]
+  // 是否画一条从家出发的航线（家所在的国家不画）
+  route: boolean;
+  // 国家标签放在点的哪一侧，避开和别的标签重叠
+  labelAt?: "top" | "left" | "right" | "bottom";
+  cities: TravelCity[];
+}
+
+// 航线的起点：家。
+export const TRAVEL_HOME = { name: "深圳", lat: 22.5431, lng: 114.0579 };
+
+export const TRAVEL: TravelCountry[] = [
+  {
+    id: "840",
+    name: "美国",
+    anchor: [-98.5, 39.5],
+    route: true,
+    labelAt: "top",
+    cities: [
+      { id: "dallas", name: "达拉斯", lat: 32.7767, lon: -96.797 },
+      { id: "denton", name: "丹顿", lat: 33.2148, lon: -97.1331 },
+      { id: "los-angeles", name: "洛杉矶", lat: 34.0522, lon: -118.2437 },
+      { id: "irvine", name: "尔湾", lat: 33.6846, lon: -117.8265 },
+      { id: "san-francisco", name: "旧金山", lat: 37.7749, lon: -122.4194 },
+      { id: "new-york", name: "纽约", lat: 40.7128, lon: -74.006 },
+      { id: "chicago", name: "芝加哥", lat: 41.8781, lon: -87.6298 },
+      { id: "madison", name: "麦迪逊", lat: 43.0731, lon: -89.4012 },
+      { id: "yellowstone", name: "黄石国家公园", lat: 44.428, lon: -110.5885 },
+      { id: "yosemite", name: "优胜美地国家公园", lat: 37.8651, lon: -119.5383 },
+      { id: "milwaukee", name: "密尔沃基", lat: 43.0389, lon: -87.9065 },
+      { id: "salt-lake-city", name: "盐湖城", lat: 40.7608, lon: -111.891 },
+      { id: "santa-barbara", name: "圣巴巴拉", lat: 34.4208, lon: -119.6982 },
+      { id: "death-valley", name: "死亡谷国家公园", lat: 36.5054, lon: -117.0794 },
+      { id: "las-vegas", name: "拉斯维加斯", lat: 36.1699, lon: -115.1398 },
+      { id: "sequoia", name: "红杉国家公园", lat: 36.4864, lon: -118.5658 },
+      { id: "joshua-tree", name: "约书亚树国家公园", lat: 33.8734, lon: -115.901 },
+    ],
+  },
+  {
+    id: "392",
+    name: "日本",
+    anchor: [135.6, 34.8],
+    route: true,
+    labelAt: "top",
+    cities: [
+      { id: "osaka", name: "大阪", lat: 34.6937, lon: 135.5023 },
+      { id: "kobe", name: "神户", lat: 34.6901, lon: 135.1955 },
+      { id: "nara", name: "奈良", lat: 34.6851, lon: 135.8049 },
+      {
+        id: "kyoto",
+        name: "京都",
+        lat: 35.0116,
+        lon: 135.7681,
+        photos: [
+          { src: "/photos/travel/kyoto-01.jpg", width: 1279, height: 1919, alt: "京都伏见稻荷大社，Leo 站在朱红色鸟居下抬头看" },
+        ],
+      },
+      { id: "uji", name: "宇治", lat: 34.8844, lon: 135.8 },
+    ],
+  },
+  {
+    id: "764",
+    name: "泰国",
+    anchor: [100.7, 13.4],
+    route: true,
+    labelAt: "left",
+    cities: [
+      { id: "pattaya", name: "芭提雅", lat: 12.9236, lon: 100.8824 },
+      { id: "bangkok", name: "曼谷", lat: 13.7563, lon: 100.5018 },
+    ],
+  },
+  {
+    id: "156",
+    name: "中国",
+    anchor: [104, 35],
+    route: false,
+    cities: [],
+  },
+];
+
 export const LIFE_DATA = {
   hero: {
     title: "下班以后，我去接住生活。",

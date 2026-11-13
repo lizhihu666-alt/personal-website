@@ -10,10 +10,11 @@ interface HeaderProps {
   onOpenContact?: () => void;
 }
 
-// 生活页还在开发：菜单里先放几个不可点击、带「即将开放」标签的栏目，上线后去掉 badge、填上 link 即可。
+// 生活页还在开发：做好一个放一个。没做好的栏目不可点击、带「即将开放」标签，上线后去掉 badge、填上 link 即可。
 const LIFE_MENU_ITEMS = [
-  { label: '摄影', ariaLabel: '摄影（即将开放）', link: '#', badge: '即将开放' },
-  { label: '旅行', ariaLabel: '旅行（即将开放）', link: '#', badge: '即将开放' },
+  { label: '宠物', ariaLabel: '认识小甜点', link: '#life-tiandian' },
+  { label: '摄影', ariaLabel: '查看摄影', link: '#life-photography' },
+  { label: '旅行', ariaLabel: '查看旅行地图', link: '#life-travel' },
   { label: '运动', ariaLabel: '运动（即将开放）', link: '#', badge: '即将开放' },
 ];
 
@@ -120,9 +121,14 @@ export const Header: React.FC<HeaderProps> = ({
       <header
         ref={headerRef}
         className={`sticky top-0 z-[100] w-full transition-colors duration-200 ${
-          isScrolled
-            ? 'bg-[#0A0B0D]/95 shadow-xs'
-            : 'bg-[#0A0B0D]/90'
+          // 生活页是中性黑底，顶栏跟着换成同一个黑，不然顶栏一条偏冷的黑会和下面的页面接不上。
+          currentMode === 'life'
+            ? isScrolled
+              ? 'bg-[#0B0B0B]/95 shadow-xs'
+              : 'bg-[#0B0B0B]/90'
+            : isScrolled
+              ? 'bg-[#0A0B0D]/95 shadow-xs'
+              : 'bg-[#0A0B0D]/90'
         }`}
       >
         <div className="px-6 sm:px-10 lg:px-16">
@@ -136,7 +142,7 @@ export const Header: React.FC<HeaderProps> = ({
             >
               <span
                 className={`font-bold text-lg sm:text-[19px] tracking-tight text-[#F3F5F8] transition-colors whitespace-nowrap ${
-                  currentMode === 'life' ? 'group-hover:text-[#4F8CFF]' : 'group-hover:text-[#34D378]'
+                  currentMode === 'life' ? 'group-hover:text-(--life-accent)' : 'group-hover:text-[#34D378]'
                 }`}
               >
                 Leo Hu
@@ -166,8 +172,8 @@ export const Header: React.FC<HeaderProps> = ({
                 menuButtonColor="#F3F5F8"
                 openMenuButtonColor="#0A0B0D"
                 changeMenuColorOnOpen
-                colors={currentMode === 'life' ? ['#2F6FED', '#2459C7'] : ['#0E7C3D', '#0A6631']}
-                accentColor={currentMode === 'life' ? '#2F6FED' : '#0E7C3D'}
+                colors={currentMode === 'life' ? ['var(--life-accent-hi)', 'var(--life-accent)'] : ['#0E7C3D', '#0A6631']}
+                accentColor={currentMode === 'life' ? 'var(--life-accent-ink)' : '#0E7C3D'}
                 onNavigate={handleMenuNavigate}
                 footer={
                   <div className="relative bg-[#E9ECEF] p-1 rounded-full flex items-center gap-1 w-full max-w-[11rem]">
@@ -181,7 +187,7 @@ export const Header: React.FC<HeaderProps> = ({
                     <span
                       aria-hidden="true"
                       className={`absolute top-1 bottom-1 left-1 rounded-full shadow-xs transition-[transform,opacity,background-color] duration-300 ease-out ${
-                        currentMode === 'life' ? 'bg-[#2F6FED]' : 'bg-[#0E7C3D]'
+                        currentMode === 'life' ? 'bg-(--life-accent)' : 'bg-[#0E7C3D]'
                       }`}
                       style={{
                         width: 'calc(50% - 6px)',
@@ -204,7 +210,7 @@ export const Header: React.FC<HeaderProps> = ({
                       id="switcher-btn-life"
                       onClick={() => handleMenuModeSwitch('life')}
                       className={`relative z-10 flex-1 px-2.5 py-2 min-h-11 rounded-full text-sm font-medium transition-colors duration-200 flex items-center justify-center gap-1 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#0A0B0D] whitespace-nowrap ${
-                        currentMode === 'life' ? 'text-white font-semibold' : 'text-[#4B5563] hover:text-[#0A0B0D]'
+                        currentMode === 'life' ? 'text-(--life-on-accent) font-semibold' : 'text-[#4B5563] hover:text-[#0A0B0D]'
                       }`}
                     >
                       <HeartHandshake className="w-3.5 h-3.5" />

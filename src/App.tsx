@@ -10,6 +10,7 @@ import { ReadingProgressNav } from './components/navigation/ReadingProgressNav';
 import ClickSpark from './components/effects/ClickSpark';
 import { LoadingScreen } from './components/effects/LoadingScreen';
 import { gsap, ScrollTrigger, isReducedMotion } from './utils/gsapSetup';
+import { LIFE_ACCENT } from './utils/lifePalette';
 
 // 首页背景的 WebGPU 代码体积大，加载页播放期间先在后台取回来。
 void import('./components/effects/AeroShards');
@@ -307,7 +308,7 @@ export default function App() {
 
   return (
     <ClickSpark
-      sparkColor={currentMode === 'life' ? '#4F8CFF' : '#34D378'}
+      sparkColor={currentMode === 'life' ? LIFE_ACCENT : '#34D378'}
       sparkSize={10}
       sparkRadius={15}
       sparkCount={8}

@@ -18,8 +18,13 @@ const WORK_SECTIONS: NavItem[] = [
   { id: 'work-contact', label: '联系' },
 ];
 
-// 生活页目前是单屏「施工中」占位页，没有分节，不显示右侧阅读进度。
-const LIFE_SECTIONS: NavItem[] = [];
+// 生活页：开场 + 已经开放的三个栏目（运动开放后再加进来）。
+const LIFE_SECTIONS: NavItem[] = [
+  { id: 'life-hero', label: '开场' },
+  { id: 'life-tiandian', label: '宠物' },
+  { id: 'life-photography', label: '摄影' },
+  { id: 'life-travel', label: '旅行' },
+];
 
 const SECTIONS_BY_MODE: Record<AppMode, NavItem[]> = {
   home: [],
@@ -65,7 +70,7 @@ export const ReadingProgressNav: React.FC<ReadingProgressNavProps> = ({ currentM
 
   const sections = SECTIONS_BY_MODE[currentMode];
   // 深色底上的细线，用提亮版主色调才看得见——职业绿、生活蓝。
-  const ACTIVE_COLOR = currentMode === 'life' ? '#4F8CFF' : '#34D378';
+  const ACTIVE_COLOR = currentMode === 'life' ? 'var(--life-accent)' : '#34D378';
 
   useEffect(() => {
     if (sections.length === 0) return;
@@ -203,7 +208,7 @@ export const ReadingProgressNav: React.FC<ReadingProgressNavProps> = ({ currentM
                   onClick={() => scrollToSection(sec.id)}
                   aria-label={`跳转到${sec.label}`}
                   className={`relative flex h-6 w-6 items-center justify-center before:absolute before:-inset-x-4 before:-inset-y-[3px] before:content-[''] focus:outline-none focus-visible:ring-2 rounded-full transition-transform ${
-                    currentMode === 'life' ? 'focus-visible:ring-[#4F8CFF]' : 'focus-visible:ring-[#34D378]'
+                    currentMode === 'life' ? 'focus-visible:ring-(--life-accent)' : 'focus-visible:ring-[#34D378]'
                   }`}
                 >
                   <span

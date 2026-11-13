@@ -14,11 +14,11 @@ interface HomeHeroProps {
 // 桌面端只挂一份贯穿全屏的 AeroShards，靠 shardColor/crossColor 表达左右
 // 分区的差异：每个碎片按自己所在的屏幕水平位置，在两个颜色之间二选一——
 // 在 AeroShards.jsx 的着色器里用 ndc.x 与 0 的关系做了近乎硬切的判断，
-// 所以视觉上就是"越过中间分界线，颜色从绿变蓝"，而不是渐变过渡。
-// 跟职业/生活页正文里用的主色调对齐（#34D378 / #4F8CFF），而不是自己
+// 所以视觉上就是"越过中间分界线，颜色从绿变橙"，而不是渐变过渡。
+// 跟职业/生活页正文里用的主色调对齐（#34D378 / #FFC83D），而不是自己
 // 另挑一套偏暗的色号——不然背景和标题、CTA 的强调色对不上，显得发暗。
 const WORK_COLOR = '#34D378';
-const LIFE_COLOR = '#4F8CFF';
+const LIFE_COLOR = '#FFC83D';
 
 // 这两个只在桌面端（md+）生效，自己调整数值就行——改完存盘，Vite 会
 // 热更新，不用重启。数值是 Tailwind 任意值，写成完整字符串常量只是为了
@@ -182,11 +182,11 @@ const TOPO_PROPS = {
 
 const FallbackBackdrop: React.FC<{ side?: 'full' | 'work' | 'life' }> = ({ side = 'full' }) => {
   const work = 'radial-gradient(60% 55% at 28% 62%, rgba(52,211,120,0.22) 0%, transparent 70%)';
-  const life = 'radial-gradient(60% 55% at 72% 62%, rgba(79,140,255,0.22) 0%, transparent 70%)';
+  const life = 'radial-gradient(60% 55% at 72% 62%, rgba(255,200,61,0.2) 0%, transparent 70%)';
   const background = side === 'work' ? work : side === 'life' ? life : `${work}, ${life}`;
 
   const green = <Topography lowColor="#0A0B0D" midColor="#0E7C3D" highColor="#34D378" {...TOPO_PROPS} />;
-  const blue = <Topography lowColor="#0A0B0D" midColor="#2F6FED" highColor="#4F8CFF" {...TOPO_PROPS} />;
+  const warm = <Topography lowColor="#0A0B0D" midColor="#8A6100" highColor="#FFC83D" {...TOPO_PROPS} />;
 
   return (
     <div className="absolute inset-0" aria-hidden="true">
@@ -194,10 +194,10 @@ const FallbackBackdrop: React.FC<{ side?: 'full' | 'work' | 'life' }> = ({ side 
       {side === 'full' ? (
         <>
           <div className="absolute inset-y-0 left-0 w-1/2">{green}</div>
-          <div className="absolute inset-y-0 right-0 w-1/2">{blue}</div>
+          <div className="absolute inset-y-0 right-0 w-1/2">{warm}</div>
         </>
       ) : (
-        <div className="absolute inset-0">{side === 'work' ? green : blue}</div>
+        <div className="absolute inset-0">{side === 'work' ? green : warm}</div>
       )}
     </div>
   );
@@ -340,7 +340,7 @@ export const HomeHero: React.FC<HomeHeroProps> = ({
           onClick={() => onChooseMode('life', lifeHeadingRef.current)}
           onMouseEnter={prefetchLife}
           onFocus={prefetchLife}
-          className="group relative z-10 flex flex-col items-center justify-center text-center p-8 sm:p-14 min-h-[65dvh] md:min-h-dvh overflow-hidden border-t md:border-t-0 border-[#1C2128] focus:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[#4F8CFF]"
+          className="group relative z-10 flex flex-col items-center justify-center text-center p-8 sm:p-14 min-h-[65dvh] md:min-h-dvh overflow-hidden border-t md:border-t-0 border-[#1C2128] focus:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-(--life-accent)"
         >
           {!isDesktop && (
             <div className="absolute inset-0 opacity-80">
@@ -357,14 +357,14 @@ export const HomeHero: React.FC<HomeHeroProps> = ({
           <div className={`relative z-10 ${CARD_VERTICAL_OFFSET}`}>
             <h2
               ref={lifeHeadingRef}
-              className="text-3xl sm:text-4xl font-bold text-[#F3F5F8] group-hover:text-[#4F8CFF] transition-colors"
+              className="text-3xl sm:text-4xl font-bold text-[#F3F5F8] group-hover:text-(--life-accent) transition-colors"
             >
               下班的我
             </h2>
             <p className="mt-3 text-sm sm:text-base text-[#C7CDD6] font-light">
               兴趣爱好 · 摄影 · 旅行与生活
             </p>
-            <div className="mt-5 flex items-center justify-center gap-1.5 text-sm font-medium text-[#4F8CFF]">
+            <div className="mt-5 flex items-center justify-center gap-1.5 text-sm font-medium text-(--life-accent)">
               <span>进入生活页</span>
               <ArrowRight className="w-4 h-4 transition-transform duration-200 group-hover:translate-x-1" aria-hidden="true" />
             </div>
